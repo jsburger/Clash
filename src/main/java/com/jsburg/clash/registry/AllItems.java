@@ -12,6 +12,6 @@ public class AllItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Clash.MOD_ID);
 
-    public static final RegistryObject<Item> SPEAR = ITEMS.register("spear", () -> new SpearItem(4, -2.0F, (new Item.Properties()).group(ItemGroup.COMBAT).maxDamage(852)));
+    public static final RegistryObject<Item> SPEAR = ITEMS.register("spear", () -> new SpearItem(5, 2.0F, (new Item.Properties()).maxDamage(852)));
 
 }
