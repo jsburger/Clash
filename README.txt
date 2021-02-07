@@ -1,0 +1,1 @@
+Clash is a mod primarily focused on adding weapon variety to the otherwise rather barren midgame.

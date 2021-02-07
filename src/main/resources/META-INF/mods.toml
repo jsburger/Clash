@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[35,)"
+license="All rights reserved"
+issueTrackerURL="https://github.com/jsburger/Clash/issues"
+[[mods]]
+    modId="clash"
+    version="${file.jarVersion}"
+    displayName="Clash"
+    authors="Jsburg"
+    description='''
+    What if there was more than sword?
+    '''
+[[dependencies.clash]]
+    modId="forge"
+    mandatory=true
+    versionRange="[35,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.clash]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.4,1.17)"
+    ordering="NONE"
+    side="BOTH"
