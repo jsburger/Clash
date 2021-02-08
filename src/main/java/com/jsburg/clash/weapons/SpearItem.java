@@ -1,6 +1,8 @@
 package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.registry.AllSounds;
+import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -22,6 +24,8 @@ public class SpearItem extends WeaponItem {
 
     @Override
     public void onHit(ItemStack stack, PlayerEntity player, Entity target) {
-        Clash.LOGGER.debug("Hit with a spear!");
+//        if (AttackHelper.weaponIsCharged(player)) {
+//            AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
+//        }
     }
 }

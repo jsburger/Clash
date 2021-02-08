@@ -1,6 +1,7 @@
 package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.IClashWeapon;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -18,7 +19,7 @@ public class PlayerAttackTargetEvent {
         PlayerEntity player = event.getPlayer();
         ItemStack heldItemStack = player.inventory.getCurrentItem();
         Item heldItem = heldItemStack.getItem();
-        if (heldItem instanceof IClashWeapon) {
+        if (heldItem instanceof IClashWeapon && AttackHelper.canAttackEntity(player, event.getTarget())) {
             ((IClashWeapon)heldItem).onHit(heldItemStack, player, event.getTarget());
         }
     }

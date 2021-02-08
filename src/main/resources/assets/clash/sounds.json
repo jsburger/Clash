@@ -1,0 +1,10 @@
+{
+  "weapon.spear.stab" : {
+    "subtitle": "subtitles.clash.weapon.spear.stab",
+    "sounds": [
+      "clash:weapon/spear/clashspear1",
+      "clash:weapon/spear/clashspear2",
+      "clash:weapon/spear/clashspear3"
+    ]
+  }
+}
