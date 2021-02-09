@@ -1,4 +1,9 @@
 {
   "item.clash.spear": "Spear",
-  "subtitles.clash.weapon.spear.stab": "Stabbing attack"
+  "subtitles.clash.weapon.spear.stab": "Stabbing attack",
+  "item.clash.spear.when_charged": "When Charged:",
+  "item.clash.spear.charge_range_bonus": "Attack Range",
+  "item.clash.spear.cannot_crit": " Cannot Critically Hit",
+  "item.clash.spear.fully_charged": "When Fully Charged:"
+
 }
