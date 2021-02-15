@@ -1,6 +1,7 @@
 package com.jsburg.clash;
 
 import com.jsburg.clash.registry.AllItems;
+import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -35,6 +36,7 @@ public class Clash
 
         AllItems.ITEMS.register(modEventBus);
         AllSounds.SOUNDS.register(modEventBus);
+        AllParticles.PARTICLE_TYPES.register(modEventBus);
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupCommon);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
