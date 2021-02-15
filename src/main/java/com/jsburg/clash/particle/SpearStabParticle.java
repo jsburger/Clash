@@ -1,5 +1,6 @@
 package com.jsburg.clash.particle;
 
+import com.jsburg.clash.Clash;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.ActiveRenderInfo;
@@ -18,7 +19,6 @@ import static java.lang.Math.signum;
 public class SpearStabParticle extends SpriteTexturedParticle {
     private final IAnimatedSprite spriteWithAge;
     private static final Vector3d UP = new Vector3d(0, 1, 0);
-    private static final Vector3d NOT_UP = new Vector3d(1, 0.01, 0);
 
     protected SpearStabParticle(ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, IAnimatedSprite spriteWithAge) {
         super(world, x, y, z, xSpeed, ySpeed, zSpeed);
@@ -110,6 +110,7 @@ public class SpearStabParticle extends SpriteTexturedParticle {
         }
 
         public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            Clash.LOGGER.debug("YEAH");
             return new SpearStabParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
         }
     }

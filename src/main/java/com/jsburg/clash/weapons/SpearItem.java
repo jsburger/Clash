@@ -1,6 +1,7 @@
 package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
@@ -17,10 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -36,6 +34,7 @@ import java.util.function.Predicate;
 
 public class SpearItem extends WeaponItem {
 
+    private static final Vector3d UP = new Vector3d(0, 1, 0);
     private final int stabLengthBonus = 2;
     private final int stabDamageBonus = 2;
 
@@ -79,13 +78,6 @@ public class SpearItem extends WeaponItem {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
         tooltip.add(getBonusText("item.clash.spear.charge_range_bonus", stabLengthBonus));
-        tooltip.add((new TranslationTextComponent("item.clash.spear.fully_charged")).mergeStyle(TextFormatting.GRAY));
-        tooltip.add(getBonusText("attribute.name.generic.attack_damage", stabDamageBonus));
-//        ITextComponent dmg = new StringTextComponent(" +0-" + formatNumber(stabDamageBonus) + " ")
-//                .append(new TranslationTextComponent("attribute.name.generic.attack_damage"))
-//                .mergeStyle(TextFormatting.DARK_GREEN);
-//        tooltip.add(dmg);
-//        tooltip.add((new TranslationTextComponent("item.clash.spear.cannot_crit")).mergeStyle(TextFormatting.RED));
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -101,7 +93,7 @@ public class SpearItem extends WeaponItem {
             PlayerEntity player = (PlayerEntity)entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
             float chargePercent = Math.min((float)chargeTime/getMaxCharge(), 1);
-            Clash.LOGGER.debug(chargeTime);
+//            Clash.LOGGER.debug(chargeTime);
             if (chargeTime >= 10) {
                 player.addStat(Stats.ITEM_USED.get(this));
                 AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
@@ -115,6 +107,14 @@ public class SpearItem extends WeaponItem {
                 AxisAlignedBB boundingBox = player.getBoundingBox().expand(endVec).grow(1);
                 Predicate<Entity> predicate = (e) -> !e.isSpectator() && e.canBeCollidedWith();
                 EntityRayTraceResult rayTraceResult = ProjectileHelper.rayTraceEntities(player, eyePos, endPos, boundingBox, predicate, 1000);
+
+                Vector3d side = look.crossProduct(UP).scale(0.75);
+                if (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) {
+                    side = side.scale(-1);
+                }
+                side = side.add(eyePos).subtract(UP.scale(.2));
+
+                AttackHelper.makeParticle(player.getEntityWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.subtractReverse(endPos), 1.4);
 
                 if (rayTraceResult != null) {
                     Entity target = rayTraceResult.getEntity();

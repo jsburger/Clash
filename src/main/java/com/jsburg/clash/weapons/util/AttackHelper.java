@@ -1,11 +1,14 @@
 package com.jsburg.clash.weapons.util;
 
+import com.jsburg.clash.Clash;
 import com.jsburg.clash.registry.AllSounds;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
@@ -13,7 +16,11 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+
+import javax.annotation.Nullable;
 
 public class AttackHelper {
     public static boolean canAttackEntity(PlayerEntity player, Entity targetEntity) {
@@ -77,4 +84,27 @@ public class AttackHelper {
         }
 
     }
+
+    public static float getCrit(PlayerEntity player, Entity target, boolean shouldCrit) {
+        return getCrit(player, target, shouldCrit, true, true);
+    }
+
+    public static float getCrit(PlayerEntity player, Entity target, boolean shouldCrit, boolean doEffects, boolean playCritSound) {
+        net.minecraftforge.event.entity.player.CriticalHitEvent hitResult = net.minecraftforge.common.ForgeHooks.getCriticalHit(player, target, shouldCrit, shouldCrit ? 1.5F : 1.0F);
+        if (hitResult == null) {
+            return 1;
+        }
+        if (hitResult.getDamageModifier() > 1 && doEffects) {
+            if (playCritSound) playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT);
+            player.onCriticalHit(target);
+        }
+        return hitResult.getDamageModifier();
+    }
+
+    //I feel like this shouldn't be necessary. At least I don't have to write the packets myself, I guess.
+    public static void makeParticle(World world, BasicParticleType particle, Vector3d position, Vector3d motion, double speed) {
+        motion = motion.normalize().scale(speed);
+        world.addParticle(particle, position.getX(), position.getY(), position.getZ(), motion.getX(), motion.getY(), motion.getZ());
+    }
+
 }
