@@ -123,7 +123,8 @@ public class SpearItem extends WeaponItem {
                     boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                     if (canAttack) {
                         ItemStack spear = player.getActiveItemStack();
-                        float damage = this.getAttackDamage() + (chargeTime > 20 ? stabDamageBonus : 0);
+                        float damage = this.getAttackDamage() + 1;
+                        if (chargeTime > 22) damage *= AttackHelper.getCrit(player, target, true);
                         player.resetCooldown();
 
                         AttackHelper.attackEntity(player, target, damage);
