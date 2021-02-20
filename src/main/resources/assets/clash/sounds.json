@@ -13,5 +13,11 @@
       "clash:weapon/spear/spearwhoosh1",
       "clash:weapon/spear/spearwhoosh2"
     ]
+  },
+  "weapon.spear.mega_crit" : {
+    "subtitle": "subtitles.clash.weapon.spear.mega_crit",
+    "sounds": [
+      "clash:weapon/spear/clashspearcritsolo"
+    ]
   }
 }

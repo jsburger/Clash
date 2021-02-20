@@ -3,6 +3,7 @@ package com.jsburg.clash.registry;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.FlurryEnchantment;
 import com.jsburg.clash.enchantments.ThrustEnchantment;
+import com.jsburg.clash.enchantments.TipperEnchantment;
 import com.jsburg.clash.weapons.SpearItem;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
@@ -18,6 +19,7 @@ public class AllEnchantments {
     public static final EnchantmentType SPEAR = EnchantmentType.create("spear", item -> (item instanceof SpearItem));
 
     public static final RegistryObject<Enchantment> FLURRY = ENCHANTMENTS.register("flurry", () -> new FlurryEnchantment(Enchantment.Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> THRUST = ENCHANTMENTS.register("thrust", () -> new ThrustEnchantment(Enchantment.Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> LUNGE = ENCHANTMENTS.register("lunge", () -> new ThrustEnchantment(Enchantment.Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> TIPPER = ENCHANTMENTS.register("tipper", () -> new TipperEnchantment(Enchantment.Rarity.VERY_RARE, SPEAR, EquipmentSlotType.MAINHAND));
 
 }

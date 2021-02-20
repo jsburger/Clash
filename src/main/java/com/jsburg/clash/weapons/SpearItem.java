@@ -2,6 +2,7 @@ package com.jsburg.clash.weapons;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.FlurryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
@@ -26,9 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
@@ -43,7 +42,8 @@ import java.util.function.Predicate;
 public class SpearItem extends WeaponItem {
 
     private static final Vector3d UP = new Vector3d(0, 1, 0);
-    private final int stabLengthBonus = 2;
+    private static final int stabLengthBonus = 2;
+    private static final float sweetSpotSize = .8f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
 
     public SpearItem(int attackDamage, float attackSpeed, Item.Properties properties) {
@@ -129,8 +129,8 @@ public class SpearItem extends WeaponItem {
             int chargeTime = getUseDuration(stack) - timeLeft;
             float chargePercent = Math.min((float)chargeTime/getMaxCharge(), 1);
             ItemStack spear = player.getActiveItemStack();
-            int thrust = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.THRUST.get(), spear);
-            boolean doThrust = thrust > 0 && !(player.isSneaking()) && chargeTime > 5 && player.isOnGround();
+            int thrust = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.LUNGE.get(), spear);
+            boolean doThrust = thrust > 0 && !(player.isSneaking()) && chargeTime > 5 && player.isOnGround() && !player.isSwimming();
             if (chargeTime >= 10) {
                 player.addStat(Stats.ITEM_USED.get(this));
                 player.swingArm(player.getActiveHand());
@@ -152,23 +152,33 @@ public class SpearItem extends WeaponItem {
                 side = side.add(eyePos).subtract(UP.scale(.2));
 
                 if (rayTraceResult != null) {
-                    doThrust = false;
-                    Entity target = rayTraceResult.getEntity();
+                    BlockRayTraceResult blockRayTraceResult = player.world.rayTraceBlocks(new RayTraceContext(eyePos, rayTraceResult.getHitVec(), RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
+                    if (blockRayTraceResult.getType() == RayTraceResult.Type.MISS) {
+                        doThrust = false;
+                        Entity target = rayTraceResult.getEntity();
 
-                    //Calls Forge's attacking hook, this is definitely a direct attack.
-                    boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
-                    if (canAttack) {
-                        float damage = (float)AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);
-                        if (chargeTime > 20) damage *= AttackHelper.getCrit(player, target, true);
-                        player.resetCooldown();
-                        damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
+                        //Calls Forge's attacking hook, this is definitely a direct attack.
+                        boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
+                        if (canAttack) {
+                            float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);
+                            if (chargeTime > 20) damage *= AttackHelper.getCrit(player, target, true);
+                            player.resetCooldown();
 
-                        AttackHelper.attackEntity(player, target, damage);
-                        AttackHelper.doHitStuff(player, target, spear);
-                        AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+                            if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.TIPPER.get(), spear) > 0) {
+                                double distance = endPos.squareDistanceTo(rayTraceResult.getHitVec());
+                                if (distance <= sweetSpotSize) {
+                                    damage *= 2;
+                                    AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_MEGA_CRIT.get(), 2f, 1.0f);
+                                }
+                            }
+                            damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
 
-                        player.addExhaustion(0.2f);
+                            AttackHelper.attackEntity(player, target, damage);
+                            AttackHelper.doHitStuff(player, target, spear);
+                            AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
 
+                            player.addExhaustion(0.2f);
+                        }
                     }
                 }
 

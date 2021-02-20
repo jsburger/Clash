@@ -40,10 +40,10 @@ public class AttackHelper {
     public static boolean weaponIsCharged(PlayerEntity player) {
         return player.getCooledAttackStrength(0.5F) > 0.9F;
     }
-    public static void playSound(PlayerEntity player, SoundEvent sound) {
+    public static void playSound(Entity player, SoundEvent sound) {
         playSound(player, sound, 1.0F, 1.0F);
     }
-    public static void playSound(PlayerEntity player, SoundEvent sound, float volume, float pitch) {
+    public static void playSound(Entity player, SoundEvent sound, float volume, float pitch) {
         player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), sound, player.getSoundCategory(), volume, pitch);
     }
 
