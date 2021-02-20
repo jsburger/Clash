@@ -2,6 +2,8 @@ package com.jsburg.clash.weapons.util;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -12,9 +14,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
+import java.util.List;
+
 @SuppressWarnings("deprecation")
 public class WeaponItem extends Item implements IVanishable, IClashWeapon {
-    private final float attackDamage;
     private final Multimap<Attribute, AttributeModifier> attributes;
 
     public WeaponItem(int attackDamage, float attackSpeed, Item.Properties properties) {
@@ -22,17 +25,13 @@ public class WeaponItem extends Item implements IVanishable, IClashWeapon {
         // Corrects numbers so that the constructor can simply use the value displayed on the tooltip
         attackDamage -= 1;
         attackSpeed *= -1;
-        this.attackDamage = (float)attackDamage;
+        float attackDamage1 = (float) attackDamage;
 
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", this.attackDamage, AttributeModifier.Operation.ADDITION));
+        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", attackDamage1, AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
 
         this.attributes = builder.build();
-    }
-
-    public float getAttackDamage() {
-        return attackDamage;
     }
 
     protected Multimap<Attribute, AttributeModifier> getAttributes() {
@@ -47,5 +46,15 @@ public class WeaponItem extends Item implements IVanishable, IClashWeapon {
         stack.damageItem(1, attacker, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
         return true;
     }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        List<Enchantment> enchants = this.vanillaEnchantments();
+        if (enchants.contains(enchantment)) {
+            return true;
+        }
+        return super.canApplyAtEnchantingTable(stack, enchantment);
+    }
+
 
 }

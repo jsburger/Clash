@@ -15,5 +15,6 @@ public class AllSounds {
     }
 
     public static final RegistryObject<SoundEvent> WEAPON_SPEAR_STAB = register("weapon.spear.stab");
+    public static final RegistryObject<SoundEvent> WEAPON_SPEAR_WHOOSH = register("weapon.spear.whoosh");
 
 }

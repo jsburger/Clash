@@ -6,5 +6,12 @@
       "clash:weapon/spear/clashspear2",
       "clash:weapon/spear/clashspear3"
     ]
+  },
+  "weapon.spear.whoosh" : {
+    "subtitle": "subtitles.clash.weapon.spear.whoosh",
+    "sounds": [
+      "clash:weapon/spear/spearwhoosh1",
+      "clash:weapon/spear/spearwhoosh2"
+    ]
   }
 }

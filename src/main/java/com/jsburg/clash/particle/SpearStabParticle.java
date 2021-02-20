@@ -110,7 +110,6 @@ public class SpearStabParticle extends SpriteTexturedParticle {
         }
 
         public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            Clash.LOGGER.debug("YEAH");
             return new SpearStabParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
         }
     }
