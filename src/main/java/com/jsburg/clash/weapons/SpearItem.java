@@ -10,6 +10,8 @@ import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -25,6 +27,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
@@ -37,6 +40,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 
 public class SpearItem extends WeaponItem {
@@ -169,6 +173,11 @@ public class SpearItem extends WeaponItem {
                                 if (distance <= sweetSpotSize) {
                                     damage *= 2;
                                     AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_MEGA_CRIT.get(), 2f, 1.0f);
+                                    for (int i = 0; i <= 5; i++) {
+                                        Random rand = worldIn.getRandom();
+                                        Vector3d motion = new Vector3d(rand.nextDouble() - .5, rand.nextDouble() - .5, rand.nextDouble() -.5);
+                                        AttackHelper.makeParticle(worldIn, AllParticles.SPEAR_CRIT.get(), rayTraceResult.getHitVec(), motion, 1.5f);
+                                    }
                                 }
                             }
                             damage += AttackHelper.getBonusEnchantmentDamage(spear, target);

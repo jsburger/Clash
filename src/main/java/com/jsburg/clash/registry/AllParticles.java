@@ -14,4 +14,7 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> SPEAR_STAB = PARTICLE_TYPES.register("spear_stab", () ->
             new BasicParticleType(true));
 
+    public static final RegistryObject<BasicParticleType> SPEAR_CRIT = PARTICLE_TYPES.register("spear_crit", () ->
+            new BasicParticleType(true));
+
 }

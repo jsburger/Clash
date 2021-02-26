@@ -68,16 +68,6 @@ public class SpearStabParticle extends SpriteTexturedParticle {
         }
     }
 
-    // Referenced from Psi's implementation.
-    private Vector3d project(Vector3d vec, Vector3d ontoPlane) {
-        double length = ontoPlane.lengthSquared();
-        if (length == 0) {
-            return new Vector3d(0, 0, 0);
-        }
-
-        double n = vec.dotProduct(ontoPlane) / length;
-        return ontoPlane.scale(n);
-    }
 
     @Override
     public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {

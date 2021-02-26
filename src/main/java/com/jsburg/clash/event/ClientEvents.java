@@ -1,6 +1,7 @@
 package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.particle.SpearCritParticle;
 import com.jsburg.clash.particle.SpearStabParticle;
 import com.jsburg.clash.registry.AllParticles;
 import net.minecraft.client.Minecraft;
@@ -18,6 +19,7 @@ public class ClientEvents {
     public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
         ParticleManager manager = Minecraft.getInstance().particles;
         manager.registerFactory(AllParticles.SPEAR_STAB.get(), SpearStabParticle.Factory::new);
+        manager.registerFactory(AllParticles.SPEAR_CRIT.get(), SpearCritParticle.Factory::new);
     }
 
 }
