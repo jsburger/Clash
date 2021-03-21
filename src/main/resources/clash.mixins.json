@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.jsburg.clash.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "clash.refmap.json",
+  "mixins": [],
+  "client": [
+    "BipedModelMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -17,7 +17,7 @@
   "weapon.spear.mega_crit" : {
     "subtitle": "subtitles.clash.weapon.spear.mega_crit",
     "sounds": [
-      "clash:weapon/spear/clashspearcritsolo"
+      "minecraft:random/successful_hit"
     ]
   }
 }

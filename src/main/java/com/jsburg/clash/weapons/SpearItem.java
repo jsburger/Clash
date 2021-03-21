@@ -7,11 +7,14 @@ import com.jsburg.clash.enchantments.FlurryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
+import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -83,26 +86,11 @@ public class SpearItem extends WeaponItem {
         return UseAction.BOW;
     }
 
-    public String formatNumber(float n) {
-        String s = String.valueOf(n);
-        //Regex magic I got off stackoverflow, gets rid of trailing 0's.
-        s = s.contains(".") ? s.replaceAll("0*$", "").replaceAll("\\.$", "") : s;
-        return s;
-    }
-
-    public ITextComponent getBonusText(String langString, float bonus) {
-        StringTextComponent text = new StringTextComponent((bonus > 0) ? " +" : " -");
-        text.appendString(formatNumber(bonus) + " ");
-        text.append(new TranslationTextComponent(langString));
-        text.mergeStyle(bonus > 0 ? TextFormatting.DARK_GREEN : TextFormatting.RED);
-        return text;
-    }
-
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
-        tooltip.add(getBonusText("item.clash.spear.charge_range_bonus", stabLengthBonus));
+        tooltip.add(TextHelper.getBonusText("item.clash.spear.charge_range_bonus", stabLengthBonus));
     }
 
     @Override
@@ -148,8 +136,10 @@ public class SpearItem extends WeaponItem {
                 Predicate<Entity> predicate = (e) -> !e.isSpectator() && e.canBeCollidedWith();
                 EntityRayTraceResult rayTraceResult = ProjectileHelper.rayTraceEntities(player, eyePos, endPos, boundingBox, predicate, 1000);
 
+                //Get vector to the side of the player
                 Vector3d side = look.crossProduct(UP).scale(0.75);
                 //bro i fucking love xor
+                //Flips side if player is right handed
                 if (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) {
                     side = side.scale(-1);
                 }
@@ -217,4 +207,30 @@ public class SpearItem extends WeaponItem {
         return ActionResult.resultConsume(stack);
     }
 
+    @Override
+    public boolean hasActivePose() {
+        return true;
+    }
+
+    @Override
+    public <T extends LivingEntity> void doActivePose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded) {
+        ModelRenderer spearArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
+        ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
+        int sideFlip = leftHanded ? -1 : 1;
+
+        spearArm.rotateAngleX -= .4f;
+        spearArm.rotateAngleY -= .3f * sideFlip;
+        spearArm.rotateAngleZ += .3f * sideFlip;
+        spearArm.rotationPointX += 1f * sideFlip;
+        spearArm.rotationPointY += 4f;
+        spearArm.rotationPointZ += 2f;
+
+        otherArm.rotateAngleX -= .4f;
+        otherArm.rotateAngleZ += .9f * sideFlip;
+        otherArm.rotationPointX -= 2f * sideFlip;
+        otherArm.rotationPointY -= 2f;
+        otherArm.rotationPointZ -= 3f;
+
+        model.bipedBody.rotateAngleY += .3f * sideFlip;
+    }
 }

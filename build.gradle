@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url = 'https://dist.creeper.host/Sponge/maven' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         jcenter()
         mavenCentral()
     }
@@ -25,6 +25,10 @@ archivesBaseName = project.modId
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
+mixin {
+    add sourceSets.main, "clash.refmap.json"
+}
+
 minecraft {
     mappings channel: project.mappingsChannel, version: project.mappings
 
@@ -35,6 +39,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
+            arg "--mixin=clash.mixins.json"
 
             mods {
                 clash {
@@ -47,6 +52,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
+            arg "--mixin=clash.mixins.json"
 
             mods {
                 clash {

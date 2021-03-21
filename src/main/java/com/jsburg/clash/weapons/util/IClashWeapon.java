@@ -1,5 +1,6 @@
 package com.jsburg.clash.weapons.util;
 
+import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -16,4 +17,11 @@ public interface IClashWeapon {
     default List<Enchantment> vanillaEnchantments() {
         return null;
     }
+
+    default boolean hasActivePose() {
+        return false;
+    }
+
+    default <T extends LivingEntity> void doActivePose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded) {}
+
 }
