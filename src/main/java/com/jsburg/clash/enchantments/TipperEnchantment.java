@@ -10,4 +10,13 @@ public class TipperEnchantment extends Enchantment {
         super(rarityIn, typeIn, slots);
     }
 
+    public int getMinEnchantability(int enchantmentLevel) {
+        return 25;
+    }
+
+    public int getMaxEnchantability(int enchantmentLevel) {
+        return 50;
+    }
+
+
 }

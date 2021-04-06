@@ -39,7 +39,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            arg "--mixin=clash.mixins.json"
+            arg "--mixin=" + archivesBaseName + ".mixins.json"
 
             mods {
                 clash {
@@ -52,7 +52,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            arg "--mixin=clash.mixins.json"
+            arg "--mixin=" + archivesBaseName + ".mixins.json"
 
             mods {
                 clash {
@@ -111,6 +111,7 @@ dependencies {
 jar {
     manifest {
         attributes([
+                "MixinConfigs": "${modId}.mixins.json",
             "Specification-Title": "Clash",
             "Specification-Vendor": "Jsburg Awesome",
             "Specification-Version": "1", // We are version 1 of ourselves

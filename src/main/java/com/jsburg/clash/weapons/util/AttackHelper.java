@@ -144,6 +144,11 @@ public class AttackHelper {
         world.addParticle(particle, position.getX(), position.getY(), position.getZ(), motion.getX(), motion.getY(), motion.getZ());
     }
 
+    public static void makeParticleServer(ServerWorld world, BasicParticleType particle, Vector3d position, Vector3d motion, double speed) {
+        motion = motion.normalize().scale(speed);
+        world.spawnParticle(particle, position.getX(), position.getY(), position.getZ(), 0, motion.getX(), motion.getY(), motion.getZ(), speed);
+    }
+
     public static double getAttackDamage(ItemStack item, PlayerEntity player, EquipmentSlotType equipmentSlot) {
         Multimap<Attribute, AttributeModifier> multimap = item.getAttributeModifiers(equipmentSlot);
 

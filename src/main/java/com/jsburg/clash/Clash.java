@@ -1,5 +1,6 @@
 package com.jsburg.clash;
 
+import com.jsburg.clash.event.ClientEvents;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
@@ -8,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -40,8 +42,8 @@ public class Clash
         AllParticles.PARTICLE_TYPES.register(modEventBus);
         AllEnchantments.ENCHANTMENTS.register(modEventBus);
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupCommon);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+        modEventBus.addListener(this::setupCommon);
+        modEventBus.addListener(this::setupClient);
 
     }
 
@@ -50,7 +52,7 @@ public class Clash
     }
 
     private void setupClient(final FMLClientSetupEvent event) {
-
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, ClientEvents::fiddleWithHands);
     }
 
 }

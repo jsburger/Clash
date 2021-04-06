@@ -19,7 +19,7 @@ public class AllEnchantments {
     public static final EnchantmentType SPEAR = EnchantmentType.create("spear", item -> (item instanceof SpearItem));
 
     public static final RegistryObject<Enchantment> FLURRY = ENCHANTMENTS.register("flurry", () -> new FlurryEnchantment(Enchantment.Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> LUNGE = ENCHANTMENTS.register("lunge", () -> new ThrustEnchantment(Enchantment.Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> TIPPER = ENCHANTMENTS.register("tipper", () -> new TipperEnchantment(Enchantment.Rarity.VERY_RARE, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> LUNGE = ENCHANTMENTS.register("lunge", () -> new ThrustEnchantment(Enchantment.Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> SWEET_SPOT = ENCHANTMENTS.register("sweet_spot", () -> new TipperEnchantment(Enchantment.Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
 
 }
