@@ -36,7 +36,7 @@ public class ClientEvents {
                 SpearItem spear = (SpearItem) event.getItemStack().getItem();
                 int useCount = player.getItemInUseCount();
                 int useTime = spear.getUseDuration(event.getItemStack()) - useCount;
-                float chargePercent = (float) Math.pow(Math.min((float)(useTime + event.getPartialTicks())/24, 1), 2);
+                float chargePercent = (float) Math.pow(Math.min((useTime + event.getPartialTicks())/spear.getMaxCharge(event.getItemStack()), 1), 1);
                 int sideFlip = player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND ? -1 : 1;
 
                 float xAngle = -6 * chargePercent;

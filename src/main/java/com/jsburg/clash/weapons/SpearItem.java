@@ -43,8 +43,8 @@ import java.util.function.Predicate;
 public class SpearItem extends WeaponItem {
 
     private static final Vector3d UP = new Vector3d(0, 1, 0);
-    private static final int stabLengthBonus = 2;
-    private static final float sweetSpotSize = 1.5f;
+    private static final float stabLengthBonus = 2.5f;
+    private static final float sweetSpotSize = 4f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
 
     public SpearItem(int attackDamage, float attackSpeed, Item.Properties properties) {
@@ -110,19 +110,20 @@ public class SpearItem extends WeaponItem {
         return 720000;
     }
 
-    private int getMaxCharge() {
-        return 24;
+    public int getMaxCharge(ItemStack stack) {
+        return 20;
     }
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity)entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
-            float chargePercent = Math.min((float)chargeTime/getMaxCharge(), 1);
             ItemStack spear = player.getActiveItemStack();
+            float chargePercent = Math.min((float)chargeTime/getMaxCharge(spear), 1);
             int thrust = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.LUNGE.get(), spear);
-            boolean doThrust = thrust > 0 && !(player.isSneaking()) && chargeTime > 5 && player.isOnGround() && !player.isSwimming();
-            if (chargeTime >= 10) {
+            int flurryLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
+            boolean doThrust = thrust > 0 && !(player.isSneaking()) && chargeTime > (5 - flurryLevel/2) && player.isOnGround() && !player.isSwimming();
+            if (chargeTime >= (10 - flurryLevel)) {
                 player.addStat(Stats.ITEM_USED.get(this));
                 player.swingArm(player.getActiveHand());
 
@@ -160,7 +161,7 @@ public class SpearItem extends WeaponItem {
                             boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                             if (canAttack) {
                                 float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);
-                                if (chargeTime > 20) damage *= AttackHelper.getCrit(player, target, true);
+                                if (chargeTime > 16) damage *= AttackHelper.getCrit(player, target, true);
                                 player.resetCooldown();
 
                                 if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SWEET_SPOT.get(), spear) > 0) {
@@ -177,6 +178,8 @@ public class SpearItem extends WeaponItem {
                                 }
                                 damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
 
+                                float n = chargePercent/3;
+                                target.addVelocity(look.getX()*n, look.getY()*n, look.getZ()*n);
                                 AttackHelper.attackEntity(player, target, damage);
                                 AttackHelper.doHitStuff(player, target, spear);
                                 AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
