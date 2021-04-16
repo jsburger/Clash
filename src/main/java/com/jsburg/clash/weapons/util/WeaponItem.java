@@ -24,7 +24,7 @@ public class WeaponItem extends Item implements IVanishable, IClashWeapon {
         super(properties.group(ItemGroup.COMBAT));
         // Corrects numbers so that the constructor can simply use the value displayed on the tooltip
         attackDamage -= 1;
-        attackSpeed *= -1;
+        attackSpeed = -(4 - attackSpeed);
         float attackDamage1 = (float) attackDamage;
 
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();

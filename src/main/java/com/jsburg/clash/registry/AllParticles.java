@@ -16,5 +16,8 @@ public class AllParticles {
 
     public static final RegistryObject<BasicParticleType> SPEAR_CRIT = PARTICLE_TYPES.register("spear_crit", () ->
             new BasicParticleType(true));
+    
+    public static final RegistryObject<BasicParticleType> AXE_SWEEP = PARTICLE_TYPES.register("axe_sweep", () ->
+            new BasicParticleType(true));
 
 }

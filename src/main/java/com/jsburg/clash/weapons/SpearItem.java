@@ -178,8 +178,7 @@ public class SpearItem extends WeaponItem {
                                 }
                                 damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
 
-                                float n = chargePercent/3;
-                                target.addVelocity(look.getX()*n, look.getY()*n, look.getZ()*n);
+                                ((LivingEntity)target).applyKnockback(chargePercent /3, -look.getX(), -look.getZ());
                                 AttackHelper.attackEntity(player, target, damage);
                                 AttackHelper.doHitStuff(player, target, spear);
                                 AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);

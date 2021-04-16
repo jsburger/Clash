@@ -26,11 +26,11 @@ archivesBaseName = project.modId
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 mixin {
-    add sourceSets.main, "clash.refmap.json"
+    add sourceSets.main, archivesBaseName+".refmap.json"
 }
 
 minecraft {
-    mappings channel: project.mappingsChannel, version: project.mappings
+    mappings channel: "${project.mappingsChannel}", version: project.mappings
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
