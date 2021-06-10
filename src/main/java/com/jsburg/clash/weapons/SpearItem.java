@@ -2,7 +2,7 @@ package com.jsburg.clash.weapons;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.jsburg.clash.enchantments.FlurryEnchantment;
+import com.jsburg.clash.enchantments.spear.FlurryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
@@ -164,6 +164,7 @@ public class SpearItem extends WeaponItem {
                                 if (chargeTime > 16) damage *= AttackHelper.getCrit(player, target, true);
                                 player.resetCooldown();
 
+                                //Sweet Spot check, works by comparing the distance from the furthest point of the attack to the point of contact
                                 if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SWEET_SPOT.get(), spear) > 0) {
                                     double distance = endPos.squareDistanceTo(hitLocation);
                                     if (distance <= sweetSpotSize) {

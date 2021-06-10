@@ -1,9 +1,9 @@
 package com.jsburg.clash.registry;
 
 import com.jsburg.clash.Clash;
-import com.jsburg.clash.enchantments.FlurryEnchantment;
-import com.jsburg.clash.enchantments.ThrustEnchantment;
-import com.jsburg.clash.enchantments.TipperEnchantment;
+import com.jsburg.clash.enchantments.spear.FlurryEnchantment;
+import com.jsburg.clash.enchantments.spear.ThrustEnchantment;
+import com.jsburg.clash.enchantments.spear.TipperEnchantment;
 import com.jsburg.clash.weapons.SpearItem;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;

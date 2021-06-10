@@ -1,4 +1,4 @@
-package com.jsburg.clash.enchantments;
+package com.jsburg.clash.enchantments.spear;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
