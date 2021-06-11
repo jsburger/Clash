@@ -147,7 +147,8 @@ public class SpearItem extends WeaponItem {
 
                 if (rayTraceResult != null) {
                     Entity target = rayTraceResult.getEntity();
-                    AxisAlignedBB entityBox = target.getBoundingBox();
+                    Vector3d targetmotion = target.getMotion().scale(.5f);
+                    AxisAlignedBB entityBox = target.getBoundingBox().expand(targetmotion).expand(targetmotion.inverse());
                     Optional<Vector3d> cast = entityBox.rayTrace(eyePos, endPos);
                     Vector3d hitLocation = cast.orElseGet(rayTraceResult::getHitVec);
 

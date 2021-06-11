@@ -53,6 +53,8 @@ public class Clash
 
     private void setupClient(final FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, ClientEvents::fiddleWithHands);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, ClientEvents::doCameraStuff);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, ClientEvents::doClientTick);
     }
 
 }

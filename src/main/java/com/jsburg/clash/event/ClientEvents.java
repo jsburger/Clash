@@ -11,6 +11,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.FirstPersonRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -21,17 +22,27 @@ import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.ForgeConfig;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.Random;
 
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
+
+    private static final Random ScreenShakeRandom = new Random();
+    private static double ScreenShakeX = 0;
+    private static double ScreenShakeY = 0;
+    private static double ScreenShakeAmount = 0;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
@@ -39,6 +50,25 @@ public class ClientEvents {
         manager.registerFactory(AllParticles.SPEAR_STAB.get(), SpearStabParticle.Factory::new);
         manager.registerFactory(AllParticles.SPEAR_CRIT.get(), SpearCritParticle.Factory::new);
         manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
+    }
+
+    public static void doClientTick(TickEvent.ClientTickEvent event) {
+        if (ScreenShakeAmount-- > 1) {
+            ScreenShakeX = ((ScreenShakeRandom.nextDouble() * 2) - 1)/3;
+            ScreenShakeY = ((ScreenShakeRandom.nextDouble() * 2) - 1)/6;
+        }
+    }
+
+    public static void setScreenShake(double intensity) {
+        ScreenShakeAmount = intensity;
+    }
+
+    public static void doCameraStuff(EntityViewRenderEvent event) {
+        if (ScreenShakeAmount > 0) {
+            ActiveRenderInfo renderInfo = event.getInfo();
+            double ticks = (event.getRenderPartialTicks() - .5) * 2;
+            renderInfo.movePosition(0, ScreenShakeY * ticks, ScreenShakeX * ticks);
+        }
     }
 
     public static void fiddleWithHands(RenderHandEvent event) {

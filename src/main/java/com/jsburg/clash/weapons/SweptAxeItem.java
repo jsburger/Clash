@@ -1,5 +1,6 @@
 package com.jsburg.clash.weapons;
 
+import com.jsburg.clash.event.ClientEvents;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
@@ -30,6 +31,8 @@ public class SweptAxeItem extends WeaponItem {
     @Override
     public void onHit(ItemStack stack, PlayerEntity player, Entity target) {
         if (AttackHelper.weaponIsCharged(player)) {
+            ClientEvents.setScreenShake(5);
+
             //Sweep Particle
             AttackHelper.makeParticle(target.world, AllParticles.AXE_SWEEP.get(),
                     target.getPositionVec().add(player.getPositionVec()).scale(.5).add(0, .5, 0),
@@ -41,7 +44,7 @@ public class SweptAxeItem extends WeaponItem {
             float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
 
             //Sweep get entities to sweep, almost directly copied from sword sweeping code.
-            for(LivingEntity livingentity : player.world.getEntitiesWithinAABB(LivingEntity.class, target.getBoundingBox().grow(1.25D, 0.5D, 1.25D))) {
+            for(LivingEntity livingentity : player.world.getEntitiesWithinAABB(LivingEntity.class, target.getBoundingBox().grow(1.5D, 0.5D, 1.5D))) {
                 if (livingentity != player && livingentity != target && !player.isOnSameTeam(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).hasMarker()) && player.getDistanceSq(livingentity) < 12.0D) {
                     livingentity.applyKnockback(0.4f, -look.getX(), -look.getZ());
                     livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + AttackHelper.getBonusEnchantmentDamage(stack, livingentity));
