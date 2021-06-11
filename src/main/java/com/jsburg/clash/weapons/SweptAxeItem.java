@@ -2,6 +2,7 @@ package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.event.ClientEvents;
 import com.jsburg.clash.registry.AllParticles;
+import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
@@ -31,25 +32,34 @@ public class SweptAxeItem extends WeaponItem {
     @Override
     public void onHit(ItemStack stack, PlayerEntity player, Entity target) {
         if (AttackHelper.weaponIsCharged(player)) {
-            ClientEvents.setScreenShake(5);
 
             //Sweep Particle
             AttackHelper.makeParticle(target.world, AllParticles.AXE_SWEEP.get(),
                     target.getPositionVec().add(player.getPositionVec()).scale(.5).add(0, .5, 0),
                     Vector3d.ZERO, 0
             );
+
             //Used for knockback
             Vector3d look = player.getLookVec();
             //Calculate damage dealt
             float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            int hits = 1;
 
-            //Sweep get entities to sweep, almost directly copied from sword sweeping code.
+            //Get entities to sweep, almost directly copied from sword sweeping code.
             for(LivingEntity livingentity : player.world.getEntitiesWithinAABB(LivingEntity.class, target.getBoundingBox().grow(1.5D, 0.5D, 1.5D))) {
                 if (livingentity != player && livingentity != target && !player.isOnSameTeam(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).hasMarker()) && player.getDistanceSq(livingentity) < 12.0D) {
-                    livingentity.applyKnockback(0.4f, -look.getX(), -look.getZ());
-                    livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + AttackHelper.getBonusEnchantmentDamage(stack, livingentity));
+                    if (!player.world.isRemote) {
+                        livingentity.applyKnockback(0.4f, -look.getX(), -look.getZ());
+                        livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + AttackHelper.getBonusEnchantmentDamage(stack, livingentity));
+                    }
+                    hits++;
                 }
             }
+
+            if (player.world.isRemote && hits >= 3) {
+                ScreenShaker.setScreenShake(5, .6);
+            }
+
 
             //Sweep Sound
             AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, .7f);

@@ -50,7 +50,7 @@ public class WeaponItem extends Item implements IVanishable, IClashWeapon {
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         List<Enchantment> enchants = this.vanillaEnchantments();
-        if (enchants.contains(enchantment)) {
+        if (enchants != null && enchants.contains(enchantment)) {
             return true;
         }
         return super.canApplyAtEnchantingTable(stack, enchantment);

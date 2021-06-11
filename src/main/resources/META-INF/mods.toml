@@ -6,9 +6,9 @@ issueTrackerURL="https://github.com/jsburger/Clash/issues"
     modId="clash"
     version="${file.jarVersion}"
     displayName="Clash"
-    authors="Jsburg"
+    authors="Jsburg, Mista Jub, special thanks to Piggy"
     description='''
-    What if there was more than sword?
+    AWESOME WEAPON MOD!!!
     '''
 [[dependencies.clash]]
     modId="forge"

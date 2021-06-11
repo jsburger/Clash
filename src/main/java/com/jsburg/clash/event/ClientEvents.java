@@ -5,6 +5,7 @@ import com.jsburg.clash.particle.AxeSweepParticle;
 import com.jsburg.clash.particle.SpearCritParticle;
 import com.jsburg.clash.particle.SpearStabParticle;
 import com.jsburg.clash.registry.AllParticles;
+import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -39,11 +40,6 @@ import static net.minecraft.util.math.MathHelper.sqrt;
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
 
-    private static final Random ScreenShakeRandom = new Random();
-    private static double ScreenShakeX = 0;
-    private static double ScreenShakeY = 0;
-    private static double ScreenShakeAmount = 0;
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
         ParticleManager manager = Minecraft.getInstance().particles;
@@ -52,23 +48,16 @@ public class ClientEvents {
         manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
     }
 
-    public static void doClientTick(TickEvent.ClientTickEvent event) {
-        if (ScreenShakeAmount-- > 1) {
-            ScreenShakeX = ((ScreenShakeRandom.nextDouble() * 2) - 1)/3;
-            ScreenShakeY = ((ScreenShakeRandom.nextDouble() * 2) - 1)/6;
-        }
-    }
+    //All the events below this are set up with listeners in Client setup
 
-    public static void setScreenShake(double intensity) {
-        ScreenShakeAmount = intensity;
+    public static void doClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            ScreenShaker.tick();
+        }
     }
 
     public static void doCameraStuff(EntityViewRenderEvent event) {
-        if (ScreenShakeAmount > 0) {
-            ActiveRenderInfo renderInfo = event.getInfo();
-            double ticks = (event.getRenderPartialTicks() - .5) * 2;
-            renderInfo.movePosition(0, ScreenShakeY * ticks, ScreenShakeX * ticks);
-        }
+        ScreenShaker.applyScreenShake(event.getInfo(), event.getRenderPartialTicks());
     }
 
     public static void fiddleWithHands(RenderHandEvent event) {
