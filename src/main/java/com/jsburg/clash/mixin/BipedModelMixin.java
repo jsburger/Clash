@@ -21,17 +21,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BipedModelMixin {
 
     @Inject(method = "func_241655_c_", at = @At("HEAD"), remap = false, cancellable = true)
-    private <T extends LivingEntity> void onMainHandPose(T entity, CallbackInfo ci) {
+    private <T extends LivingEntity> void onFirstHandPose(T entity, CallbackInfo ci) {
         if (entity instanceof PlayerEntity) {
             BipedModel<T> model = (BipedModel<T>) (Object) this;
             PlayerEntity player = (PlayerEntity) entity;
-//            ItemStack stack = player.getActiveItemStack();
-//            Item item = stack.getItem();
-//            if (item instanceof IPoseItem && ((IPoseItem) item).hasActivePose()) {
-//                ((IPoseItem) item).doPose(player, model, stack, player.getActiveHand() == Hand.OFF_HAND ^ player.getPrimaryHand() == HandSide.LEFT);
-//                doPose(player, model, item, player.getActiveHand() == Hand.MAIN_HAND);
-//                ci.cancel();
-//            }
 
             Set<Hand> hands = ImmutableSet.of(Hand.MAIN_HAND, Hand.OFF_HAND);
             for (Hand hand : hands) {
@@ -42,6 +35,7 @@ public class BipedModelMixin {
                     if (((IPoseItem) itemItem).hasPose(player, handItem, active)) {
                         boolean leftHanded = (hand == Hand.OFF_HAND ^ player.getPrimaryHand() == HandSide.LEFT);
                         ((IPoseItem) itemItem).doPose(player, model, handItem, leftHanded, active);
+                        //Prevents other item from doing any posing at all. might be cool to replace with a per hand basis
                         ci.cancel();
                         break;
                     }
@@ -51,7 +45,7 @@ public class BipedModelMixin {
     }
 
     @Inject(method = "func_241654_b_", at = @At("HEAD"), remap = false, cancellable = true)
-    private <T extends LivingEntity> void onOffHandPose(T entity, CallbackInfo ci) {
+    private <T extends LivingEntity> void onSecondHandPose(T entity, CallbackInfo ci) {
         if (entity instanceof PlayerEntity) {
 
             PlayerEntity player = (PlayerEntity) entity;
@@ -62,18 +56,12 @@ public class BipedModelMixin {
                 Item itemItem = handItem.getItem();
                 if (itemItem instanceof IPoseItem) {
                     if (((IPoseItem) itemItem).hasPose(player, handItem, active)) {
+                        //Prevents other item from doing any posing at all. might be cool to replace with a per hand basis
                         ci.cancel();
                         break;
                     }
                 }
             }
-
-
-//            Item item = entity.getActiveItemStack().getItem();
-//            if (item instanceof IPoseItem) {
-//                if (((IPoseItem) item).hasActivePose())
-//                    ci.cancel();
-//            }
         }
     }
 
