@@ -1,9 +1,7 @@
 package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
-import com.jsburg.clash.particle.AxeSweepParticle;
-import com.jsburg.clash.particle.SpearCritParticle;
-import com.jsburg.clash.particle.SpearStabParticle;
+import com.jsburg.clash.particle.*;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.SpearItem;
@@ -40,12 +38,16 @@ import static net.minecraft.util.math.MathHelper.sqrt;
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
 
+    private static boolean needsPop = false;
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
         ParticleManager manager = Minecraft.getInstance().particles;
         manager.registerFactory(AllParticles.SPEAR_STAB.get(), SpearStabParticle.Factory::new);
         manager.registerFactory(AllParticles.SPEAR_CRIT.get(), SpearCritParticle.Factory::new);
         manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
+        manager.registerFactory(AllParticles.BUTCHER_SPARK.get(), ButcherSparkParticle.Factory::new);
+        manager.registerFactory(AllParticles.BUTCHER_SPARK_EMITTER.get(), ButcherSparkEmitter.Factory::new);
     }
 
     //All the events below this are set up with listeners in Client setup
@@ -56,14 +58,21 @@ public class ClientEvents {
         }
     }
 
-    public static void doCameraStuff(EntityViewRenderEvent event) {
+    public static void doCameraStuff(EntityViewRenderEvent.CameraSetup event) {
         ScreenShaker.applyScreenShake(event.getInfo(), event.getRenderPartialTicks());
+        //Just resetting this between frames because if execution order *does* get weird I don't want stuff carrying over
+        needsPop = false;
     }
 
     public static void fiddleWithHands(RenderHandEvent event) {
         Minecraft mc = Minecraft.getInstance();
         ClientPlayerEntity player = mc.player;
         if (player == null) return;
+        //Am I relying on execution order staying consistent? Yes.
+        if (needsPop) {
+            event.getMatrixStack().pop();
+            needsPop = false;
+        }
         boolean leftHanded = player.getPrimaryHand() == HandSide.LEFT ^ event.getHand() == Hand.OFF_HAND;
         if (event.getItemStack().getItem() instanceof SpearItem) {
             if (event.getHand() == player.getActiveHand() && player.isHandActive()) {
@@ -72,6 +81,13 @@ public class ClientEvents {
                 int useTime = spear.getUseDuration(event.getItemStack()) - useCount;
                 float chargePercent = (float) Math.pow(Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1), 1);
                 int sideFlip = leftHanded ? -1 : 1;
+
+                //Main hand always renders first, so it needs to remove its transformations.
+                //If the offhand translates stuff it doesn't matter since its rendered last.
+                if (event.getHand() == Hand.MAIN_HAND) {
+                    event.getMatrixStack().push();
+                    needsPop = true;
+                }
 
                 float xAngle = -6 * chargePercent;
                 float yAngle = 0 * chargePercent;

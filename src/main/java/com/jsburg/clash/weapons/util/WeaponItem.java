@@ -5,10 +5,12 @@ import com.google.common.collect.Multimap;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -17,7 +19,7 @@ import net.minecraft.item.ItemStack;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class WeaponItem extends Item implements IVanishable, IClashWeapon {
+public class WeaponItem extends Item implements IVanishable {
     private final Multimap<Attribute, AttributeModifier> attributes;
 
     public WeaponItem(int attackDamage, float attackSpeed, Item.Properties properties) {
@@ -56,5 +58,21 @@ public class WeaponItem extends Item implements IVanishable, IClashWeapon {
         return super.canApplyAtEnchantingTable(stack, enchantment);
     }
 
+    protected List<Enchantment> vanillaEnchantments() {
+        return null;
+    }
+
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity target) {
+
+        if (AttackHelper.canAttackEntity(player, target)) {
+            this.onHit(stack, player, target);
+        }
+
+        return super.onLeftClickEntity(stack, player, target);
+    }
+
+    protected void onHit(ItemStack stack, PlayerEntity player, Entity target) {}
 
 }

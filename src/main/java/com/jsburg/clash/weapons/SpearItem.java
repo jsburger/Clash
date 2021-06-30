@@ -8,6 +8,7 @@ import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.AttackHelper;
+import com.jsburg.clash.weapons.util.IPoseItem;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.entity.model.BipedModel;
@@ -40,7 +41,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class SpearItem extends WeaponItem {
+public class SpearItem extends WeaponItem implements IPoseItem {
 
     private static final Vector3d UP = new Vector3d(0, 1, 0);
     private static final float stabLengthBonus = 2.5f;
@@ -66,13 +67,6 @@ public class SpearItem extends WeaponItem {
 
     public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
         return !player.isCreative();
-    }
-
-    @Override
-    public void onHit(ItemStack stack, PlayerEntity player, Entity target) {
-//        if (AttackHelper.weaponIsCharged(player)) {
-//            AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
-//        }
     }
 
     @Override
@@ -218,12 +212,12 @@ public class SpearItem extends WeaponItem {
     }
 
     @Override
-    public boolean hasActivePose() {
-        return true;
+    public boolean hasPose(PlayerEntity player, ItemStack stack, boolean isActive) {
+        return isActive;
     }
 
     @Override
-    public <T extends LivingEntity> void doActivePose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded) {
+    public <T extends LivingEntity> void doPose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
         ModelRenderer spearArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
         ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
         int sideFlip = leftHanded ? -1 : 1;

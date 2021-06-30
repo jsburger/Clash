@@ -14,9 +14,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+
+import java.util.Random;
 
 public class SweptAxeItem extends WeaponItem {
 
@@ -30,14 +34,23 @@ public class SweptAxeItem extends WeaponItem {
 
 
     @Override
-    public void onHit(ItemStack stack, PlayerEntity player, Entity target) {
+    public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity target) {
         if (AttackHelper.weaponIsCharged(player)) {
 
             //Sweep Particle
+            Vector3d eyepos = player.getPositionVec().add(0, player.getEyeHeight(), 0);
             AttackHelper.makeParticle(target.world, AllParticles.AXE_SWEEP.get(),
-                    target.getPositionVec().add(player.getPositionVec()).scale(.5).add(0, .5, 0),
+                    target.getPositionVec().add(eyepos).scale(.5),
                     Vector3d.ZERO, 0
             );
+
+//            if (player.world.isRemote) {
+//                Random rand = player.world.getRandom();
+//                AxisAlignedBB bb = target.getBoundingBox();
+//                double l = bb.getAverageEdgeLength();
+//                Vector3d pos = new Vector3d((rand.nextDouble() - .5) * l, rand.nextDouble() * l + .5, (rand.nextDouble() - .5) * l);
+//                AttackHelper.makeParticle(player.world, AllParticles.BUTCHER_SPARK_EMITTER.get(), target.getPositionVec().add(pos));
+//            }
 
             //Used for knockback
             Vector3d look = player.getLookVec();
@@ -57,13 +70,14 @@ public class SweptAxeItem extends WeaponItem {
             }
 
             if (player.world.isRemote && hits >= 3) {
-                ScreenShaker.setScreenShake(5, .6);
+                ScreenShaker.setScreenShake(5, .8);
             }
 
 
             //Sweep Sound
             AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, .7f);
         }
+        return false;
     }
 
 }

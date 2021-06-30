@@ -20,4 +20,10 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> AXE_SWEEP = PARTICLE_TYPES.register("axe_sweep", () ->
             new BasicParticleType(true));
 
+    public static final RegistryObject<BasicParticleType> BUTCHER_SPARK = PARTICLE_TYPES.register("butcher_spark", () ->
+            new BasicParticleType(true));
+
+    public static final RegistryObject<BasicParticleType> BUTCHER_SPARK_EMITTER = PARTICLE_TYPES.register("butcher_spark_emitter", () ->
+            new BasicParticleType(true));
+
 }
