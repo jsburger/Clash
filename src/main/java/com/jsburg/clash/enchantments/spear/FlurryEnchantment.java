@@ -23,7 +23,7 @@ public class FlurryEnchantment extends Enchantment {
     }
 
     public int getMaxEnchantability(int enchantmentLevel) {
-        return this.getMinEnchantability(enchantmentLevel) + 20;
+        return this.getMinEnchantability(enchantmentLevel) + 12;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.jsburg.clash.util;
 
 import com.jsburg.clash.Clash;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 
 import java.util.Random;
@@ -14,20 +15,23 @@ public class ScreenShaker {
     private static double LastY = 0;
     private static int    ShakeTime = 0;
     private static double Intensity = 0;
-    private static int    XFlip = -1;
+//    private static int    XFlip = -1;
+
+    private static final Minecraft mc = Minecraft.getInstance();
 
     public static void tick() {
         if (ShakeTime >= 1) {
             ShakeTime -= 1;
             LastX = ShakeX;
             LastY = ShakeY;
-            ShakeX = uRandom(.4) * Intensity * XFlip;
-            ShakeY = uRandom(.1) * Intensity;
+            ShakeX = uRandom(.4) * Intensity /* * XFlip*/;
+            ShakeY = uRandom(.15) * Intensity;
             Intensity *= .5;
 //            Intensity = Math.max(Intensity, .2);
             //I know that uRandom flips at random, the idea is that this avoids directly alternating the offset
             //while allowing it to vary some more.
-            XFlip *= -1;
+              //Fun Jsburg fact! This is not how statistics work!
+//            XFlip *= -1;
         } else {
             ShakeX = 0;
             ShakeY = 0;
@@ -53,7 +57,7 @@ public class ScreenShaker {
             double lerp = partialTicks;
             double x = LastX + (ShakeX - LastX) * lerp;
             double y = LastY + (ShakeY - LastY) * lerp;
-            renderInfo.movePosition(0, y, x);
+            renderInfo.movePosition(0, y * mc.gameSettings.screenEffectScale, x * mc.gameSettings.screenEffectScale);
         }
 
     }

@@ -1,14 +1,18 @@
 {
   "item.clash.spear": "Spear",
+  "item.clash.billhook": "Billhook",
   "subtitles.clash.weapon.spear.stab": "Stabbing attack",
   "subtitles.clash.weapon.spear.whoosh": "Spear zooms",
   "subtitles.clash.weapon.spear.mega_crit": "Spear hits a sweet spot",
   "item.clash.spear.when_charged": "When Charged:",
   "item.clash.spear.charge_range_bonus": "Attack Range",
+  "item.clash.billhook.inverted_knockback": "Inverted Knockback",
 
   "enchantment.clash.flurry": "Flurry",
   "enchantment.clash.lunge": "Lunge",
   "enchantment.clash.sweet_spot": "Sweet Spot",
+  "enchantment.clash.agility": "Agility",
+  "enchantment.clash.jab": "Jab",
 
   "item.clash.swept_axe": "Swept Axe"
 }

@@ -4,9 +4,9 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class ThrustEnchantment extends Enchantment {
+public class DashEnchantment extends Enchantment {
 
-    public ThrustEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
+    public DashEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);
     }
 
@@ -16,11 +16,16 @@ public class ThrustEnchantment extends Enchantment {
     }
 
     public int getMinEnchantability(int enchantmentLevel) {
-        return 8 + (enchantmentLevel - 1) * 12;
+        return 12;
     }
 
     public int getMaxEnchantability(int enchantmentLevel) {
-        return this.getMinEnchantability(enchantmentLevel) + 24;
+        return 50;
     }
 
+    @Override
+    protected boolean canApplyTogether(Enchantment ench) {
+        if (ench instanceof ThrustEnchantment) return false;
+        return super.canApplyTogether(ench);
+    }
 }

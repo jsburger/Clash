@@ -2,6 +2,7 @@ package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.particle.*;
+import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.SpearItem;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
 
+import static net.minecraft.util.math.MathHelper.sin;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -48,6 +50,7 @@ public class ClientEvents {
         manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
         manager.registerFactory(AllParticles.BUTCHER_SPARK.get(), ButcherSparkParticle.Factory::new);
         manager.registerFactory(AllParticles.BUTCHER_SPARK_EMITTER.get(), ButcherSparkEmitter.Factory::new);
+        manager.registerFactory(AllParticles.DAST_DUST.get(), DashDustParticle.Factory::new);
     }
 
     //All the events below this are set up with listeners in Client setup
@@ -75,19 +78,27 @@ public class ClientEvents {
         }
         boolean leftHanded = player.getPrimaryHand() == HandSide.LEFT ^ event.getHand() == Hand.OFF_HAND;
         if (event.getItemStack().getItem() instanceof SpearItem) {
-            if (event.getHand() == player.getActiveHand() && player.isHandActive()) {
+
+            boolean isActive = event.getHand() == player.getActiveHand() && player.isHandActive();
+            float cooldown = player.getCooldownTracker().getCooldown(event.getItemStack().getItem(), event.getPartialTicks());
+            boolean isCoolingDown = cooldown > 0 && !isActive && !player.isSwingInProgress;
+            boolean goingToMove = isActive || isCoolingDown;
+
+            //Main hand always renders first, so it needs to remove its transformations.
+            //If the offhand translates stuff it doesn't matter since its rendered last.
+            if (goingToMove && event.getHand() == Hand.MAIN_HAND) {
+                event.getMatrixStack().push();
+                needsPop = true;
+            }
+            int sideFlip = leftHanded ? -1 : 1;
+
+            if (isActive) {
                 SpearItem spear = (SpearItem) event.getItemStack().getItem();
                 int useCount = player.getItemInUseCount();
-                int useTime = spear.getUseDuration(event.getItemStack()) - useCount;
+                int useDuration = spear.getUseDuration(event.getItemStack());
+                int useTime = useDuration - useCount;
                 float chargePercent = (float) Math.pow(Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1), 1);
-                int sideFlip = leftHanded ? -1 : 1;
 
-                //Main hand always renders first, so it needs to remove its transformations.
-                //If the offhand translates stuff it doesn't matter since its rendered last.
-                if (event.getHand() == Hand.MAIN_HAND) {
-                    event.getMatrixStack().push();
-                    needsPop = true;
-                }
 
                 float xAngle = -6 * chargePercent;
                 float yAngle = 0 * chargePercent;
@@ -99,6 +110,22 @@ public class ClientEvents {
 //                    event.getMatrixStack().translate(.1, 0, 0);
 //                }
                 event.getMatrixStack().rotate(new Quaternion(xAngle, yAngle, zAngle, true));
+
+                double chargeOver = ((useTime + event.getPartialTicks()) - (spear.getMaxCharge(event.getItemStack()) - 4)) / 4;
+                chargeOver = Math.pow(Math.max(0, Math.min(1, chargeOver)), 2);
+                if (chargeOver > 0) {
+                    event.getMatrixStack().translate(0, 0, .1 * chargeOver);
+                }
+            }
+
+            if (isCoolingDown) {
+                MatrixStack stack = event.getMatrixStack();
+                float cd = (float) Math.pow(cooldown, 3);
+
+                stack.rotate(new Quaternion(-10 * cd, 4 * cd, 0, true));
+                stack.translate(0, -.1 * cd, -.1 * cd);
+//                stack.rotate(new Quaternion(0, 0, 15 * cd * sideFlip, true));
+
             }
         }
         if (event.getHand() == Hand.MAIN_HAND && event.getItemStack().getItem() instanceof SweptAxeItem && event.getEquipProgress() > .1) {

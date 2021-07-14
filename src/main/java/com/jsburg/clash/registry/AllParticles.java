@@ -26,4 +26,7 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> BUTCHER_SPARK_EMITTER = PARTICLE_TYPES.register("butcher_spark_emitter", () ->
             new BasicParticleType(true));
 
+    public static final RegistryObject<BasicParticleType> DAST_DUST = PARTICLE_TYPES.register("dash_dust", () ->
+            new BasicParticleType(true));
+
 }

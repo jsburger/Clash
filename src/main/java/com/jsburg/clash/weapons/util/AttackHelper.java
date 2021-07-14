@@ -19,11 +19,16 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
+import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class AttackHelper {
     public static boolean canAttackEntity(PlayerEntity player, Entity targetEntity) {
@@ -164,5 +169,34 @@ public class AttackHelper {
 
         return player.getBaseAttributeValue(Attributes.ATTACK_DAMAGE);
     }
+
+    /**
+     * Does the normal entity raytrace but instead of adding .3 to size, it uses entity motion to make hitting easier.
+     * Edited from vanilla code.
+     */
+    @Nullable
+    public static EntityRayTraceResult rayTraceWithMotion(World worldIn, Entity projectile, Vector3d startVec, Vector3d endVec, AxisAlignedBB boundingBox, Predicate<Entity> filter) {
+        double d0 = Double.MAX_VALUE;
+        Entity entity = null;
+        Vector3d hitVec = null;
+
+        for(Entity target : worldIn.getEntitiesInAABBexcluding(projectile, boundingBox, filter)) {
+            Vector3d targetMotion = target.getMotion().scale(.5f);
+            AxisAlignedBB entityBox = target.getBoundingBox().expand(targetMotion).expand(targetMotion.inverse());
+            Optional<Vector3d> optional = entityBox.rayTrace(startVec, endVec);
+
+            if (optional.isPresent()) {
+                double d1 = startVec.squareDistanceTo(optional.get());
+                if (d1 < d0) {
+                    hitVec = optional.get();
+                    entity = target;
+                    d0 = d1;
+                }
+            }
+        }
+
+        return entity == null ? null : new EntityRayTraceResult(entity, hitVec);
+    }
+
 
 }

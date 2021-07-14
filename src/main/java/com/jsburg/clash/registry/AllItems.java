@@ -1,6 +1,7 @@
 package com.jsburg.clash.registry;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.weapons.BillhookItem;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
 import net.minecraft.item.Item;
@@ -14,6 +15,7 @@ public class AllItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Clash.MOD_ID);
 
     public static final RegistryObject<Item> SPEAR = ITEMS.register("spear", () -> new SpearItem(5, 2.0F, (new Item.Properties()).maxDamage(852)));
-    public static final RegistryObject<Item> SWEPT_AXE = ITEMS.register("swept_axe", () -> new SweptAxeItem(6, 0.7F, (new Item.Properties()).maxDamage(1220)));
+    public static final RegistryObject<Item> BILLHOOK = ITEMS.register("billhook", () -> new BillhookItem(5, 2.0F, (new Item.Properties()).maxDamage(852)));
+    public static final RegistryObject<Item> SWEPT_AXE = ITEMS.register("swept_axe", () -> new SweptAxeItem(6, 0.7F, (new Item.Properties()).maxDamage(670)));
 
 }

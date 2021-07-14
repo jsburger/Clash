@@ -2,6 +2,7 @@ package com.jsburg.clash.weapons;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.spear.FlurryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
@@ -28,6 +29,8 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
@@ -51,7 +54,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
     public SpearItem(int attackDamage, float attackSpeed, Item.Properties properties) {
         super(attackDamage, attackSpeed, properties);
         attackDamage -= 1;
-        attackSpeed *= -1;
+        attackSpeed = -(4 - attackSpeed);
 
         List<Multimap<Attribute, AttributeModifier>> multimaps = new LinkedList<>();
         //Could probably afford to include an extra level just for Quark tomes, hence MAX_LEVEL + 1
@@ -65,6 +68,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
     }
 
+    @Override
     public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
         return !player.isCreative();
     }
@@ -105,7 +109,22 @@ public class SpearItem extends WeaponItem implements IPoseItem {
     }
 
     public int getMaxCharge(ItemStack stack) {
+        if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 3;
         return 20;
+    }
+
+    public int getMinCharge(ItemStack stack) {
+        if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 0;
+        return 10 - EnchantmentHelper.getEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
+    }
+
+    protected void onStabHit(ItemStack stack, PlayerEntity player, LivingEntity target, float chargePercent) {
+        Vector3d look = player.getLookVec();
+        target.applyKnockback(chargePercent / 3, -look.getX(), -look.getZ());
+    }
+
+    protected boolean canStabCrit(ItemStack stack) {
+        return true;
     }
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
@@ -113,13 +132,24 @@ public class SpearItem extends WeaponItem implements IPoseItem {
             PlayerEntity player = (PlayerEntity)entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
             ItemStack spear = player.getActiveItemStack();
+
             float chargePercent = Math.min((float)chargeTime/getMaxCharge(spear), 1);
-            int thrust = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.LUNGE.get(), spear);
+
+            int thrustLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.LUNGE.get(), spear);
             int flurryLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
-            boolean doThrust = thrust > 0 && !(player.isSneaking()) && chargeTime > (5 - flurryLevel/2) && player.isOnGround() && !player.isSwimming();
-            if (chargeTime >= (10 - flurryLevel)) {
+            boolean hasJab = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0;
+            boolean doThrust = thrustLevel > 0 && !(player.isSneaking()) && chargeTime > (5 - flurryLevel/2) && player.isOnGround() && !player.isSwimming();
+
+            if (chargeTime >= getMinCharge(stack)) {
                 player.addStat(Stats.ITEM_USED.get(this));
                 player.swingArm(player.getActiveHand());
+
+                if (hasJab) {
+                    CooldownTracker tracker = player.getCooldownTracker();
+                    tracker.removeCooldown(this);
+                    tracker.setCooldown(this, 40);
+                    player.addPotionEffect(new EffectInstance(Effects.SLOWNESS, 40, 1));
+                }
 
                 double stabLength = player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) + stabLengthBonus;
                 Vector3d look = player.getLookVec();
@@ -128,7 +158,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                 Vector3d endPos = eyePos.add(endVec);
                 AxisAlignedBB boundingBox = new AxisAlignedBB(eyePos.x, eyePos.y, eyePos.z, endPos.x, endPos.y, endPos.z).grow(1);
                 Predicate<Entity> predicate = (e) -> !e.isSpectator() && e.canBeCollidedWith();
-                EntityRayTraceResult rayTraceResult = ProjectileHelper.rayTraceEntities(worldIn, player, eyePos, endPos, boundingBox, predicate);
+                EntityRayTraceResult rayTraceResult = AttackHelper.rayTraceWithMotion(worldIn, player, eyePos, endPos, boundingBox, predicate);
 
                 //Get vector to the side of the player
                 Vector3d side = look.crossProduct(UP).scale(0.75);
@@ -141,13 +171,14 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
                 if (rayTraceResult != null) {
                     Entity target = rayTraceResult.getEntity();
-                    Vector3d targetmotion = target.getMotion().scale(.5f);
-                    AxisAlignedBB entityBox = target.getBoundingBox().expand(targetmotion).expand(targetmotion.inverse());
-                    Optional<Vector3d> cast = entityBox.rayTrace(eyePos, endPos);
-                    Vector3d hitLocation = cast.orElseGet(rayTraceResult::getHitVec);
+//                    Vector3d targetMotion = target.getMotion().scale(.5f);
+//                    AxisAlignedBB entityBox = target.getBoundingBox().expand(targetMotion).expand(targetMotion.inverse());
+//                    Optional<Vector3d> cast = entityBox.rayTrace(eyePos, endPos);
+//                    Vector3d hitLocation = cast.orElseGet(rayTraceResult::getHitVec);
+                    Vector3d hitLocation = rayTraceResult.getHitVec();
 
                     BlockRayTraceResult blockRayTraceResult = player.world.rayTraceBlocks(new RayTraceContext(eyePos, hitLocation, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
-                    if (blockRayTraceResult.getType() == RayTraceResult.Type.MISS && cast.isPresent()) {
+                    if (blockRayTraceResult.getType() == RayTraceResult.Type.MISS) {
                         doThrust = false;
 
                         //Server side logic time
@@ -156,7 +187,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                             boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                             if (canAttack) {
                                 float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);
-                                if (chargeTime > 16) damage *= AttackHelper.getCrit(player, target, true);
+                                if (canStabCrit(stack) && chargeTime > getMaxCharge(stack) - 4) damage *= AttackHelper.getCrit(player, target, true);
                                 player.resetCooldown();
 
                                 //Sweet Spot check, works by comparing the distance from the furthest point of the attack to the point of contact
@@ -174,7 +205,8 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                                 }
                                 damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
 
-                                ((LivingEntity)target).applyKnockback(chargePercent /3, -look.getX(), -look.getZ());
+                                this.onStabHit(stack, player, (LivingEntity) target, chargePercent);
+
                                 AttackHelper.attackEntity(player, target, damage);
                                 AttackHelper.doHitStuff(player, target, spear);
                                 AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
@@ -195,7 +227,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                 AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_WHOOSH.get(), 0.3f, 1.0f);
 
                 double boostedPercentage = Math.min(1, chargePercent * 1.4);
-                Vector3d dir = player.getLookVec().scale(thrust * 2 * boostedPercentage);
+                Vector3d dir = player.getLookVec().scale(Math.sqrt(thrustLevel) * 2 * boostedPercentage);
                 player.addVelocity(dir.x, dir.y / 2 + 0.2, dir.z);
                 AttackHelper.damageItem(1, spear, player, player.getActiveHand());
 
@@ -207,6 +239,37 @@ public class SpearItem extends WeaponItem implements IPoseItem {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
+
+        if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.AGILITY.get(), stack) > 0) {
+            if (!(playerIn.isSneaking() || playerIn.isElytraFlying() || playerIn.isSwimming())) {
+                double ySpeed = playerIn.isOnGround() ? .25 : -.4;
+                final float dashSpeed = playerIn.isOnGround() ? .7f : .6f;
+
+                Vector3d motion = playerIn.getMotion();
+                Vector3d dir = new Vector3d(motion.getX(), 0, motion.getZ());
+
+                if (Math.abs(dir.x) <= 0.05 && Math.abs(dir.z) <= 0.05) {
+                    Vector3d look = playerIn.getLookVec();
+                    dir = new Vector3d(-look.getX(), 0, -look.getZ());
+                }
+                dir = dir.normalize().scale(dashSpeed);
+
+                playerIn.addVelocity(dir.x, ySpeed, dir.z);
+                Vector3d dashDir = new Vector3d(dir.x, ySpeed/2, dir.z);
+                Random rand = worldIn.getRandom();
+                int o = 7 + rand.nextInt(4);
+                for (int i = 0; i <= o; i++){
+                    Vector3d d = dashDir.rotateYaw((rand.nextFloat() * .5f) - .25f).scale(rand.nextFloat() * .5 + .25);
+                    worldIn.addParticle(AllParticles.DAST_DUST.get(),
+                            playerIn.getPosX() + d.getX()/2, playerIn.getPosY() + d.getY() + .1, playerIn.getPosZ() + d.getZ()/2,
+                            d.getX(), d.getY() + rand.nextFloat() * .1 - .05, d.getZ());
+                }
+
+                playerIn.addExhaustion(0.1f);
+                playerIn.getCooldownTracker().setCooldown(this, 15);
+            }
+        }
+
         playerIn.setActiveHand(handIn);
         return ActionResult.resultConsume(stack);
     }
@@ -222,6 +285,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
         ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
         int sideFlip = leftHanded ? -1 : 1;
 
+        spearArm.rotateAngleX *= .4f;
         spearArm.rotateAngleX -= .4f;
         spearArm.rotateAngleY -= .3f * sideFlip;
         spearArm.rotateAngleZ += .3f * sideFlip;
@@ -229,6 +293,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
         spearArm.rotationPointY += 4f;
         spearArm.rotationPointZ += 2f;
 
+        otherArm.rotateAngleX *= .4f;
         otherArm.rotateAngleX -= .4f;
         otherArm.rotateAngleZ += .9f * sideFlip;
         otherArm.rotationPointX -= 2f * sideFlip;
