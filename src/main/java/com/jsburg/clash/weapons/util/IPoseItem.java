@@ -12,6 +12,7 @@ import net.minecraft.util.Hand;
 import java.util.Arrays;
 import java.util.List;
 
+@FunctionalInterface
 public interface IPoseItem {
 
     boolean hasPose(PlayerEntity player, ItemStack stack, boolean isActive);
