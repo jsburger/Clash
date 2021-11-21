@@ -203,11 +203,11 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                                 }
                                 damage += AttackHelper.getBonusEnchantmentDamage(spear, target);
 
-                                this.onStabHit(stack, player, (LivingEntity) target, chargePercent);
-
                                 AttackHelper.attackEntity(player, target, damage);
                                 AttackHelper.doHitStuff(player, target, spear);
                                 AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+
+                                this.onStabHit(stack, player, (LivingEntity) target, chargePercent);
 
                             }
                             player.addExhaustion(0.2f);

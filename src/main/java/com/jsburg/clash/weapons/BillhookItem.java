@@ -42,8 +42,9 @@ public class BillhookItem extends SpearItem {
 
     @Override
     protected void onStabHit(ItemStack stack, PlayerEntity player, LivingEntity target, float chargePercent) {
-        Vector3d look = player.getLookVec();
-        target.applyKnockback(chargePercent * 1.5f, look.getX(), look.getZ());
+        super.onStabHit(stack, player, target, chargePercent);
+        Vector3d motion = target.getMotion();
+        target.setMotion(-motion.getX(), motion.getY(), -motion.getZ());
     }
 
     @Override
