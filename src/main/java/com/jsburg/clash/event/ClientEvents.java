@@ -2,7 +2,6 @@ package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.particle.*;
-import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.SpearItem;
@@ -11,9 +10,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
@@ -21,20 +18,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Random;
-
-import static net.minecraft.util.math.MathHelper.sin;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -50,7 +41,8 @@ public class ClientEvents {
         manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
         manager.registerFactory(AllParticles.BUTCHER_SPARK.get(), ButcherSparkParticle.Factory::new);
         manager.registerFactory(AllParticles.BUTCHER_SPARK_EMITTER.get(), ButcherSparkEmitter.Factory::new);
-        manager.registerFactory(AllParticles.DAST_DUST.get(), DashDustParticle.Factory::new);
+        manager.registerFactory(AllParticles.DASH_DUST.get(), DashDustParticle.Factory::new);
+        manager.registerFactory(AllParticles.BONUS_DROP.get(), BonusDropParticle.Factory::new);
     }
 
     //All the events below this are set up with listeners in Client setup

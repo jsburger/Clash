@@ -198,5 +198,8 @@ public class AttackHelper {
         return entity == null ? null : new EntityRayTraceResult(entity, hitVec);
     }
 
+    public static Vector3d getEntityPosition(Entity target) {
+        return new Vector3d(target.getPosX(), target.getPosY(), target.getPosZ());
+    }
 
 }

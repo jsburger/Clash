@@ -22,15 +22,14 @@ import java.util.List;
 public class WeaponItem extends Item implements IVanishable {
     private final Multimap<Attribute, AttributeModifier> attributes;
 
-    public WeaponItem(int attackDamage, float attackSpeed, Item.Properties properties) {
+    public WeaponItem(float attackDamage, float attackSpeed, Item.Properties properties) {
         super(properties.group(ItemGroup.COMBAT));
         // Corrects numbers so that the constructor can simply use the value displayed on the tooltip
         attackDamage -= 1;
         attackSpeed = -(4 - attackSpeed);
-        float attackDamage1 = (float) attackDamage;
 
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", attackDamage1, AttributeModifier.Operation.ADDITION));
+        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", attackDamage, AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
 
         this.attributes = builder.build();

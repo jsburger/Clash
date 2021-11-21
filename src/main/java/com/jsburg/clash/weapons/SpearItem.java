@@ -2,7 +2,6 @@ package com.jsburg.clash.weapons;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.spear.FlurryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
@@ -24,7 +23,6 @@ import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -51,7 +49,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
     private static final float sweetSpotSize = 4f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
 
-    public SpearItem(int attackDamage, float attackSpeed, Item.Properties properties) {
+    public SpearItem(float attackDamage, float attackSpeed, Item.Properties properties) {
         super(attackDamage, attackSpeed, properties);
         attackDamage -= 1;
         attackSpeed = -(4 - attackSpeed);
@@ -260,7 +258,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                 int o = 7 + rand.nextInt(4);
                 for (int i = 0; i <= o; i++){
                     Vector3d d = dashDir.rotateYaw((rand.nextFloat() * .5f) - .25f).scale(rand.nextFloat() * .5 + .25);
-                    worldIn.addParticle(AllParticles.DAST_DUST.get(),
+                    worldIn.addParticle(AllParticles.DASH_DUST.get(),
                             playerIn.getPosX() + d.getX()/2, playerIn.getPosY() + d.getY() + .1, playerIn.getPosZ() + d.getZ()/2,
                             d.getX(), d.getY() + rand.nextFloat() * .1 - .05, d.getZ());
                 }
