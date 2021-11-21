@@ -1,5 +1,6 @@
 package com.jsburg.clash.weapons;
 
+import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -44,7 +45,10 @@ public class BillhookItem extends SpearItem {
     protected void onStabHit(ItemStack stack, PlayerEntity player, LivingEntity target, float chargePercent) {
         super.onStabHit(stack, player, target, chargePercent);
         Vector3d motion = target.getMotion();
-        target.setMotion(-motion.getX(), motion.getY(), -motion.getZ());
+        Vector3d diff = AttackHelper.getEntityPosition(player).subtract(AttackHelper.getEntityPosition(target));
+        Vector3d newMotion = new Vector3d(diff.getX(), 0, diff.getZ());
+        newMotion = newMotion.normalize().scale(new Vector3d(motion.getX(), 0, motion.getZ()).length());
+        target.setMotion(newMotion.getX(), motion.getY(), newMotion.getZ());
     }
 
     @Override
