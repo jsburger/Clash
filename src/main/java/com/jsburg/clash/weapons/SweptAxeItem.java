@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
@@ -61,6 +62,12 @@ public class SweptAxeItem extends WeaponItem {
             //Get entities to sweep, almost directly copied from sword sweeping code.
             for(LivingEntity livingentity : player.world.getEntitiesWithinAABB(LivingEntity.class, target.getBoundingBox().grow(1.5D, 0.5D, 1.5D))) {
                 if (livingentity != player && livingentity != target && !player.isOnSameTeam(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).hasMarker()) && player.getDistanceSq(livingentity) < 12.0D) {
+                    //Skip over pets tamed by the player
+                    if (livingentity instanceof TameableEntity) {
+                        if (((TameableEntity) livingentity).isOwner(player)) {
+                            continue;
+                        }
+                    }
                     if (!player.world.isRemote) {
                         livingentity.applyKnockback(0.4f, -look.getX(), -look.getZ());
                         livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + AttackHelper.getBonusEnchantmentDamage(stack, livingentity));
