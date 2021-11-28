@@ -14,6 +14,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,7 +27,7 @@ public class LivingEvents {
     //Referenced from Occultism's Butcher's Knife
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (event.isRecentlyHit() && event.getSource().getTrueSource() instanceof LivingEntity) {
+        if (event.isRecentlyHit() && event.getSource().getTrueSource() instanceof LivingEntity && event.getSource().getImmediateSource() == event.getSource().getTrueSource()) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
@@ -53,13 +54,13 @@ public class LivingEvents {
 
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
-        if (event.getSource().getTrueSource() instanceof LivingEntity) {
+        if (event.getSource().getTrueSource() instanceof LivingEntity && event.getSource().getImmediateSource() == event.getSource().getTrueSource()) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
             ItemStack weapon = source.getHeldItemMainhand();
             int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
-            if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target)) {
+            if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 event.setAmount(event.getAmount() * ButcheryEnchantment.getDamageMultiplier(butcherLevel));
                 ButcheryEnchantment.onHit(butcherLevel, target);
             }
