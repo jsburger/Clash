@@ -3,6 +3,7 @@ package com.jsburg.clash.event;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
+import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -31,7 +32,7 @@ public class LivingEvents {
 
             ItemStack weapon = source.getHeldItemMainhand();
             int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
-            if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target)) {
+            if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 Random random = target.getEntityWorld().getRandom();
                 int porkCount = ButcheryEnchantment.getPorkAmount(butcherLevel, random);
                 if (porkCount > 0) {
