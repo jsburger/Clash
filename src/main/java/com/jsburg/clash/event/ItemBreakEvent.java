@@ -19,6 +19,7 @@ public class ItemBreakEvent {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onItemBroken(PlayerDestroyItemEvent event) {
         ItemStack item = event.getOriginal();
+        //Drop Swept axe head
         if (item.getItem() instanceof SweptAxeItem) {
             ItemStack headItem = new ItemStack(AllItems.SWEPT_AXE_HEAD.get(), 1);
             EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(item), headItem);

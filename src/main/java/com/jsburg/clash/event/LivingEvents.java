@@ -11,29 +11,35 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
 
+import static sun.security.x509.ReasonFlags.UNUSED;
+
+@SuppressWarnings(UNUSED)
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LivingEvents {
 
     //Referenced from Occultism's Butcher's Knife
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (event.isRecentlyHit() && event.getSource().getTrueSource() instanceof LivingEntity && event.getSource().getImmediateSource() == event.getSource().getTrueSource()) {
+        if (event.isRecentlyHit() && event.getSource().getTrueSource() instanceof LivingEntity && isMeleeDamage(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
+            //Check for Butchery
             ItemStack weapon = source.getHeldItemMainhand();
             int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
+                //Spawn bonus Pork Chops
                 Random random = target.getEntityWorld().getRandom();
                 int porkCount = ButcheryEnchantment.getPorkAmount(butcherLevel, random);
                 if (porkCount > 0) {
@@ -54,7 +60,7 @@ public class LivingEvents {
 
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
-        if (event.getSource().getTrueSource() instanceof LivingEntity && event.getSource().getImmediateSource() == event.getSource().getTrueSource()) {
+        if (event.getSource().getTrueSource() instanceof LivingEntity && isMeleeDamage(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
@@ -65,5 +71,14 @@ public class LivingEvents {
                 ButcheryEnchantment.onHit(butcherLevel, target);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onEntityKill(LivingDeathEvent event) {
+
+    }
+
+    private static boolean isMeleeDamage(DamageSource source) {
+        return source.getImmediateSource() == source.getTrueSource();
     }
 }

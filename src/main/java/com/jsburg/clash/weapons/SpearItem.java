@@ -22,6 +22,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
@@ -181,7 +182,11 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
                         //Server side logic time
                         if (!worldIn.isRemote) {
-                            //Calls Forge's attacking hook, this is definitely a direct attack.
+                            //Target dragon properly
+                            if (target instanceof EnderDragonPartEntity) {
+                                target = ((EnderDragonPartEntity)target).dragon;
+                            }
+                            //Calls Forge's attacking hook, as this is definitely a direct attack.
                             boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                             if (canAttack) {
                                 float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);

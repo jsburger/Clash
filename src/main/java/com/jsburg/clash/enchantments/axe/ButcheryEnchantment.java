@@ -40,6 +40,7 @@ public class ButcheryEnchantment extends Enchantment {
     }
 
     public static int getPorkAmount(int level, Random random) {
+        //50/50 chance to add porkchop for every level
         int count = 0;
         for (int n = 1; n <= level; n++) {
             if (random.nextFloat() <= .5) {
