@@ -3,6 +3,7 @@ package com.jsburg.clash.registry;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.enchantments.axe.RampageEnchantment;
+import com.jsburg.clash.enchantments.axe.RetaliationEnchantment;
 import com.jsburg.clash.enchantments.spear.*;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
@@ -29,4 +30,5 @@ public class AllEnchantments {
 
     public static final RegistryObject<Enchantment> BUTCHERY = ENCHANTMENTS.register("butchery", () -> new ButcheryEnchantment(Enchantment.Rarity.UNCOMMON, SWEPT, EquipmentSlotType.MAINHAND));
     public static final RegistryObject<Enchantment> RAMPAGE = ENCHANTMENTS.register("rampage", () -> new RampageEnchantment(Enchantment.Rarity.RARE, SWEPT, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> RETALIATION = ENCHANTMENTS.register("retaliation", () -> new RetaliationEnchantment(Enchantment.Rarity.COMMON, SWEPT, EquipmentSlotType.MAINHAND));
 }

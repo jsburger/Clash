@@ -19,5 +19,7 @@
 
   "enchantment.clash.butchery": "Butchery",
   "enchantment.clash.rampage": "Rampaging",
-  "effect.clash.rampaging": "Rampaging"
+  "effect.clash.rampaging": "Rampaging",
+  "enchantment.clash.retaliation": "Retaliation",
+  "effect.clash.retaliation": "Retaliation"
 }

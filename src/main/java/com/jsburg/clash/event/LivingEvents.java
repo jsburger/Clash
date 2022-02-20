@@ -3,6 +3,7 @@ package com.jsburg.clash.event;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.enchantments.axe.RampageEnchantment;
+import com.jsburg.clash.enchantments.axe.RetaliationEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
@@ -10,6 +11,7 @@ import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.DamageSource;
@@ -37,7 +39,7 @@ public class LivingEvents {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
-            //Check for Butchery
+            //Check for Butchery drops
             ItemStack weapon = source.getHeldItemMainhand();
             int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
@@ -62,15 +64,27 @@ public class LivingEvents {
 
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
+        //CHECK FOR MELEE ATTACKS
         if (wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
             ItemStack weapon = source.getHeldItemMainhand();
+            //Butchery Effect
             int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 event.setAmount(event.getAmount() * ButcheryEnchantment.getDamageMultiplier(butcherLevel));
                 ButcheryEnchantment.onHit(butcherLevel, target);
+            }
+        }
+        //PLAYER GETTING HURT
+        if (event.getEntityLiving() instanceof PlayerEntity) {
+            PlayerEntity hurtPlayer = (PlayerEntity) event.getEntityLiving();
+            ItemStack heldItem = hurtPlayer.getHeldItemMainhand();
+
+            //Retaliation effect
+            if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem) > 0) {
+                RetaliationEnchantment.onUserHurt(hurtPlayer, EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem));
             }
         }
     }

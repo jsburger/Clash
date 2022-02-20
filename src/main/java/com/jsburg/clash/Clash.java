@@ -46,7 +46,7 @@ public class Clash
     }
 
     private void setupCommon(final FMLCommonSetupEvent event) {
-
+        // hiiii
     }
 
     private void setupClient(final FMLClientSetupEvent event) {
