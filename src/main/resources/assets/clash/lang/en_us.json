@@ -17,5 +17,7 @@
   "item.clash.swept_axe": "Swept Axe",
   "item.clash.swept_axe_head": "Swept Axe Head",
 
-  "enchantment.clash.butchery": "Butchery"
+  "enchantment.clash.butchery": "Butchery",
+  "enchantment.clash.rampage": "Rampaging",
+  "effect.clash.rampaging": "Rampaging"
 }

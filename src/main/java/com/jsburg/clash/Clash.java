@@ -1,10 +1,7 @@
 package com.jsburg.clash;
 
 import com.jsburg.clash.event.ClientEvents;
-import com.jsburg.clash.registry.AllEnchantments;
-import com.jsburg.clash.registry.AllItems;
-import com.jsburg.clash.registry.AllParticles;
-import com.jsburg.clash.registry.AllSounds;
+import com.jsburg.clash.registry.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +38,7 @@ public class Clash
         AllSounds.SOUNDS.register(modEventBus);
         AllParticles.PARTICLE_TYPES.register(modEventBus);
         AllEnchantments.ENCHANTMENTS.register(modEventBus);
+        AllEffects.EFFECTS.register(modEventBus);
 
         modEventBus.addListener(this::setupCommon);
         modEventBus.addListener(this::setupClient);

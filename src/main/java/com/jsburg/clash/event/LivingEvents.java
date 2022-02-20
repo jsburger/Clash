@@ -2,6 +2,7 @@ package com.jsburg.clash.event;
 
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
+import com.jsburg.clash.enchantments.axe.RampageEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
@@ -16,6 +17,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -31,7 +33,7 @@ public class LivingEvents {
     //Referenced from Occultism's Butcher's Knife
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (event.isRecentlyHit() && event.getSource().getTrueSource() instanceof LivingEntity && isMeleeDamage(event.getSource())) {
+        if (event.isRecentlyHit() && wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
@@ -60,7 +62,7 @@ public class LivingEvents {
 
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
-        if (event.getSource().getTrueSource() instanceof LivingEntity && isMeleeDamage(event.getSource())) {
+        if (wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
             LivingEntity target = event.getEntityLiving();
 
@@ -75,7 +77,20 @@ public class LivingEvents {
 
     @SubscribeEvent
     public static void onEntityKill(LivingDeathEvent event) {
+        if (wasMeleeCaused(event.getSource())) {
+            LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
+            LivingEntity target = event.getEntityLiving();
 
+            ItemStack weapon = source.getHeldItemMainhand();
+            int rampageLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RAMPAGE.get(), weapon);
+            if (rampageLevel > 0) {
+                RampageEnchantment.onKill(source, rampageLevel);
+            }
+        }
+    }
+
+    private static boolean wasMeleeCaused(DamageSource source) {
+        return (source.getTrueSource() instanceof LivingEntity && isMeleeDamage(source));
     }
 
     private static boolean isMeleeDamage(DamageSource source) {
