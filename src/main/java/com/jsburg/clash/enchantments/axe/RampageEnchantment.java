@@ -32,7 +32,7 @@ public class RampageEnchantment extends Enchantment {
     //Called in LivingEvents
     public static void onKill(LivingEntity user, int level) {
         EffectInstance rampageStacks = user.getActivePotionEffect(AllEffects.RAMPAGING.get());
-        int amp = rampageStacks == null ? 0 : rampageStacks.getAmplifier();
+        int amp = rampageStacks == null ? -1 : rampageStacks.getAmplifier();
         user.addPotionEffect(new EffectInstance(AllEffects.RAMPAGING.get(), 30 + 20 * level, amp + 1, false, false));
     }
 

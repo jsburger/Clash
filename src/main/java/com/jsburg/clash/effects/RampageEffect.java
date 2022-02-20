@@ -16,7 +16,7 @@ public class RampageEffect extends Effect {
         // Uses attack ticks because attack speed only reduces the tick requirement of an attack,
         // meaning if it runs out, progress gained on a swing is reverted
         if (target instanceof PlayerEntity) {
-            target.ticksSinceLastSwing += amplifier;
+            target.ticksSinceLastSwing += amplifier + 1;
         }
     }
 
