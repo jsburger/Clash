@@ -6,6 +6,8 @@ import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -21,6 +23,8 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class SweptAxeItem extends WeaponItem {
@@ -31,6 +35,11 @@ public class SweptAxeItem extends WeaponItem {
 
     public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
         return !player.isCreative();
+    }
+
+    @Override
+    public List<Enchantment> vanillaEnchantments() {
+        return Arrays.asList(Enchantments.LOOTING);
     }
 
 
