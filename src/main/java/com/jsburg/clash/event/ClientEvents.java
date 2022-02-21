@@ -43,6 +43,7 @@ public class ClientEvents {
         manager.registerFactory(AllParticles.BUTCHER_SPARK_EMITTER.get(), ButcherSparkEmitter.Factory::new);
         manager.registerFactory(AllParticles.DASH_DUST.get(), DashDustParticle.Factory::new);
         manager.registerFactory(AllParticles.BONUS_DROP.get(), BonusDropParticle.Factory::new);
+        manager.registerFactory(AllParticles.SCREEN_SHAKER.get(), ScreenShakerParticle.Factory::new);
     }
 
     //All the events below this are set up with listeners in Client setup

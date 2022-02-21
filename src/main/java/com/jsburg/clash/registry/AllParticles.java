@@ -32,4 +32,7 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> BONUS_DROP = PARTICLE_TYPES.register("bonus_drop", () ->
             new BasicParticleType(true));
 
+    public static final RegistryObject<BasicParticleType> SCREEN_SHAKER = PARTICLE_TYPES.register("screen_shaker", () ->
+            new BasicParticleType(true));
+
 }

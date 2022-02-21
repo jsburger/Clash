@@ -26,7 +26,7 @@ public class ScreenShaker {
             LastY = ShakeY;
             ShakeX = uRandom(.4) * Intensity /* * XFlip*/;
             ShakeY = uRandom(.15) * Intensity;
-            Intensity *= .5;
+            Intensity *= .8;
 //            Intensity = Math.max(Intensity, .2);
             //I know that uRandom flips at random, the idea is that this avoids directly alternating the offset
             //while allowing it to vary some more.
@@ -39,7 +39,7 @@ public class ScreenShaker {
     }
 
     private static double uRandom(double n) {
-        double flip = (RANDOM.nextInt(1) - .5) * 2;
+        double flip = (RANDOM.nextInt(2) - .5) * 2;
         return (1 - Math.pow(RANDOM.nextDouble(), 2)) * n * flip;
     }
 

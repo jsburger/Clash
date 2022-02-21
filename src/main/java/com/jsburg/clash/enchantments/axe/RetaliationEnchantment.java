@@ -32,7 +32,7 @@ public class RetaliationEnchantment extends Enchantment {
     public static void onUserHurt(LivingEntity user, int level) {
         EffectInstance retaliation = user.getActivePotionEffect(AllEffects.RETALIATION.get());
         int amp = retaliation == null ? -1 : retaliation.getAmplifier();
-        user.addPotionEffect(new EffectInstance(AllEffects.RETALIATION.get(), 20 * 20, MathHelper.clamp(amp + 1, 0, level), false, false));
+        user.addPotionEffect(new EffectInstance(AllEffects.RETALIATION.get(), 20 * 20, MathHelper.clamp(amp + 1, 0, level), false, true));
     }
 
 }
