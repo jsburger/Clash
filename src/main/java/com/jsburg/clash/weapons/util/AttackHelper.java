@@ -149,6 +149,10 @@ public class AttackHelper {
         world.addParticle(particle, position.getX(), position.getY(), position.getZ(), motion.getX(), motion.getY(), motion.getZ());
     }
 
+    public static void makeParticle(World world, BasicParticleType particle, Vector3d position, double xSpeed, double ySpeed, double zSpeed) {
+        world.addParticle(particle, position.getX(), position.getY(), position.getZ(), xSpeed, ySpeed, zSpeed);
+    }
+
     public static void makeParticle(World world, BasicParticleType particle, Vector3d position) {
         makeParticle(world, particle, position, Vector3d.ZERO, 0);
     }

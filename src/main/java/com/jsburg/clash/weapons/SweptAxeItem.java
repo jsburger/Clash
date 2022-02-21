@@ -1,6 +1,7 @@
 package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.event.ClientEvents;
+import com.jsburg.clash.registry.AllEffects;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.util.AttackHelper;
@@ -15,7 +16,9 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -48,10 +51,12 @@ public class SweptAxeItem extends WeaponItem {
         if (AttackHelper.weaponIsCharged(player)) {
 
             //Sweep Particle
+            EffectInstance retaliation = player.getActivePotionEffect(AllEffects.RETALIATION.get());
             Vector3d eyepos = player.getPositionVec().add(0, player.getEyeHeight(), 0);
             AttackHelper.makeParticle(target.world, AllParticles.AXE_SWEEP.get(),
                     target.getPositionVec().add(eyepos).scale(.5),
-                    Vector3d.ZERO, 0
+                    //Axe sweep particle uses xSpeed as scale, ySpeed as being red, zSpeed is horizontal flip
+                    .5, (retaliation != null) ? 1 : 0, player.getPrimaryHand() == HandSide.LEFT ? 1 : 0
             );
 
 //            if (player.world.isRemote) {

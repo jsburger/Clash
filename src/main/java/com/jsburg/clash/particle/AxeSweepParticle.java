@@ -10,8 +10,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class AxeSweepParticle extends SpriteTexturedParticle {
 
     private final IAnimatedSprite spriteWithAge;
+    private final boolean flip;
 
-    private AxeSweepParticle(ClientWorld world, double x, double y, double z, double scale, IAnimatedSprite spriteWithAge) {
+    private AxeSweepParticle(ClientWorld world, double x, double y, double z, double scale, boolean isRed, boolean flipped, IAnimatedSprite spriteWithAge) {
         super(world, x, y, z, 0.0D, 0.0D, 0.0D);
         this.spriteWithAge = spriteWithAge;
         this.maxAge = 5;
@@ -19,7 +20,13 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
         this.particleRed = f;
         this.particleGreen = f;
         this.particleBlue = f;
+        if (isRed) {
+            this.particleRed = .7f;
+            this.particleGreen *= .15;
+            this.particleBlue *= .15;
+        }
         this.particleScale = 1.0F - (float)scale * 0.2F;
+        this.flip = flipped;
         this.selectSpriteWithAge(spriteWithAge);
     }
 
@@ -54,9 +61,17 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
             this.spriteSet = spriteSet;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new AxeSweepParticle(worldIn, x, y, z, xSpeed, this.spriteSet);
+        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double scale, double isRed, double isFlipped) {
+            return new AxeSweepParticle(worldIn, x, y, z, scale, isRed > 0, isFlipped > 0, this.spriteSet);
         }
+    }
+
+    protected float getMinU() {
+        return this.flip ? super.getMaxU() : super.getMinU();
+    }
+
+    protected float getMaxU() {
+        return this.flip ? super.getMinU() : super.getMaxU();
     }
 
 }
