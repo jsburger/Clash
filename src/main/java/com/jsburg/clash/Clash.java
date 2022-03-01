@@ -39,6 +39,7 @@ public class Clash
         AllParticles.PARTICLE_TYPES.register(modEventBus);
         AllEnchantments.ENCHANTMENTS.register(modEventBus);
         AllEffects.EFFECTS.register(modEventBus);
+        MiscRegistry.ENTITY_TYPES.register(modEventBus);
 
         modEventBus.addListener(this::setupCommon);
         modEventBus.addListener(this::setupClient);
@@ -53,6 +54,8 @@ public class Clash
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, ClientEvents::fiddleWithHands);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, ClientEvents::doCameraStuff);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, ClientEvents::doClientTick);
+
+        event.enqueueWork(AllItems::registerItemProperties);
     }
 
 }

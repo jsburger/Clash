@@ -67,15 +67,6 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
     }
 
-    @Override
-    public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
-        return !player.isCreative();
-    }
-
-    @Override
-    public int getItemEnchantability() {
-        return 1;
-    }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
@@ -161,7 +152,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
                 //Get vector to the side of the player
                 Vector3d side = look.crossProduct(UP).scale(0.75);
-                //bro i fucking love xor
+                //bro i love xor
                 //Flips side based on where the spear actually is on screen
                 if (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) {
                     side = side.scale(-1);

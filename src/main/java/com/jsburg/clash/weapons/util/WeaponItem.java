@@ -2,6 +2,7 @@ package com.jsburg.clash.weapons.util;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.enchantment.IVanishable;
@@ -15,6 +16,8 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -33,6 +36,16 @@ public class WeaponItem extends Item implements IVanishable {
         builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
 
         this.attributes = builder.build();
+    }
+
+    @Override
+    public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
+        return !player.isCreative();
+    }
+
+    @Override
+    public int getItemEnchantability() {
+        return 1;
     }
 
     protected Multimap<Attribute, AttributeModifier> getAttributes() {
@@ -61,17 +74,17 @@ public class WeaponItem extends Item implements IVanishable {
         return null;
     }
 
-
-    @Override
-    public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity target) {
-
-        if (AttackHelper.canAttackEntity(player, target)) {
-            this.onHit(stack, player, target);
-        }
-
-        return super.onLeftClickEntity(stack, player, target);
-    }
-
-    protected void onHit(ItemStack stack, PlayerEntity player, Entity target) {}
+// Unused for now
+//    @Override
+//    public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity target) {
+//
+//        if (AttackHelper.canAttackEntity(player, target)) {
+//            this.onHit(stack, player, target);
+//        }
+//
+//        return super.onLeftClickEntity(stack, player, target);
+//    }
+//
+//    protected void onHit(ItemStack stack, PlayerEntity player, Entity target) {}
 
 }

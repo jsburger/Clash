@@ -2,6 +2,7 @@ package com.jsburg.clash.mixin;
 
 import com.google.common.collect.ImmutableSet;
 import com.jsburg.clash.weapons.util.IPoseItem;
+import com.jsburg.clash.weapons.util.ISwingAnimationItem;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -64,5 +65,24 @@ public class BipedModelMixin {
             }
         }
     }
+
+    @Inject(method = "func_230486_a_", at = @At("HEAD"), remap = false, cancellable = true)
+    private <T extends LivingEntity> void onArmSwing(T entity, float ageInTicks, CallbackInfo ci) {
+        if (entity instanceof PlayerEntity) {
+
+            PlayerEntity player = (PlayerEntity) entity;
+            ItemStack handItem = player.getHeldItemMainhand();
+            Item itemItem = handItem.getItem();
+            if (itemItem instanceof ISwingAnimationItem) {
+                ISwingAnimationItem.AnimType type = ((ISwingAnimationItem) itemItem).hasThirdPersonAnim(player, handItem);
+                if (type != ISwingAnimationItem.AnimType.FALSE) {
+                    ((ISwingAnimationItem) itemItem).doThirdPersonAnim(player, (BipedModel<T>)(Object) this, handItem, player.getPrimaryHand() == HandSide.LEFT);
+                    if (type == ISwingAnimationItem.AnimType.OVERWRITES)
+                        ci.cancel();
+                }
+            }
+        }
+    }
+
 
 }

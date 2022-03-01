@@ -4,6 +4,7 @@ import com.jsburg.clash.Clash;
 import com.jsburg.clash.particle.*;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
+import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -26,6 +27,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import static com.jsburg.clash.weapons.GreatbladeItem.swingTimeMax;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -70,6 +72,13 @@ public class ClientEvents {
             needsPop = false;
         }
         boolean leftHanded = player.getPrimaryHand() == HandSide.LEFT ^ event.getHand() == Hand.OFF_HAND;
+
+        boolean sweptAxeDraw = (event.getHand() == Hand.MAIN_HAND && event.getItemStack().getItem() instanceof SweptAxeItem && event.getEquipProgress() > .1);
+        boolean greatbladeDraw = (event.getItemStack().getItem() instanceof GreatbladeItem && (
+                (event.getHand() == player.getActiveHand() && player.isHandActive()) ||
+                GreatbladeItem.getSwingTime(event.getItemStack()) > 0)
+            );
+
         if (event.getItemStack().getItem() instanceof SpearItem) {
 
             boolean isActive = event.getHand() == player.getActiveHand() && player.isHandActive();
@@ -121,7 +130,8 @@ public class ClientEvents {
 
             }
         }
-        if (event.getHand() == Hand.MAIN_HAND && event.getItemStack().getItem() instanceof SweptAxeItem && event.getEquipProgress() > .1) {
+        //Here's where the code starts getting to the point of wanting a system
+        if (sweptAxeDraw || greatbladeDraw) {
             float swingProgress = event.getSwingProgress();
             HandSide side = player.getPrimaryHand();
             MatrixStack stack = event.getMatrixStack();
@@ -134,14 +144,48 @@ public class ClientEvents {
 
             stack.push();
 
-            float xOffset =-1.4F * MathHelper.sin((swingProgress) * pi);
-            float yOffset = 0.2F * MathHelper.sin(sqrt(swingProgress) * pi * 2F);
-            float zOffset =-0.6F * MathHelper.sin((swingProgress) * pi * 2);
-            stack.translate(sideFlip * xOffset, yOffset, zOffset);
+            if (sweptAxeDraw) {
+                float xOffset = -1.4F * MathHelper.sin((swingProgress) * pi);
+                float yOffset = 0.2F * MathHelper.sin(sqrt(swingProgress) * pi * 2F);
+                float zOffset = -0.6F * MathHelper.sin((swingProgress) * pi * 2);
+                stack.translate(sideFlip * xOffset, yOffset, zOffset);
 
-            transformSideFirstPerson(stack, side, (swingProgress == 0 || swingProgress > .7 || event.getEquipProgress() == 0) ? event.getEquipProgress() : 0);
-            stack.rotate(Vector3f.ZP.rotationDegrees(sideFlip * -80 * MathHelper.sin(sqrt(swingProgress) * pi)));
-            stack.rotate(Vector3f.XP.rotationDegrees(-180 * MathHelper.sin(swingProgress * pi)));
+                transformSideFirstPerson(stack, side, (swingProgress == 0 || swingProgress > .7 || event.getEquipProgress() == 0) ? event.getEquipProgress() : 0);
+                stack.rotate(Vector3f.ZP.rotationDegrees(sideFlip * -80 * MathHelper.sin(sqrt(swingProgress) * pi)));
+                stack.rotate(Vector3f.XP.rotationDegrees(-180 * MathHelper.sin(swingProgress * pi)));
+            }
+
+            if (greatbladeDraw) {
+                GreatbladeItem sword = (GreatbladeItem) event.getItemStack().getItem();
+                int useCount = player.getItemInUseCount();
+                int useDuration = sword.getUseDuration(event.getItemStack());
+                int useTime = useDuration - useCount;
+                float chargePercent = Math.min((useTime + event.getPartialTicks()) / sword.getMaxCharge(), 1);
+                int swingTime = GreatbladeItem.getSwingTime(event.getItemStack());
+                float swingPercent = Math.min(1, (swingTimeMax() - swingTime + event.getPartialTicks())/swingTimeMax());
+
+                swingPercent = (float) Math.pow(swingPercent, 1);
+
+                if (swingTime > 0) {
+                    chargePercent = 1;
+                }
+                else swingPercent = 0;
+
+
+                float lerp = MathHelper.sin((float) (Math.pow(chargePercent, 3) * pi/2));
+                stack.translate(.2 * sideFlip * lerp, -.8 * lerp, -.2 * lerp);
+                float swingLerp = MathHelper.sin(sqrt(swingPercent) * pi);
+                stack.translate(-2.5 * sqrt(swingPercent), .25 * swingLerp, -.6 * swingLerp);
+                stack.rotate(Vector3f.ZP.rotationDegrees(50 * lerp * sideFlip));
+
+                transformSideFirstPerson(stack, side, 0);
+
+                stack.rotate(Vector3f.ZP.rotationDegrees(sideFlip * 50 * MathHelper.sin(sqrt(swingPercent) * pi/2)));
+                stack.rotate(Vector3f.XP.rotationDegrees(200 * MathHelper.sin((float) ((1 - Math.pow(1 - swingPercent, 2)) * pi/2))));
+
+
+
+            }
 
             renderer.renderItemSide(player, event.getItemStack(), transform, leftHanded, stack, event.getBuffers(), event.getLight());
             stack.pop();

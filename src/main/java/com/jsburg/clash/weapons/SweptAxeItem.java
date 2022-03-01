@@ -36,10 +36,6 @@ public class SweptAxeItem extends WeaponItem {
         super(attackDamage, attackSpeed, properties);
     }
 
-    public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
-        return !player.isCreative();
-    }
-
     @Override
     public List<Enchantment> vanillaEnchantments() {
         return Arrays.asList(Enchantments.LOOTING);
