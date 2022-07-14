@@ -27,7 +27,7 @@ public class GreatbladeItem extends WeaponItem {
     }
 
     public static int swingTimeMax() {
-        return 10;
+        return 7;
     }
 
     @Override

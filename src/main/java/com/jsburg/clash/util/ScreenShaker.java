@@ -8,6 +8,8 @@ import java.util.Random;
 
 public class ScreenShaker {
 
+    //TODO: Elden ring screenshake. Alternatively, try making the screenshake start faster
+
     private static final Random RANDOM = new Random();
     private static double ShakeX = 0;
     private static double ShakeY = 0;
@@ -54,6 +56,7 @@ public class ScreenShaker {
 
     public static void applyScreenShake(ActiveRenderInfo renderInfo, double partialTicks) {
         if (ShakeTime > 0) {
+            //TODO: Try 1 - partialTicks
             double lerp = partialTicks;
             double x = LastX + (ShakeX - LastX) * lerp;
             double y = LastY + (ShakeY - LastY) * lerp;

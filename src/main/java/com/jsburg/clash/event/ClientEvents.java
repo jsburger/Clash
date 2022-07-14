@@ -28,6 +28,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static com.jsburg.clash.weapons.GreatbladeItem.swingTimeMax;
+import static java.lang.Math.pow;
 import static net.minecraft.util.math.MathHelper.sqrt;
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -99,7 +100,7 @@ public class ClientEvents {
                 int useCount = player.getItemInUseCount();
                 int useDuration = spear.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = (float) Math.pow(Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1), 1);
+                float chargePercent = (float) pow(Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1), 1);
 
 
                 float xAngle = -6 * chargePercent;
@@ -114,7 +115,7 @@ public class ClientEvents {
                 event.getMatrixStack().rotate(new Quaternion(xAngle, yAngle, zAngle, true));
 
                 double chargeOver = ((useTime + event.getPartialTicks()) - (spear.getMaxCharge(event.getItemStack()) - 4)) / 4;
-                chargeOver = Math.pow(Math.max(0, Math.min(1, chargeOver)), 2);
+                chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
                     event.getMatrixStack().translate(0, 0, .1 * chargeOver);
                 }
@@ -122,7 +123,7 @@ public class ClientEvents {
 
             if (isCoolingDown) {
                 MatrixStack stack = event.getMatrixStack();
-                float cd = (float) Math.pow(cooldown, 3);
+                float cd = (float) pow(cooldown, 3);
 
                 stack.rotate(new Quaternion(-10 * cd, 4 * cd, 0, true));
                 stack.translate(0, -.1 * cd, -.1 * cd);
@@ -162,9 +163,14 @@ public class ClientEvents {
                 int useTime = useDuration - useCount;
                 float chargePercent = Math.min((useTime + event.getPartialTicks()) / sword.getMaxCharge(), 1);
                 int swingTime = GreatbladeItem.getSwingTime(event.getItemStack());
+//
+//                if (useTime > sword.getMaxCharge() && useCount != 0) {
+//                    swingTime = Math.max(Math.min(swingTimeMax(), (swingTimeMax() + 1) - (useTime - sword.getMaxCharge())), 0);
+//                }
+//
                 float swingPercent = Math.min(1, (swingTimeMax() - swingTime + event.getPartialTicks())/swingTimeMax());
 
-                swingPercent = (float) Math.pow(swingPercent, 1);
+                swingPercent = (float) pow(swingPercent, 1);
 
                 if (swingTime > 0) {
                     chargePercent = 1;
@@ -172,17 +178,24 @@ public class ClientEvents {
                 else swingPercent = 0;
 
 
-                float lerp = MathHelper.sin((float) (Math.pow(chargePercent, 3) * pi/2));
-                stack.translate(.2 * sideFlip * lerp, -.8 * lerp, -.2 * lerp);
-                float swingLerp = MathHelper.sin(sqrt(swingPercent) * pi);
-                stack.translate(-2.5 * sqrt(swingPercent), .25 * swingLerp, -.6 * swingLerp);
-                stack.rotate(Vector3f.ZP.rotationDegrees(50 * lerp * sideFlip));
+                float chargeLerp = MathHelper.sin((float) (pow(chargePercent, 3) * pi/2)) - swingPercent;
+
+                float swingLerp = sqrt(swingPercent);
+                float swingEase = (float) (easeInOutQuart(swingPercent) * .5 + (.5 * swingPercent));
+                float sineEase = MathHelper.sin(swingEase * pi);
+                float fullSineEase = MathHelper.sin(swingEase * 2 * pi);
+
+                stack.translate(.2 * sideFlip * chargeLerp, -.8 * chargeLerp, -.2 * chargeLerp);
+                stack.translate(-2 * swingEase * sideFlip, .15 * fullSineEase - .1 * swingEase, 0 * sineEase);
+
+                stack.rotate(Vector3f.ZP.rotationDegrees(50 * chargeLerp * sideFlip));
 
                 transformSideFirstPerson(stack, side, 0);
-
-                stack.rotate(Vector3f.ZP.rotationDegrees(sideFlip * 50 * MathHelper.sin(sqrt(swingPercent) * pi/2)));
-                stack.rotate(Vector3f.XP.rotationDegrees(200 * MathHelper.sin((float) ((1 - Math.pow(1 - swingPercent, 2)) * pi/2))));
-
+//                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));
+                Vector3f axis = new Vector3f((float) (sineEase - .5)/2, 0, 1);
+                stack.rotate(axis.rotationDegrees(-5 * fullSineEase + 90 * swingEase));
+                stack.rotate(Vector3f.XP.rotationDegrees(210 * swingEase));
+                stack.translate(.2 * sineEase, -.6 * sineEase, 0);
 
 
             }
@@ -208,6 +221,33 @@ public class ClientEvents {
     private static void transformSideFirstPerson(MatrixStack matrixStackIn, HandSide handIn, float equippedProg) {
         int i = handIn == HandSide.RIGHT ? 1 : -1;
         matrixStackIn.translate(((float)i * 0.56F), (-0.52F + equippedProg * -0.6F), -0.72F);
+    }
+
+    private static double easeInOutQuart(double x) {
+        return 1 - pow(1 - x, 4);
+
+//        final float c1 = 1.70158f;
+//        final float c3 = c1 + 1;
+//
+//        return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
+
+//        final float c1 = 1.70158f;
+//        final float c2 = c1 * 1.525f;
+//
+//        return x < 0.5
+//                ? (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+//                : (pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+
+//        return x == 0
+//                ? 0
+//                : x == 1
+//                ? 1
+//                : x < 0.5 ? pow(2, 20 * x - 10) / 2
+//                : (2 - pow(2, -20 * x + 10)) / 2;
+
+//        return 1 - Math.pow(1 - x, 4);
+
+//        return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
     }
 
 }
