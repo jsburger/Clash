@@ -189,12 +189,12 @@ public class ClientEvents {
 
                 stack.rotate(Vector3f.ZP.rotationDegrees(50 * chargeLerp * sideFlip));
 
-                transformSideFirstPerson(stack, side, 0);
+                transformSideFirstPerson(stack, leftHanded ? HandSide.LEFT : HandSide.RIGHT, 0);
 //                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));
-                Vector3f axis = new Vector3f((float) (sineEase - .5)/2, 0, 1);
-                stack.rotate(axis.rotationDegrees(-5 * fullSineEase + 90 * swingEase));
+                Vector3f axis = new Vector3f((float) (sineEase - .5)/2  * sideFlip, 0, 1);
+                stack.rotate(axis.rotationDegrees(-5 * fullSineEase + 90 * swingEase * sideFlip));
                 stack.rotate(Vector3f.XP.rotationDegrees(210 * swingEase));
-                stack.translate(.2 * sineEase, -.6 * sineEase, 0);
+                stack.translate(.2 * sineEase * sideFlip, -.6 * sineEase, 0);
 
 
             }
