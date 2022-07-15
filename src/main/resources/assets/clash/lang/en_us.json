@@ -21,5 +21,8 @@
   "enchantment.clash.rampage": "Rampaging",
   "effect.clash.rampaging": "Rampaging",
   "enchantment.clash.retaliation": "Retaliation",
-  "effect.clash.retaliation": "Retaliation"
+  "effect.clash.retaliation": "Retaliation",
+
+  "item.clash.lost_greatblade": "Lost Greatblade",
+  "item.clash.lost_greatblade.bonus_damage": "Bonus Damage"
 }

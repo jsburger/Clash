@@ -3,6 +3,7 @@ package com.jsburg.clash.event;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.particle.*;
 import com.jsburg.clash.registry.AllParticles;
+import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.SpearItem;
@@ -54,6 +55,7 @@ public class ClientEvents {
     public static void doClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             ScreenShaker.tick();
+            ItemAnimator.tick();
         }
     }
 
@@ -74,10 +76,16 @@ public class ClientEvents {
         }
         boolean leftHanded = player.getPrimaryHand() == HandSide.LEFT ^ event.getHand() == Hand.OFF_HAND;
 
+        ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeItem.GreatbladeAnimation.class, player, player.getActiveHand());
+        float animationProgress = 0;
+        if (animation != null) {
+            animationProgress = animation.getProgress(event.getPartialTicks());
+        }
+
         boolean sweptAxeDraw = (event.getHand() == Hand.MAIN_HAND && event.getItemStack().getItem() instanceof SweptAxeItem && event.getEquipProgress() > .1);
         boolean greatbladeDraw = (event.getItemStack().getItem() instanceof GreatbladeItem && (
                 (event.getHand() == player.getActiveHand() && player.isHandActive()) ||
-                GreatbladeItem.getSwingTime(event.getItemStack()) > 0)
+                animation != null)
             );
 
         if (event.getItemStack().getItem() instanceof SpearItem) {
@@ -100,18 +108,12 @@ public class ClientEvents {
                 int useCount = player.getItemInUseCount();
                 int useDuration = spear.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = (float) pow(Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1), 1);
+                float chargePercent = Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1);
 
 
                 float xAngle = -6 * chargePercent;
                 float yAngle = 0 * chargePercent;
                 float zAngle = 20 * chargePercent * sideFlip;
-//                if (useTime > 20) {
-//                    zAngle += 10;
-//                    yAngle += 3;
-//                    xAngle -= 10;
-//                    event.getMatrixStack().translate(.1, 0, 0);
-//                }
                 event.getMatrixStack().rotate(new Quaternion(xAngle, yAngle, zAngle, true));
 
                 double chargeOver = ((useTime + event.getPartialTicks()) - (spear.getMaxCharge(event.getItemStack()) - 4)) / 4;
@@ -162,17 +164,15 @@ public class ClientEvents {
                 int useDuration = sword.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
                 float chargePercent = Math.min((useTime + event.getPartialTicks()) / sword.getMaxCharge(), 1);
-                int swingTime = GreatbladeItem.getSwingTime(event.getItemStack());
-//
-//                if (useTime > sword.getMaxCharge() && useCount != 0) {
-//                    swingTime = Math.max(Math.min(swingTimeMax(), (swingTimeMax() + 1) - (useTime - sword.getMaxCharge())), 0);
-//                }
-//
-                float swingPercent = Math.min(1, (swingTimeMax() - swingTime + event.getPartialTicks())/swingTimeMax());
 
-                swingPercent = (float) pow(swingPercent, 1);
+                if (chargePercent > .8) {
+                    double n = Math.sin((player.ticksExisted + event.getPartialTicks()) * 1.3) * .005 * chargePercent;
+                    stack.translate(0, n, 0);
+                }
 
-                if (swingTime > 0) {
+                float swingPercent = animationProgress;
+
+                if (swingPercent > 0) {
                     chargePercent = 1;
                 }
                 else swingPercent = 0;
@@ -180,7 +180,6 @@ public class ClientEvents {
 
                 float chargeLerp = MathHelper.sin((float) (pow(chargePercent, 3) * pi/2)) - swingPercent;
 
-                float swingLerp = sqrt(swingPercent);
                 float swingEase = (float) (easeInOutQuart(swingPercent) * .5 + (.5 * swingPercent));
                 float sineEase = MathHelper.sin(swingEase * pi);
                 float fullSineEase = MathHelper.sin(swingEase * 2 * pi);

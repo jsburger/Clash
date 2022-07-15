@@ -2,7 +2,10 @@ package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
+import com.jsburg.clash.util.ItemAnimator;
+import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,13 +13,26 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class GreatbladeItem extends WeaponItem {
 
     public GreatbladeItem(float attackDamage, float attackSpeed, Properties properties) {
         super(attackDamage, attackSpeed, properties);
     }
+
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
+        tooltip.add(TextHelper.getBonusText("item.clash.lost_greatblade.bonus_damage", 5));
+    }
+
 
     public int getUseDuration(ItemStack stack) {
         return 720000;
@@ -38,9 +54,6 @@ public class GreatbladeItem extends WeaponItem {
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
-        if (getSwingTime(stack) > 0) {
-            addSwingTime(stack, -1);
-        }
     }
 
     @Override
@@ -55,10 +68,13 @@ public class GreatbladeItem extends WeaponItem {
                 GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec(), player);
                 slash.setMotion(player.getLook(0).scale(1));
                 worldIn.addEntity(slash);
-            }
 
-            setSwingTime(stack, swingTimeMax() + 1);
-            player.resetCooldown();
+                if (worldIn.isRemote) {
+                    ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeAnimation());
+                }
+
+                player.resetCooldown();
+            }
         }
     }
 
@@ -70,24 +86,16 @@ public class GreatbladeItem extends WeaponItem {
         return ActionResult.resultConsume(stack);
     }
 
-    public static int getSwingTime(ItemStack stack) {
-        CompoundNBT nbt = stack.getTag();
-        return nbt != null ? nbt.getInt("SwingTime") : 0;
-    }
-
-    public static void setSwingTime(ItemStack stack, int time) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putInt("SwingTime", time);
-    }
-
-    private static void addSwingTime(ItemStack stack, int add) {
-        setSwingTime(stack, getSwingTime(stack) + add);
-    }
-
     //See PlayerEntityMixin
     public interface IGreatbladeUser {
         int getSwingTime();
         void resetSwingTime();
         void incrementSwingTime();
+    }
+
+    public static class GreatbladeAnimation extends ItemAnimator.SimpleItemAnimation {
+        public GreatbladeAnimation() {
+            super(swingTimeMax());
+        }
     }
 }
