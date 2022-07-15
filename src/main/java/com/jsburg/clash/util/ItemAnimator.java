@@ -117,7 +117,7 @@ public class ItemAnimator {
 
         @Override
         public float getProgress() {
-            return (float)(lifetime / lifetimeMax);
+            return ((float)lifetime / lifetimeMax);
         }
 
         @Override

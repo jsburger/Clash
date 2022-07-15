@@ -2,7 +2,7 @@ package com.jsburg.clash.mixin;
 
 import com.google.common.collect.ImmutableSet;
 import com.jsburg.clash.weapons.util.IPoseItem;
-import com.jsburg.clash.weapons.util.ISwingAnimationItem;
+import com.jsburg.clash.weapons.util.IThirdPersonArmController;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,10 +16,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Mixin(BipedModel.class)
 public class BipedModelMixin {
+
+    private static final Set<Hand> hands = ImmutableSet.of(Hand.MAIN_HAND, Hand.OFF_HAND);
 
     @Inject(method = "func_241655_c_", at = @At("HEAD"), remap = false, cancellable = true)
     private <T extends LivingEntity> void onFirstHandPose(T entity, CallbackInfo ci) {
@@ -27,7 +28,6 @@ public class BipedModelMixin {
             BipedModel<T> model = (BipedModel<T>) (Object) this;
             PlayerEntity player = (PlayerEntity) entity;
 
-            Set<Hand> hands = ImmutableSet.of(Hand.MAIN_HAND, Hand.OFF_HAND);
             for (Hand hand : hands) {
                 boolean active = player.isHandActive() && hand == player.getActiveHand();
                 ItemStack handItem = player.getHeldItem(hand);
@@ -50,7 +50,6 @@ public class BipedModelMixin {
         if (entity instanceof PlayerEntity) {
 
             PlayerEntity player = (PlayerEntity) entity;
-            Set<Hand> hands = ImmutableSet.of(Hand.MAIN_HAND, Hand.OFF_HAND);
             for (Hand hand : hands) {
                 boolean active = player.isHandActive() && hand == player.getActiveHand();
                 ItemStack handItem = player.getHeldItem(hand);
@@ -71,14 +70,20 @@ public class BipedModelMixin {
         if (entity instanceof PlayerEntity) {
 
             PlayerEntity player = (PlayerEntity) entity;
-            ItemStack handItem = player.getHeldItemMainhand();
-            Item itemItem = handItem.getItem();
-            if (itemItem instanceof ISwingAnimationItem) {
-                ISwingAnimationItem.AnimType type = ((ISwingAnimationItem) itemItem).hasThirdPersonAnim(player, handItem);
-                if (type != ISwingAnimationItem.AnimType.FALSE) {
-                    ((ISwingAnimationItem) itemItem).doThirdPersonAnim(player, (BipedModel<T>)(Object) this, handItem, player.getPrimaryHand() == HandSide.LEFT);
-                    if (type == ISwingAnimationItem.AnimType.OVERWRITES)
-                        ci.cancel();
+            for (Hand hand : hands) {
+                boolean active = player.isHandActive() && hand == player.getActiveHand();
+                ItemStack handItem = player.getHeldItem(hand);
+                Item item = handItem.getItem();
+                if (item instanceof IThirdPersonArmController) {
+                    IThirdPersonArmController.AnimType type = ((IThirdPersonArmController) item).hasThirdPersonAnim(player, handItem, active, hand);
+                    if (type != IThirdPersonArmController.AnimType.FALSE) {
+                        boolean leftHanded = (hand == Hand.OFF_HAND ^ player.getPrimaryHand() == HandSide.LEFT);
+                        float partialTicks = (ageInTicks % 1);
+                        ((IThirdPersonArmController) item).doThirdPersonAnim(player, (BipedModel<T>) (Object) this, handItem, partialTicks, leftHanded, active, hand);
+                        if (type == IThirdPersonArmController.AnimType.OVERWRITES)
+                            ci.cancel();
+                            break;
+                    }
                 }
             }
         }
