@@ -39,15 +39,7 @@ public class ClientEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
-        ParticleManager manager = Minecraft.getInstance().particles;
-        manager.registerFactory(AllParticles.SPEAR_STAB.get(), SpearStabParticle.Factory::new);
-        manager.registerFactory(AllParticles.SPEAR_CRIT.get(), SpearCritParticle.Factory::new);
-        manager.registerFactory(AllParticles.AXE_SWEEP.get(), AxeSweepParticle.Factory::new);
-        manager.registerFactory(AllParticles.BUTCHER_SPARK.get(), ButcherSparkParticle.Factory::new);
-        manager.registerFactory(AllParticles.BUTCHER_SPARK_EMITTER.get(), ButcherSparkEmitter.Factory::new);
-        manager.registerFactory(AllParticles.DASH_DUST.get(), DashDustParticle.Factory::new);
-        manager.registerFactory(AllParticles.BONUS_DROP.get(), BonusDropParticle.Factory::new);
-        manager.registerFactory(AllParticles.SCREEN_SHAKER.get(), ScreenShakerParticle.Factory::new);
+        AllParticles.registerParticleFactories();
     }
 
     //All the events below this are set up with listeners in Client setup

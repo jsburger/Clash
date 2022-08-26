@@ -6,11 +6,25 @@ import net.minecraft.particles.BasicParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BonusDropParticle extends SpriteTexturedParticle {
+import java.util.function.Consumer;
+
+//Multipurpose class that does basic effects.
+public class ClashSpriteParticle extends SpriteTexturedParticle {
+
+    public static Factory BonusDrop(IAnimatedSprite sprite) {
+        return new Factory(sprite, (particle) -> {});
+    }
+    public static Factory ButcherSpark(IAnimatedSprite sprite) {
+        return new Factory(sprite, (p) -> {
+            p.maxAge = 8;
+            p.particleScale = 0.3f + p.rand.nextFloat() * 0.1f;
+        });
+    }
+
 
     private final IAnimatedSprite spriteWithAge;
 
-    protected BonusDropParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ, IAnimatedSprite sprite) {
+    protected ClashSpriteParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ, IAnimatedSprite sprite) {
         super(world, x, y, z, motionX, motionY, motionZ);
         this.selectSpriteWithAge(sprite);
         this.maxAge = 20;
@@ -40,13 +54,17 @@ public class BonusDropParticle extends SpriteTexturedParticle {
     @OnlyIn(Dist.CLIENT)
     public static class Factory implements IParticleFactory<BasicParticleType> {
         private final IAnimatedSprite sprite;
+        private final Consumer<ClashSpriteParticle> onParticleCreate;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(IAnimatedSprite sprite, Consumer<ClashSpriteParticle> onParticleInit) {
             this.sprite = sprite;
+            this.onParticleCreate = onParticleInit;
         }
 
         public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new BonusDropParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.sprite);
+            ClashSpriteParticle p = new ClashSpriteParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.sprite);
+            onParticleCreate.accept(p);
+            return p;
         }
     }
 

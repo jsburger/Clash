@@ -1,4 +1,4 @@
-package com.jsburg.clash.particle;
+package com.jsburg.clash.particle.unused;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
