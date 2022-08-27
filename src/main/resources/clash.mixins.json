@@ -6,7 +6,8 @@
   "refmap": "clash.refmap.json",
   "mixins": [],
   "client": [
-    "BipedModelMixin"
+    "BipedModelMixin",
+    "HeldItemLayerMixin"
   ],
   "server": [],
   "injectors": {

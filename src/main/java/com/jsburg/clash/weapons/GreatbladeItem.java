@@ -2,10 +2,18 @@ package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
 import com.jsburg.clash.util.ItemAnimator;
+import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.IThirdPersonArmController;
+import com.jsburg.clash.weapons.util.IThirdPersonRenderHook;
 import com.jsburg.clash.weapons.util.WeaponItem;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.entity.model.IHasArm;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -14,6 +22,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.HandSide;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -22,7 +32,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController {
+public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook {
 
     public GreatbladeItem(float attackDamage, float attackSpeed, Properties properties) {
         super(attackDamage, attackSpeed, properties);
@@ -72,6 +82,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
                 if (worldIn.isRemote) {
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeAnimation());
+                    ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
 
                 player.resetCooldown();
@@ -90,7 +101,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     @Override
     public AnimType hasThirdPersonAnim(PlayerEntity player, ItemStack stack, boolean isActive, Hand hand) {
         if (isActive) return AnimType.OVERWRITES;
-        ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeAnimation.class, player, hand);
+        ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, hand);
         if (animation != null) return AnimType.OVERWRITES;
         return AnimType.FALSE;
     }
@@ -100,7 +111,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         ModelRenderer swordArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
         ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
         int sideFlip = leftHanded ? -1 : 1;
-        ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeAnimation.class, player, hand);
+        ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, hand);
         float swingProgress = 0;
         if (animation != null) swingProgress = animation.getProgress(partialTicks);
 
@@ -129,16 +140,17 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             float swingPercent = (float)Math.sin(Math.pow(animation.getProgress(partialTicks), .6) * pi);
             float realSwingPercent = animation.getProgress(partialTicks);
 
-            swordArm.rotateAngleX -= 1 * pi * swingPercent;
+            swordArm.rotateAngleX -= .5 * pi * swingPercent;
             swordArm.rotateAngleZ += .4 * pi * swingPercent * sideFlip;
             swordArm.rotateAngleY += .1 * pi * swingPercent * sideFlip;
             swordArm.rotationPointX += 2.5f * sideFlip * swingPercent;
             swordArm.rotationPointY -= 6f * swingPercent;
             swordArm.rotationPointZ -= 3f * swingPercent;
 
-            otherArm.rotateAngleX -= .6 * pi * swingPercent;
+            otherArm.rotateAngleX -= .4 * pi * swingPercent;
             otherArm.rotateAngleZ += .4 * pi * swingPercent * sideFlip;
-            otherArm.rotationPointX += 3f * sideFlip * swingPercent;
+            otherArm.rotateAngleY += .1 * pi * swingPercent;
+            otherArm.rotationPointX += 1f * sideFlip * swingPercent;
             otherArm.rotationPointY += 3f * swingPercent;
             otherArm.rotationPointZ += 4.5f * swingPercent;
 
@@ -147,9 +159,33 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
     }
 
+    @Override
+    public <T extends LivingEntity, M extends EntityModel<T> & IHasArm> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack, ItemCameraTransforms.TransformType transformType, HandSide side, MatrixStack poseStack, IRenderTypeBuffer renderBuffer, int light) {
+
+        if (entity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) entity;
+            Hand swordHand = MiscHelper.getHandFromSide(player, side);
+            ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, swordHand);
+            if (animation != null) {
+                float progress = animation.getProgress(Minecraft.getInstance().getRenderPartialTicks());
+                float pi = (float) Math.PI;
+                float sineProgress = (float)Math.sin(progress * pi);
+
+                poseStack.rotate(Vector3f.XP.rotationDegrees(sineProgress * 180));
+                poseStack.translate(0, sineProgress * .25, sineProgress * -.25);
+            }
+        }
+        return false;
+    }
+
     public static class GreatbladeAnimation extends ItemAnimator.SimpleItemAnimation {
         public GreatbladeAnimation() {
             super(swingTimeMax());
+        }
+    }
+    public static class GreatbladeThirdPersonAnimation extends ItemAnimator.SimpleItemAnimation {
+        public GreatbladeThirdPersonAnimation() {
+            super(swingTimeMax() + 4);
         }
     }
 }

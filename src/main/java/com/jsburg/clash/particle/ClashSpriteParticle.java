@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 //Multipurpose class that does basic effects.
 public class ClashSpriteParticle extends SpriteTexturedParticle {
 
