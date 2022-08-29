@@ -22,6 +22,7 @@ public class RampageEffect extends Effect {
 
     @Override
     public boolean isReady(int duration, int amplifier) {
+        //Reduce the frequency of the effect going off, reducing the effectiveness while keeping it an int.
         return duration % 2 == 0;
     }
 }

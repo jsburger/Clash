@@ -3,6 +3,7 @@ package com.jsburg.clash.event;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.particle.*;
 import com.jsburg.clash.registry.AllParticles;
+import com.jsburg.clash.util.Easing;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.GreatbladeItem;
@@ -172,7 +173,8 @@ public class ClientEvents {
 
                 float chargeLerp = MathHelper.sin((float) (pow(chargePercent, 3) * pi/2)) - swingPercent;
 
-                float swingEase = (float) (easeInOutQuart(swingPercent) * .5 + (.5 * swingPercent));
+                float swingEase = Easing.combine(Easing.Quart.out(swingPercent), swingPercent, .5f);
+//                float swingEase = Easing.combine(Easing.Circ.inOut(swingPercent), swingPercent, .3f);
                 float sineEase = MathHelper.sin(swingEase * pi);
                 float fullSineEase = MathHelper.sin(swingEase * 2 * pi);
 
@@ -212,33 +214,6 @@ public class ClientEvents {
     private static void transformSideFirstPerson(MatrixStack matrixStackIn, HandSide handIn, float equippedProg) {
         int i = handIn == HandSide.RIGHT ? 1 : -1;
         matrixStackIn.translate(((float)i * 0.56F), (-0.52F + equippedProg * -0.6F), -0.72F);
-    }
-
-    private static double easeInOutQuart(double x) {
-        return 1 - pow(1 - x, 4);
-
-//        final float c1 = 1.70158f;
-//        final float c3 = c1 + 1;
-//
-//        return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
-
-//        final float c1 = 1.70158f;
-//        final float c2 = c1 * 1.525f;
-//
-//        return x < 0.5
-//                ? (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
-//                : (pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
-
-//        return x == 0
-//                ? 0
-//                : x == 1
-//                ? 1
-//                : x < 0.5 ? pow(2, 20 * x - 10) / 2
-//                : (2 - pow(2, -20 * x + 10)) / 2;
-
-//        return 1 - Math.pow(1 - x, 4);
-
-//        return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
     }
 
 }

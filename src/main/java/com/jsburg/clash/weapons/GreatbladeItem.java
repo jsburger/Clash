@@ -1,6 +1,7 @@
 package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
+import com.jsburg.clash.registry.AllEffects;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
@@ -20,6 +21,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
@@ -31,6 +33,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Function;
 
 public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook {
 
@@ -68,6 +71,12 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
+    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), 25, 0, false, true));
+        return super.hitEntity(stack, target, attacker);
+    }
+
+    @Override
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entityLiving;
@@ -75,9 +84,9 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
             ItemStack sword = player.getActiveItemStack();
 
-            if (chargeTime >= getMaxCharge() || true) {
+            if (chargeTime >= getMaxCharge()) {
                 GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec(), player);
-                slash.setMotion(player.getLook(0).scale(1));
+                slash.setMotion(player.getLook(1).scale(1));
                 worldIn.addEntity(slash);
 
                 if (worldIn.isRemote) {
@@ -115,7 +124,12 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         float swingProgress = 0;
         if (animation != null) swingProgress = animation.getProgress(partialTicks);
 
-        float chargeLerp = 1 - swingProgress;
+        int useCount = player.getItemInUseCount();
+        int useDuration = getUseDuration(itemStack);
+        int useTime = useDuration - useCount;
+        float chargePercent = Math.min((useTime + partialTicks) / getMaxCharge(), 1);
+
+        float chargeLerp = Math.min(chargePercent, 1 - swingProgress);
         //Charging pose, acts as the base for the swing too
         swordArm.rotateAngleX *= .4f * chargeLerp;
         swordArm.rotateAngleX -= .4f * chargeLerp;

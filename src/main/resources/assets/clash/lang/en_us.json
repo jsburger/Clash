@@ -24,5 +24,6 @@
   "effect.clash.retaliation": "Retaliation",
 
   "item.clash.lost_greatblade": "Lost Greatblade",
-  "item.clash.lost_greatblade.bonus_damage": "Bonus Damage"
+  "item.clash.lost_greatblade.bonus_damage": "Bonus Damage",
+  "effect.clash.staggered": "Staggered"
 }
