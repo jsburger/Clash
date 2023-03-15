@@ -87,7 +87,7 @@ public class SweptAxeItem extends WeaponItem {
             }
 
             if (player.world.isRemote && hits >= 3) {
-                ScreenShaker.setScreenShake(5, .8);
+                ScreenShaker.setScreenShake(6, 2);
             }
 
 

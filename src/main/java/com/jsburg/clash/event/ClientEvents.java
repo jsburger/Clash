@@ -53,7 +53,7 @@ public class ClientEvents {
     }
 
     public static void doCameraStuff(EntityViewRenderEvent.CameraSetup event) {
-        ScreenShaker.applyScreenShake(event.getInfo(), event.getRenderPartialTicks());
+        ScreenShaker.applyScreenShake(event.getInfo(), event.getRenderPartialTicks(), event);
         //Just resetting this between frames because if execution order *does* get weird I don't want stuff carrying over
         needsPop = false;
     }

@@ -3,6 +3,7 @@ package com.jsburg.clash.util;
 import com.jsburg.clash.Clash;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 
 import java.util.Random;
 
@@ -26,8 +27,8 @@ public class ScreenShaker {
             ShakeTime -= 1;
             LastX = ShakeX;
             LastY = ShakeY;
-            ShakeX = uRandom(.4) * Intensity /* * XFlip*/;
-            ShakeY = uRandom(.15) * Intensity;
+            ShakeX = uRandom(.2) * Intensity /* * XFlip*/;
+            ShakeY = uRandom(.4) * Intensity;
             Intensity *= .8;
 //            Intensity = Math.max(Intensity, .2);
             //I know that uRandom flips at random, the idea is that this avoids directly alternating the offset
@@ -54,13 +55,15 @@ public class ScreenShaker {
         setScreenShake(time, .8);
     }
 
-    public static void applyScreenShake(ActiveRenderInfo renderInfo, double partialTicks) {
+    public static void applyScreenShake(ActiveRenderInfo renderInfo, double partialTicks, EntityViewRenderEvent.CameraSetup event) {
         if (ShakeTime > 0) {
             //TODO: Try 1 - partialTicks
             double lerp = partialTicks;
             double x = LastX + (ShakeX - LastX) * lerp;
             double y = LastY + (ShakeY - LastY) * lerp;
-            renderInfo.movePosition(0, y * mc.gameSettings.screenEffectScale, x * mc.gameSettings.screenEffectScale);
+            event.setPitch((float) (event.getPitch() + y * 5));
+            event.setRoll((float) (event.getRoll() + x * 5));
+//            renderInfo.movePosition(0, y * mc.gameSettings.screenEffectScale, x * mc.gameSettings.screenEffectScale);
         }
 
     }
