@@ -24,6 +24,7 @@ import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -81,6 +82,19 @@ public class AttackHelper {
             p.sendBreakAnimation(hand);
             net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, item, hand);
         });
+    }
+
+    /**
+     * Gets player's attack range from their reach distance, accounting for the weird math done during targeting.
+     */
+    public static double getAttackRange(PlayerEntity player) {
+        if (player.isCreative()) {
+            //This *should* be 6, but it doesn't act that way. Who knows why.
+            return 5;
+        }
+        //Default value is 5, actual range is 3. Thus, -2.
+        //In theory should be 3, but I like the idea of supporting reach distance bonuses.
+        return player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) - 2;
     }
 
     /**

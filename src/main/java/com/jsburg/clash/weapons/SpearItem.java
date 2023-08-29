@@ -47,7 +47,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
     private static final Vector3d UP = new Vector3d(0, 1, 0);
     private static final float stabLengthBonus = 2.5f;
-    private static final float sweetSpotSize = 4f;
+    private static final float sweetSpotSize = 2.5f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
 
     public SpearItem(float attackDamage, float attackSpeed, Item.Properties properties) {
@@ -141,7 +141,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
                     player.addPotionEffect(new EffectInstance(Effects.SLOWNESS, 40, 1));
                 }
 
-                double stabLength = player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) + stabLengthBonus;
+                double stabLength = AttackHelper.getAttackRange(player) + stabLengthBonus;
                 Vector3d look = player.getLookVec();
                 Vector3d endVec = look.scale(stabLength);
                 Vector3d eyePos = player.getEyePosition(1.0F);
@@ -186,7 +186,7 @@ public class SpearItem extends WeaponItem implements IPoseItem {
 
                                 //Sweet Spot check, works by comparing the distance from the furthest point of the attack to the point of contact
                                 if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SWEET_SPOT.get(), spear) > 0) {
-                                    double distance = endPos.squareDistanceTo(hitLocation);
+                                    double distance = endPos.distanceTo(hitLocation);
                                     if (distance <= sweetSpotSize) {
                                         damage *= 2;
                                         AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_MEGA_CRIT.get(), 2f, 1.0f);
