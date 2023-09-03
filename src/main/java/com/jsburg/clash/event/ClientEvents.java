@@ -9,12 +9,14 @@ import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
+import com.jsburg.clash.weapons.util.ISpearAnimation;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.FirstPersonRenderer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.item.Item;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
@@ -81,7 +83,7 @@ public class ClientEvents {
                 animation != null)
             );
 
-        if (event.getItemStack().getItem() instanceof SpearItem) {
+        if (event.getItemStack().getItem() instanceof ISpearAnimation) {
 
             boolean isActive = event.getHand() == player.getActiveHand() && player.isHandActive();
             float cooldown = player.getCooldownTracker().getCooldown(event.getItemStack().getItem(), event.getPartialTicks());
@@ -97,11 +99,12 @@ public class ClientEvents {
             int sideFlip = leftHanded ? -1 : 1;
 
             if (isActive) {
-                SpearItem spear = (SpearItem) event.getItemStack().getItem();
+                Item spear = event.getItemStack().getItem();
+                ISpearAnimation chargeGetter = (ISpearAnimation) spear;
                 int useCount = player.getItemInUseCount();
                 int useDuration = spear.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = Math.min((useTime + event.getPartialTicks()) / spear.getMaxCharge(event.getItemStack()), 1);
+                float chargePercent = Math.min((useTime + event.getPartialTicks()) / chargeGetter.getMaxCharge(event.getItemStack()), 1);
 
 
                 float xAngle = -6 * chargePercent;
@@ -109,7 +112,7 @@ public class ClientEvents {
                 float zAngle = 20 * chargePercent * sideFlip;
                 event.getMatrixStack().rotate(new Quaternion(xAngle, yAngle, zAngle, true));
 
-                double chargeOver = ((useTime + event.getPartialTicks()) - (spear.getMaxCharge(event.getItemStack()) - 4)) / 4;
+                double chargeOver = ((useTime + event.getPartialTicks()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
                     event.getMatrixStack().translate(0, 0, .1 * chargeOver);

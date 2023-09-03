@@ -2,7 +2,7 @@
   "item.clash.spear": "Spear",
   "item.clash.billhook": "Billhook",
   "subtitles.clash.weapon.spear.stab": "Stabbing attack",
-  "subtitles.clash.weapon.spear.whoosh": "Spear zooms",
+  "subtitles.clash.weapon.spear.whoosh": "Player zooms",
   "subtitles.clash.weapon.spear.mega_crit": "Spear hits a sweet spot",
   "item.clash.spear.when_charged": "When Charged:",
   "item.clash.spear.charge_range_bonus": "Attack Range",
@@ -25,5 +25,7 @@
 
   "item.clash.lost_greatblade": "Lost Greatblade",
   "item.clash.lost_greatblade.bonus_damage": "Bonus Damage",
-  "effect.clash.staggered": "Staggered"
+  "effect.clash.staggered": "Staggered",
+
+  "item.clash.rod_of_gales": "Rod of Gales"
 }
