@@ -176,18 +176,24 @@ public class ClientEvents {
 
                 float chargeLerp = MathHelper.sin((float) (pow(chargePercent, 3) * pi/2)) - swingPercent;
 
-                float swingEase = Easing.combine(Easing.Quart.out(swingPercent), swingPercent, .5f);
+                float swingEase = Easing.combine(Easing.Quart.out(swingPercent), swingPercent, .55f);
 //                float swingEase = Easing.combine(Easing.Circ.inOut(swingPercent), swingPercent, .3f);
                 float sineEase = MathHelper.sin(swingEase * pi);
                 float fullSineEase = MathHelper.sin(swingEase * 2 * pi);
 
-                stack.translate(.2 * sideFlip * chargeLerp, -.8 * chargeLerp, -.2 * chargeLerp);
+                // Charging position
+                stack.translate(1 * sideFlip * chargeLerp, -1.2 * chargeLerp, -.2 * chargeLerp);
+                // Swinging position
                 stack.translate(-2 * swingEase * sideFlip, .15 * fullSineEase - .1 * swingEase, 0 * sineEase);
 
-                stack.rotate(Vector3f.ZP.rotationDegrees(50 * chargeLerp * sideFlip));
+                // Charge rotation
+                stack.rotate(Vector3f.YP.rotationDegrees(-10 * chargeLerp * sideFlip));
+                stack.rotate(Vector3f.ZP.rotationDegrees(140 * chargeLerp * sideFlip));
 
                 transformSideFirstPerson(stack, leftHanded ? HandSide.LEFT : HandSide.RIGHT, 0);
 //                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));
+
+                // Swing animation
                 Vector3f axis = new Vector3f((float) (sineEase - .5)/2  * sideFlip, 0, 1);
                 stack.rotate(axis.rotationDegrees(-5 * fullSineEase + 90 * swingEase * sideFlip));
                 stack.rotate(Vector3f.XP.rotationDegrees(210 * swingEase));
