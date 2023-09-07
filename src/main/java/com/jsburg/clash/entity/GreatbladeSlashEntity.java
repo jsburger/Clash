@@ -16,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
@@ -122,7 +124,24 @@ public class GreatbladeSlashEntity extends Entity {
                 if (!world.isRemote) {
                     Vector3d diff = livingentity.getPositionVec().subtract(this.getPositionVec()).normalize();
                     livingentity.applyKnockback(0.4f, -diff.getX(), -diff.getZ());
+
+                    //Damage entity
+                    float lastHealth = (livingentity).getHealth();
                     livingentity.attackEntityFrom(damageSource, damage + AttackHelper.getBonusEnchantmentDamage(swordStack, livingentity));
+                    float healthDifference = lastHealth - (livingentity).getHealth();
+
+                    //player.addStat(Stats.DAMAGE_DEALT, Math.round(healthDifference * 10));
+                    // Create hurt effects
+                    if (world instanceof ServerWorld && healthDifference > 2.0F) {
+                        int k = (int)(healthDifference * 0.5D);
+                        ((ServerWorld) world)
+                                .spawnParticle(
+                                        ParticleTypes.DAMAGE_INDICATOR,
+                                        livingentity.getPosX(),
+                                        livingentity.getPosYHeight(0.5),
+                                        livingentity.getPosZ(),
+                                        k, 0.1, 0.0, 0.1, 0.2);
+                    }
                 }
             }
         }

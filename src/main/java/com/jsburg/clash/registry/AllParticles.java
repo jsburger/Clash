@@ -25,6 +25,8 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> BONUS_DROP = register("bonus_drop");
     public static final RegistryObject<BasicParticleType> SCREEN_SHAKER = register("screen_shaker");
 
+    public static final RegistryObject<BasicParticleType> SAILING_TRAIL = register("sailing_trail");
+
     //Called from ClientEvents
     public static void registerParticleFactories() {
         ParticleManager manager = Minecraft.getInstance().particles;
@@ -38,6 +40,8 @@ public class AllParticles {
 
         manager.registerFactory(BONUS_DROP.get(), ClashSpriteParticle::BonusDrop);
         manager.registerFactory(SCREEN_SHAKER.get(), ScreenShakerParticle.Factory::new);
+
+        manager.registerFactory(SAILING_TRAIL.get(), ClashSpriteParticle::SailingTrail);
     }
 
     private static RegistryObject<BasicParticleType> register(String name) {

@@ -1,14 +1,17 @@
 package com.jsburg.clash.registry;
 
 import com.jsburg.clash.Clash;
+import com.jsburg.clash.enchantments.MarkerEnchantment;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.enchantments.axe.RampageEnchantment;
 import com.jsburg.clash.enchantments.axe.RetaliationEnchantment;
 import com.jsburg.clash.enchantments.spear.*;
+import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.JumpRodItem;
 import com.jsburg.clash.weapons.SpearItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantment.Rarity;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.fml.RegistryObject;
@@ -21,15 +24,18 @@ public class AllEnchantments {
 
     public static final EnchantmentType SPEAR = EnchantmentType.create("spear", item -> (item instanceof SpearItem));
     public static final EnchantmentType SWEPT = EnchantmentType.create("swept", item -> (item instanceof SweptAxeItem));
+    public static final EnchantmentType GREATBLADE = EnchantmentType.create("greatblade", item -> (item instanceof GreatbladeItem));
     public static final EnchantmentType AGILITY_ITEMS = EnchantmentType.create("agility", item -> (item instanceof SpearItem || item instanceof JumpRodItem));
 
-    public static final RegistryObject<Enchantment> FLURRY = ENCHANTMENTS.register("flurry", () -> new FlurryEnchantment(Enchantment.Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> FLURRY = ENCHANTMENTS.register("flurry", () -> new FlurryEnchantment(Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
 //    public static final RegistryObject<Enchantment> LUNGE = ENCHANTMENTS.register("lunge", () -> new ThrustEnchantment(Enchantment.Rarity.UNCOMMON, SPEAR, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> SWEET_SPOT = ENCHANTMENTS.register("sweet_spot", () -> new TipperEnchantment(Enchantment.Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> AGILITY = ENCHANTMENTS.register("agility", () -> new DashEnchantment(Enchantment.Rarity.RARE, AGILITY_ITEMS, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> JAB = ENCHANTMENTS.register("jab", () -> new JabEnchantment(Enchantment.Rarity.VERY_RARE, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> SWEET_SPOT = ENCHANTMENTS.register("sweet_spot", () -> new TipperEnchantment(Rarity.RARE, SPEAR, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> AGILITY = ENCHANTMENTS.register("agility", () -> new DashEnchantment(Rarity.RARE, AGILITY_ITEMS, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> JAB = ENCHANTMENTS.register("jab", () -> new JabEnchantment(Rarity.VERY_RARE, SPEAR, EquipmentSlotType.MAINHAND));
 
-    public static final RegistryObject<Enchantment> BUTCHERY = ENCHANTMENTS.register("butchery", () -> new ButcheryEnchantment(Enchantment.Rarity.UNCOMMON, SWEPT, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> RAMPAGE = ENCHANTMENTS.register("rampage", () -> new RampageEnchantment(Enchantment.Rarity.RARE, SWEPT, EquipmentSlotType.MAINHAND));
-    public static final RegistryObject<Enchantment> RETALIATION = ENCHANTMENTS.register("retaliation", () -> new RetaliationEnchantment(Enchantment.Rarity.COMMON, SWEPT, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> BUTCHERY = ENCHANTMENTS.register("butchery", () -> new ButcheryEnchantment(Rarity.UNCOMMON, SWEPT, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> RAMPAGE = ENCHANTMENTS.register("rampage", () -> new RampageEnchantment(Rarity.RARE, SWEPT, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> RETALIATION = ENCHANTMENTS.register("retaliation", () -> new RetaliationEnchantment(Rarity.COMMON, SWEPT, EquipmentSlotType.MAINHAND));
+
+    public static final RegistryObject<Enchantment> SAILING = ENCHANTMENTS.register("sailing", () -> new MarkerEnchantment(10, 30, Rarity.UNCOMMON, GREATBLADE, EquipmentSlotType.MAINHAND));
 }

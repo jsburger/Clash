@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
 public class MiscHelper {
@@ -21,6 +22,11 @@ public class MiscHelper {
         return side == HandSide.LEFT ? Hand.OFF_HAND : Hand.MAIN_HAND;
     }
 
+    public static Vector3d extractHorizontal(Vector3d vector) {
+        if (vector.y * vector.y == vector.lengthSquared()) return Vector3d.ZERO;
+        Vector3d n = new Vector3d(vector.x, 0, vector.z);
+        return n.normalize();
+    }
 
     public static <T extends LivingEntity, M extends EntityModel<T> & IHasArm> void offsetItemForThirdPerson(M model, HandSide handSide, MatrixStack stack) {
         model.translateHand(handSide, stack);

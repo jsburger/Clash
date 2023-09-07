@@ -21,6 +21,12 @@ public class ClashSpriteParticle extends SpriteTexturedParticle {
             p.particleScale = 0.3f + p.rand.nextFloat() * 0.1f;
         });
     }
+    public static Factory SailingTrail(IAnimatedSprite sprite) {
+        return new Factory(sprite, (p) -> {
+            p.maxAge = 14;
+            p.particleScale = 1f;
+        });
+    }
 
 
     private final IAnimatedSprite spriteWithAge;

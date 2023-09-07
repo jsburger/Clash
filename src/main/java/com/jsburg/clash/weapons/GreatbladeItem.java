@@ -2,14 +2,18 @@ package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
 import com.jsburg.clash.registry.AllEffects;
+import com.jsburg.clash.registry.AllEnchantments;
+import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
+import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.IThirdPersonArmController;
 import com.jsburg.clash.weapons.util.IThirdPersonRenderHook;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
@@ -17,6 +21,7 @@ import net.minecraft.client.renderer.entity.model.IHasArm;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,11 +30,14 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
+import net.minecraft.util.MovementInput;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -47,13 +55,17 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         tooltip.add(TextHelper.getBonusText("item.clash.lost_greatblade.bonus_damage", 5));
     }
 
+    private static boolean hasSailing(ItemStack stack) {
+        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SAILING.get(), stack) > 0;
+    }
 
     public int getUseDuration(ItemStack stack) {
+//        if (hasSailing(stack)) return 30;
         return 720000;
     }
 
     public int getMaxCharge() {
-        return 20;
+        return 15;
     }
 
     public static int swingTimeMax() {
@@ -79,6 +91,28 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     @Override
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
         super.onUsingTick(stack, player, count);
+        if (hasSailing(stack)) {
+            int n = getUseDuration(stack) - count;
+            float speed = 1;
+            if (player instanceof ClientPlayerEntity) {
+                ClientPlayerEntity client = (ClientPlayerEntity) player;
+                MovementInput input = client.movementInput;
+
+                if (input.forwardKeyDown) speed += .5;
+                if (input.backKeyDown) speed -= .5;
+
+            }
+            Vector3d accel = MiscHelper.extractHorizontal(player.getLook(1)).scale(speed/((float)(n + 2)/3));
+            if (n < 10) player.setMotion(accel.x, player.getMotion().y, accel.z);
+//            player.addVelocity(accel.x, 0, accel.z);
+            if (!player.world.isRemote() && n % 2 == 0 && player.getMotion().length() > .25) AttackHelper.makeParticleServer((ServerWorld) player.world, AllParticles.SAILING_TRAIL.get(), player.getPositionVec().add(0, 1, 0), Vector3d.ZERO, 0);
+            if (n > 15) {
+                player.stopActiveHand();
+                if (player instanceof PlayerEntity) {
+                    ((PlayerEntity) player).getCooldownTracker().setCooldown(stack.getItem(), 30);
+                }
+            }
+        }
     }
 
     @Override
@@ -98,6 +132,9 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeAnimation());
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
+
+                Vector3d look = player.getLook(1);
+                player.addVelocity(look.x, 0, look.z);
 
                 player.resetCooldown();
             }
@@ -153,11 +190,16 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
         model.bipedBody.rotateAngleY += .3f * sideFlip * chargeLerp;
 
+        if (hasSailing(itemStack) && useTime < 10) {
+            model.bipedLeftLeg.rotateAngleX = 0;
+            model.bipedRightLeg.rotateAngleX = .3f;
+        }
+
         //Swing animation
         if (animation != null) {
             float pi = (float) Math.PI;
             float swingPercent = (float)Math.sin(Math.pow(animation.getProgress(partialTicks), .6) * pi);
-            float realSwingPercent = animation.getProgress(partialTicks);
+            //float realSwingPercent = animation.getProgress(partialTicks);
 
             swordArm.rotateAngleX -= .5 * pi * swingPercent;
             swordArm.rotateAngleZ += .4 * pi * swingPercent * sideFlip;
