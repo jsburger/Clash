@@ -25,6 +25,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -174,6 +175,11 @@ public class AttackHelper {
     public static void makeParticleServer(ServerWorld world, BasicParticleType particle, Vector3d position, Vector3d motion, double speed) {
         motion = motion.normalize().scale(speed);
         world.spawnParticle(particle, position.getX(), position.getY(), position.getZ(), 0, motion.getX(), motion.getY(), motion.getZ(), speed);
+    }
+
+    public static void makeParticleServer(World world, RegistryObject<BasicParticleType> particle, Vector3d position) {
+        if (world.isRemote()) return;
+        ((ServerWorld) world).spawnParticle(particle.get(), position.getX(), position.getY(), position.getZ(), 0, 0, 0, 0, 0);
     }
 
     public static double getAttackDamage(ItemStack item, PlayerEntity player, EquipmentSlotType equipmentSlot) {

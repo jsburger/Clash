@@ -92,7 +92,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
         super.onUsingTick(stack, player, count);
         if (hasSailing(stack)) {
-            int n = getUseDuration(stack) - count;
+            float n = getUseDuration(stack) - count;
             float speed = 1;
             if (player instanceof ClientPlayerEntity) {
                 ClientPlayerEntity client = (ClientPlayerEntity) player;
@@ -102,15 +102,15 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 if (input.backKeyDown) speed -= .5;
 
             }
-            Vector3d accel = MiscHelper.extractHorizontal(player.getLook(1)).scale(speed/((float)(n + 2)/3));
-            if (n < 10) player.setMotion(accel.x, player.getMotion().y, accel.z);
+            Vector3d accel = MiscHelper.extractHorizontal(player.getLook(1)).scale(speed/((n + 2) /3));
+            if (n < 10) {
+                player.setMotion(accel.x, player.getMotion().y, accel.z);
 //            player.addVelocity(accel.x, 0, accel.z);
-            if (!player.world.isRemote() && n % 2 == 0 && player.getMotion().length() > .25) AttackHelper.makeParticleServer((ServerWorld) player.world, AllParticles.SAILING_TRAIL.get(), player.getPositionVec().add(0, 1, 0), Vector3d.ZERO, 0);
+                if (n % 2 == 0)
+                    AttackHelper.makeParticleServer(player.world, AllParticles.SAILING_TRAIL, player.getPositionVec().add(0, 1, 0));
+            }
             if (n > 15) {
                 player.stopActiveHand();
-                if (player instanceof PlayerEntity) {
-                    ((PlayerEntity) player).getCooldownTracker().setCooldown(stack.getItem(), 30);
-                }
             }
         }
     }
@@ -133,10 +133,17 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
 
+                AttackHelper.makeParticle(slash.world, AllParticles.GREATBLADE_SLASH.get(),
+                        player.getEyePosition(1).add(player.getLookVec().scale(3).add(player.getMotion())),
+                        //Sweep particle uses xSpeed as scale, ySpeed as being red, zSpeed is horizontal flip
+                        .5, 0, (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0
+                );
+
                 Vector3d look = player.getLook(1);
                 player.addVelocity(look.x, 0, look.z);
 
                 player.resetCooldown();
+                player.getCooldownTracker().setCooldown(stack.getItem(), 30);
             }
         }
     }

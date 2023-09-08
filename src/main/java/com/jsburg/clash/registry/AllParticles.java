@@ -26,6 +26,7 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> SCREEN_SHAKER = register("screen_shaker");
 
     public static final RegistryObject<BasicParticleType> SAILING_TRAIL = register("sailing_trail");
+    public static final RegistryObject<BasicParticleType> GREATBLADE_SLASH = register("greatblade_slash");
 
     //Called from ClientEvents
     public static void registerParticleFactories() {
@@ -42,6 +43,7 @@ public class AllParticles {
         manager.registerFactory(SCREEN_SHAKER.get(), ScreenShakerParticle.Factory::new);
 
         manager.registerFactory(SAILING_TRAIL.get(), ClashSpriteParticle::SailingTrail);
+        manager.registerFactory(GREATBLADE_SLASH.get(), AxeSweepParticle.Factory::new);
     }
 
     private static RegistryObject<BasicParticleType> register(String name) {
