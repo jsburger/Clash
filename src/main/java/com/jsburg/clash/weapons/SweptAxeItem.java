@@ -7,6 +7,7 @@ import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.DamageEnchantment;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -41,6 +42,11 @@ public class SweptAxeItem extends WeaponItem {
         return Arrays.asList(Enchantments.LOOTING);
     }
 
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        if (enchantment instanceof DamageEnchantment) return true;
+        return super.canApplyAtEnchantingTable(stack, enchantment);
+    }
 
     @Override
     public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity target) {

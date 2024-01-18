@@ -3,6 +3,7 @@ package com.jsburg.clash.enchantments.axe;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.util.AttackHelper;
+import net.minecraft.enchantment.DamageEnchantment;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.entity.LivingEntity;
@@ -36,7 +37,7 @@ public class ButcheryEnchantment extends Enchantment {
 
     //Called in LivingEvents
     public static float getDamageMultiplier(int level) {
-        return 1 + (.25f * level);
+        return 1 + (.15f * level);
     }
 
     public static int getPorkAmount(int level, Random random) {
@@ -52,6 +53,12 @@ public class ButcheryEnchantment extends Enchantment {
 
     public static boolean affectsEntity(LivingEntity target) {
         return target.getType().isContained(MiscRegistry.PORKY);
+    }
+
+    @Override
+    protected boolean canApplyTogether(Enchantment enchantment) {
+        if (enchantment instanceof DamageEnchantment) return false;
+        return super.canApplyTogether(enchantment);
     }
 
     public static void onHit(int level, LivingEntity target) {
