@@ -52,7 +52,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
-        tooltip.add(TextHelper.getBonusText("item.clash.lost_greatblade.bonus_damage", 5));
+        tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", 5));
     }
 
     private static boolean hasSailing(ItemStack stack) {

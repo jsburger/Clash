@@ -2,7 +2,7 @@
   "parent": "builtin/entity",
   "gui_light": "front",
   "textures": {
-    "particle": "clash:item/lost_greatblade"
+    "particle": "clash:item/greatblade"
   },
   "display": {
     "thirdperson_righthand": {

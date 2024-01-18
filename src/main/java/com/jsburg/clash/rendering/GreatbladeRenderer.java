@@ -40,7 +40,7 @@ public class GreatbladeRenderer extends ItemStackTileEntityRenderer {
 
     public static class GreatbladeModel extends Model {
         private final ModelRenderer renderer;
-        public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(Clash.MOD_ID, "textures/entity/lost_greatblade.png");
+        public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(Clash.MOD_ID, "textures/entity/greatblade.png");
 
         public GreatbladeModel() {
             super(RenderType::getEntitySolid);
