@@ -26,7 +26,7 @@ public class AllParticles {
     public static final RegistryObject<BasicParticleType> SCREEN_SHAKER = register("screen_shaker");
 
     public static final RegistryObject<BasicParticleType> SAILING_TRAIL = register("sailing_trail");
-    public static final RegistryObject<BasicParticleType> GREATBLADE_SLASH = register("greatblade_slash");
+    public static final RegistryObject<BasicParticleType> GREATBLADE_SLASH = register("greatblade_slash_2");
 
     //Called from ClientEvents
     public static void registerParticleFactories() {

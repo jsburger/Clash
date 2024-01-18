@@ -124,8 +124,8 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             ItemStack sword = player.getActiveItemStack();
 
             if (chargeTime >= getMaxCharge()) {
-                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec(), player);
-                slash.setMotion(player.getLook(1).scale(1));
+                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .5, 0), player);
+                slash.setMotion(player.getLook(1).scale(2));
                 worldIn.addEntity(slash);
 
                 if (worldIn.isRemote) {
@@ -133,11 +133,11 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
 
-                AttackHelper.makeParticle(slash.world, AllParticles.GREATBLADE_SLASH.get(),
-                        player.getEyePosition(1).add(player.getLookVec().scale(3).add(player.getMotion())),
-                        //Sweep particle uses xSpeed as scale, ySpeed as being red, zSpeed is horizontal flip
-                        .5, 0, (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0
-                );
+//                AttackHelper.makeParticle(slash.world, AllParticles.GREATBLADE_SLASH.get(),
+//                        player.getEyePosition(1).add(player.getLookVec().scale(3).add(player.getMotion())),
+//                        //Sweep particle uses xSpeed as scale, ySpeed as being red, zSpeed is horizontal flip
+//                        .5, 0, (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0
+//                );
 
                 Vector3d look = player.getLook(1);
                 player.addVelocity(look.x, 0, look.z);

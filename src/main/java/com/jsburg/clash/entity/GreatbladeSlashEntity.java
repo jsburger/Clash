@@ -37,7 +37,7 @@ public class GreatbladeSlashEntity extends Entity {
     private int ownerEntityId;
     //Checks for having left the owner's hitbox. Dont need it
 //    private boolean leftOwner;
-    private int timeLeft = 4;
+    private int timeLeft = 3;
     public float damage = 10;
     public ItemStack swordStack = ItemStack.EMPTY;
     private final List<Entity> hitEntities = Lists.newLinkedList();
@@ -96,6 +96,8 @@ public class GreatbladeSlashEntity extends Entity {
             }
 
         }
+
+        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion));
 
         //Collision
         Entity owner = getOwner();
