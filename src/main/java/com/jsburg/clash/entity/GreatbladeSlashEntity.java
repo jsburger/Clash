@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
+import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 
 public class GreatbladeSlashEntity extends Entity {
 
+    public int spriteFlip = 0;
     private UUID ownerUUID;
     private int ownerEntityId;
     //Checks for having left the owner's hitbox. Dont need it
@@ -46,11 +48,12 @@ public class GreatbladeSlashEntity extends Entity {
         super(type, world);
     }
 
-    public GreatbladeSlashEntity(World world, ItemStack sword, Vector3d pos, Entity owner) {
-        this(MiscRegistry.GREATBLADE_SLASH.get(), world);
+    public GreatbladeSlashEntity(World world, ItemStack sword, Vector3d pos, Entity owner, boolean executioner) {
+        this(executioner ? MiscRegistry.GREATBLADE_SLASH_EXECUTIONER.get() : MiscRegistry.GREATBLADE_SLASH.get(), world);
         this.setPosition(pos.getX(), pos.getY(), pos.getZ());
         swordStack = sword;
         setOwner(owner);
+        if (executioner) damage += 5;
     }
 
     public void setOwner(Entity owner) {
@@ -97,7 +100,7 @@ public class GreatbladeSlashEntity extends Entity {
 
         }
 
-        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion));
+        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion.scale(.5)), 1, 0, spriteFlip);
 
         //Collision
         Entity owner = getOwner();
@@ -129,20 +132,24 @@ public class GreatbladeSlashEntity extends Entity {
 
                     //Damage entity
                     float lastHealth = (livingentity).getHealth();
-                    livingentity.attackEntityFrom(damageSource, damage + AttackHelper.getBonusEnchantmentDamage(swordStack, livingentity));
-                    float healthDifference = lastHealth - (livingentity).getHealth();
+                    if (livingentity.attackEntityFrom(damageSource, damage + AttackHelper.getBonusEnchantmentDamage(swordStack, livingentity))) {
+                        float healthDifference = lastHealth - (livingentity).getHealth();
 
-                    //player.addStat(Stats.DAMAGE_DEALT, Math.round(healthDifference * 10));
-                    // Create hurt effects
-                    if (world instanceof ServerWorld && healthDifference > 2.0F) {
-                        int k = (int)(healthDifference * 0.5D);
-                        ((ServerWorld) world)
-                                .spawnParticle(
-                                        ParticleTypes.DAMAGE_INDICATOR,
-                                        livingentity.getPosX(),
-                                        livingentity.getPosYHeight(0.5),
-                                        livingentity.getPosZ(),
-                                        k, 0.1, 0.0, 0.1, 0.2);
+                        //player.addStat(Stats.DAMAGE_DEALT, Math.round(healthDifference * 10));
+                        // Create hurt effects
+                        if (world instanceof ServerWorld && healthDifference > 2.0F) {
+                            int k = (int) (healthDifference * 0.5D);
+                            ((ServerWorld) world)
+                                    .spawnParticle(
+                                            ParticleTypes.DAMAGE_INDICATOR,
+                                            livingentity.getPosX(),
+                                            livingentity.getPosYHeight(0.5),
+                                            livingentity.getPosZ(),
+                                            k, 0.1, 0.0, 0.1, 0.2);
+                        }
+                        if (swordStack.getItem() instanceof GreatbladeItem) {
+                            ((GreatbladeItem)swordStack.getItem()).onSlashHit(swordStack, livingentity, owner);
+                        }
                     }
                 }
             }

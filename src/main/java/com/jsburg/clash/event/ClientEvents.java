@@ -31,6 +31,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import static com.jsburg.clash.weapons.GreatbladeItem.hasExecutioner;
 import static com.jsburg.clash.weapons.GreatbladeItem.swingTimeMax;
 import static java.lang.Math.pow;
 import static net.minecraft.util.math.MathHelper.sqrt;
@@ -181,14 +182,15 @@ public class ClientEvents {
                 float sineEase = MathHelper.sin(swingEase * pi);
                 float fullSineEase = MathHelper.sin(swingEase * 2 * pi);
 
+                boolean executioner = hasExecutioner(event.getItemStack());
                 // Charging position
-                stack.translate(1 * sideFlip * chargeLerp, -1.2 * chargeLerp, -.2 * chargeLerp);
+                stack.translate(1 * sideFlip * chargeLerp * (executioner ? .8f : 1f), -1.2 * chargeLerp * (executioner ? .65f : 1f), -.2 * chargeLerp);
                 // Swinging position
                 stack.translate(-2 * swingEase * sideFlip, .15 * fullSineEase - .1 * swingEase, 0 * sineEase);
 
                 // Charge rotation
                 stack.rotate(Vector3f.YP.rotationDegrees(-10 * chargeLerp * sideFlip));
-                stack.rotate(Vector3f.ZP.rotationDegrees(140 * chargeLerp * sideFlip));
+                stack.rotate(Vector3f.ZP.rotationDegrees(140 * chargeLerp * sideFlip * (executioner ? 1.15f : 1f)));
 
                 transformSideFirstPerson(stack, leftHanded ? HandSide.LEFT : HandSide.RIGHT, 0);
 //                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));

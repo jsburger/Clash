@@ -5,6 +5,7 @@ import com.jsburg.clash.enchantments.MarkerEnchantment;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.enchantments.axe.RampageEnchantment;
 import com.jsburg.clash.enchantments.axe.RetaliationEnchantment;
+import com.jsburg.clash.enchantments.greatblade.CrushingEnchantment;
 import com.jsburg.clash.enchantments.spear.*;
 import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.JumpRodItem;
@@ -17,6 +18,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.Marker;
 
 public class AllEnchantments {
 
@@ -38,4 +40,6 @@ public class AllEnchantments {
     public static final RegistryObject<Enchantment> RETALIATION = ENCHANTMENTS.register("retaliation", () -> new RetaliationEnchantment(Rarity.COMMON, SWEPT, EquipmentSlotType.MAINHAND));
 
     public static final RegistryObject<Enchantment> SAILING = ENCHANTMENTS.register("sailing", () -> new MarkerEnchantment(10, 30, Rarity.UNCOMMON, GREATBLADE, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> CRUSHING = ENCHANTMENTS.register("crushing", () -> new CrushingEnchantment(Rarity.COMMON, GREATBLADE, EquipmentSlotType.MAINHAND));
+    public static final RegistryObject<Enchantment> EXECUTIONER = ENCHANTMENTS.register("executioner", () -> new MarkerEnchantment(17, 50, Rarity.VERY_RARE, GREATBLADE, EquipmentSlotType.MAINHAND));
 }

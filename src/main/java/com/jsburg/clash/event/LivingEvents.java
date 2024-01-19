@@ -4,6 +4,7 @@ import com.jsburg.clash.Clash;
 import com.jsburg.clash.enchantments.axe.ButcheryEnchantment;
 import com.jsburg.clash.enchantments.axe.RampageEnchantment;
 import com.jsburg.clash.enchantments.axe.RetaliationEnchantment;
+import com.jsburg.clash.registry.AllEffects;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
@@ -86,6 +87,10 @@ public class LivingEvents {
             if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem) > 0) {
                 RetaliationEnchantment.onUserHurt(hurtPlayer, EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem));
             }
+        }
+        //Remove stagger upon being hurt
+        if (event.getEntityLiving().getActivePotionEffect(AllEffects.STAGGERED.get()) != null) {
+            event.getEntityLiving().removePotionEffect(AllEffects.STAGGERED.get());
         }
     }
 

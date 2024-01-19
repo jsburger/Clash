@@ -65,6 +65,18 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
             return new AxeSweepParticle(worldIn, x, y, z, scale, isRed > 0, isFlipped > 0, this.spriteSet);
         }
     }
+    @OnlyIn(Dist.CLIENT)
+    public static class BladeFactory implements IParticleFactory<BasicParticleType> {
+        private final IAnimatedSprite spriteSet;
+
+        public BladeFactory(IAnimatedSprite spriteSet) {
+            this.spriteSet = spriteSet;
+        }
+
+        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double scale, double isRed, double isFlipped) {
+            return new AxeSweepParticle(worldIn, x, y, z, scale, isRed > 0, isFlipped > 0, this.spriteSet);
+        }
+    }
 
     protected float getMinU() {
         return this.flip ? super.getMaxU() : super.getMinU();

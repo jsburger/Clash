@@ -21,6 +21,7 @@ public class AllItems {
     public static final RegistryObject<Item> GREATBLADE = ITEMS.register("greatblade", () -> new GreatbladeItem(5, 0.6F,
             (new Item.Properties()).maxDamage(896).setISTER(() -> GreatbladeRenderer::getInstance)));
     public static final RegistryObject<Item> ROD_OF_GALES = ITEMS.register("rod_of_gales", () -> new JumpRodItem(2, 2.0F, (new Item.Properties()).maxDamage(612)));
+    //Rescue rod
 
     public static void registerItemProperties() {
 //        ItemModelsProperties.registerProperty(LOST_GREATBLADE.get(), new ResourceLocation(Clash.MOD_ID, "in_hand"),

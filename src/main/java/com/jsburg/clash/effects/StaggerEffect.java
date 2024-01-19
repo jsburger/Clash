@@ -16,9 +16,9 @@ public class StaggerEffect extends Effect {
             Vector3d motion = entityLivingBaseIn.getMotion();
             Vector3d look = entityLivingBaseIn.getLook(1);
             float movespeed = entityLivingBaseIn.getAIMoveSpeed();
-            float speed = ((float)amplifier + 1)/2 * movespeed;
+            float speed = (movespeed/2)/(1 + amplifier);
             if (-(motion.dotProduct(look)) < speed) {
-                entityLivingBaseIn.setMotion(motion.add(look.scale(-movespeed * (amplifier + 2)/4)));
+                entityLivingBaseIn.setMotion(motion.add(look.scale(-movespeed/2)));
             }
         }
     }

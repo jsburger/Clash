@@ -181,6 +181,10 @@ public class AttackHelper {
         if (world.isRemote()) return;
         ((ServerWorld) world).spawnParticle(particle.get(), position.getX(), position.getY(), position.getZ(), 0, 0, 0, 0, 0);
     }
+    public static void makeParticleServer(World world, RegistryObject<BasicParticleType> particle, Vector3d position, double xSpeed, double ySpeed, double zSpeed) {
+        if (world.isRemote()) return;
+        ((ServerWorld) world).spawnParticle(particle.get(), position.getX(), position.getY(), position.getZ(), 0, xSpeed, ySpeed, zSpeed, 1);
+    }
 
     public static double getAttackDamage(ItemStack item, PlayerEntity player, EquipmentSlotType equipmentSlot) {
         Multimap<Attribute, AttributeModifier> multimap = item.getAttributeModifiers(equipmentSlot);

@@ -27,10 +27,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.MovementInput;
+import net.minecraft.util.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
@@ -52,11 +49,17 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
-        tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", 5));
+        tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", hasExecutioner(stack) ? 10 : 5));
     }
 
     private static boolean hasSailing(ItemStack stack) {
         return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SAILING.get(), stack) > 0;
+    }
+    private static int crushingLevel(ItemStack stack) {
+        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.CRUSHING.get(), stack);
+    }
+    public static boolean hasExecutioner(ItemStack stack) {
+        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.EXECUTIONER.get(), stack) > 0;
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -84,7 +87,8 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
     @Override
     public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), 25, 0, false, true));
+        int crushing = crushingLevel(stack);
+        target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
         return super.hitEntity(stack, target, attacker);
     }
 
@@ -124,27 +128,39 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             ItemStack sword = player.getActiveItemStack();
 
             if (chargeTime >= getMaxCharge()) {
-                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .5, 0), player);
+                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .5, 0), player, hasExecutioner(stack));
+                slash.spriteFlip = (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0;
                 slash.setMotion(player.getLook(1).scale(2));
                 worldIn.addEntity(slash);
+
+                AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1, .5f);
 
                 if (worldIn.isRemote) {
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeAnimation());
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
 
-//                AttackHelper.makeParticle(slash.world, AllParticles.GREATBLADE_SLASH.get(),
-//                        player.getEyePosition(1).add(player.getLookVec().scale(3).add(player.getMotion())),
-//                        //Sweep particle uses xSpeed as scale, ySpeed as being red, zSpeed is horizontal flip
-//                        .5, 0, (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0
-//                );
-
                 Vector3d look = player.getLook(1);
-                player.addVelocity(look.x, 0, look.z);
+                player.addVelocity(look.x/2, 0, look.z/2);
 
                 player.resetCooldown();
                 player.getCooldownTracker().setCooldown(stack.getItem(), 30);
+                player.addExhaustion(.5f);
             }
+            else {
+                if (hasSailing(stack)) {
+                    player.setMotion(player.getMotion().scale(.5));
+                }
+            }
+        }
+    }
+
+    public void onSlashHit(ItemStack stack, LivingEntity target, Entity user) {
+        AttackHelper.playSound(user, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+        if (user instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) user;
+            //AttackHelper.doHitStuff(player, target, stack, );
+
         }
     }
 
