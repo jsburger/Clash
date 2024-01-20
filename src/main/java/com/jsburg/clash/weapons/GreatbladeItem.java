@@ -117,6 +117,18 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 player.stopActiveHand();
             }
         }
+        else {
+            float n = getUseDuration(stack) - count;
+            float threshold = 5;
+            float diff = (getMaxCharge() - n);
+            if (diff > 0 && diff <= threshold) {
+                Vector3d accel = player.getLook(1);
+                player.setMotion(player.getMotion().add(accel.scale((1/threshold)/2)));
+            }
+            if (n > (getMaxCharge())) {
+                player.stopActiveHand();
+            }
+        }
     }
 
     @Override
@@ -140,7 +152,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                     ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
                 }
 
-                Vector3d look = player.getLook(1);
+                Vector3d look = player.getLook(1).scale(1);
                 player.addVelocity(look.x/2, 0, look.z/2);
 
                 player.resetCooldown();
