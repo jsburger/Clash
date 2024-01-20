@@ -160,7 +160,7 @@ public class ClientEvents {
                 int useCount = player.getItemInUseCount();
                 int useDuration = sword.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = Math.min((useTime + event.getPartialTicks()) / sword.getMaxCharge(), 1);
+                float chargePercent = Math.min((useTime + event.getPartialTicks()) / (sword.getMaxCharge() + 1), 1);
 
                 if (chargePercent > .8) {
                     double n = Math.sin((player.ticksExisted + event.getPartialTicks()) * 1.3) * .005 * chargePercent;
@@ -186,7 +186,7 @@ public class ClientEvents {
                 // Charging position
                 stack.translate(1 * sideFlip * chargeLerp * (executioner ? .8f : 1f), -1.2 * chargeLerp * (executioner ? .65f : 1f), -.2 * chargeLerp);
                 // Swinging position
-                stack.translate(-2 * swingEase * sideFlip, .15 * fullSineEase - .1 * swingEase, 0 * sineEase);
+                stack.translate(-2 * swingEase * sideFlip * (executioner ? .5f : 1f), .15 * sineEase - .1 * swingEase, 0 * sineEase);
 
                 // Charge rotation
                 stack.rotate(Vector3f.YP.rotationDegrees(-10 * chargeLerp * sideFlip));
@@ -196,10 +196,10 @@ public class ClientEvents {
 //                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));
 
                 // Swing animation
-                Vector3f axis = new Vector3f((float) (sineEase - .5)/2  * sideFlip, 0, 1);
-                stack.rotate(axis.rotationDegrees(-5 * fullSineEase + 90 * swingEase * sideFlip));
+                Vector3f axis = new Vector3f(0, 0, 1);
+                stack.rotate(axis.rotationDegrees(90 * swingEase * sideFlip * (executioner ? 1.4f : 1f)));
                 stack.rotate(Vector3f.XP.rotationDegrees(210 * swingEase));
-                stack.translate(.2 * sineEase * sideFlip, -.6 * sineEase, 0);
+                stack.translate(.2 * sineEase * sideFlip, -1.2 * swingEase, 0);
 
 
             }

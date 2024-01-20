@@ -264,7 +264,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
     public static class GreatbladeAnimation extends ItemAnimator.SimpleItemAnimation {
         public GreatbladeAnimation() {
-            super(swingTimeMax());
+            super((int) (swingTimeMax()));
         }
     }
     public static class GreatbladeThirdPersonAnimation extends ItemAnimator.SimpleItemAnimation {
