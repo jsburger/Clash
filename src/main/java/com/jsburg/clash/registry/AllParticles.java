@@ -43,7 +43,7 @@ public class AllParticles {
         manager.registerFactory(SCREEN_SHAKER.get(), ScreenShakerParticle.Factory::new);
 
         manager.registerFactory(SAILING_TRAIL.get(), ClashSpriteParticle::SailingTrail);
-        manager.registerFactory(GREATBLADE_SLASH.get(), AxeSweepParticle.Factory::new);
+        manager.registerFactory(GREATBLADE_SLASH.get(), AxeSweepParticle.BladeFactory::new);
     }
 
     private static RegistryObject<BasicParticleType> register(String name) {

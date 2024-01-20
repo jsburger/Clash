@@ -43,6 +43,8 @@ public class GreatbladeSlashEntity extends Entity {
     public float damage = 10;
     public ItemStack swordStack = ItemStack.EMPTY;
     private final List<Entity> hitEntities = Lists.newLinkedList();
+    private boolean isExecutioner = false;
+    private int hasThrumParticle = 0;
 
     public GreatbladeSlashEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -53,7 +55,14 @@ public class GreatbladeSlashEntity extends Entity {
         this.setPosition(pos.getX(), pos.getY(), pos.getZ());
         swordStack = sword;
         setOwner(owner);
-        if (executioner) damage += 5;
+        if (executioner) {
+            damage += 5;
+            isExecutioner = true;
+        }
+    }
+    public void applyThrum(int level) {
+        hasThrumParticle = 1;
+        damage += level * 2;
     }
 
     public void setOwner(Entity owner) {
@@ -100,7 +109,9 @@ public class GreatbladeSlashEntity extends Entity {
 
         }
 
-        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion.scale(.5)), 1, 0, spriteFlip);
+        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion.scale(.5)),
+                //isExecutioner, isBlue, isFlipped
+                isExecutioner ? 1 : 0, hasThrumParticle, spriteFlip);
 
         //Collision
         Entity owner = getOwner();

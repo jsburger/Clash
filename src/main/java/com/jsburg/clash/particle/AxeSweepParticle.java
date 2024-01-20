@@ -25,9 +25,23 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
             this.particleGreen *= .15;
             this.particleBlue *= .15;
         }
+
         this.particleScale = 1.0F - (float)scale * 0.2F;
         this.flip = flipped;
         this.selectSpriteWithAge(spriteWithAge);
+    }
+    private AxeSweepParticle(ClientWorld world, double x, double y, double z, boolean isBlue, boolean flipped, float rotation, IAnimatedSprite spriteWithAge){
+        this(world, x, y, z, 1, false, flipped, spriteWithAge);
+        if (isBlue) {
+            this.particleBlue = .7f;
+            this.particleGreen *= .25;
+            this.particleRed *= .25;
+        }
+        if (flipped) {
+            rotation = -rotation;
+        }
+        this.particleAngle = rotation;
+        this.prevParticleAngle = rotation;
     }
 
     @Override
@@ -73,8 +87,8 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
             this.spriteSet = spriteSet;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double scale, double isRed, double isFlipped) {
-            return new AxeSweepParticle(worldIn, x, y, z, scale, isRed > 0, isFlipped > 0, this.spriteSet);
+        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double isExecutioner, double isBlue, double isFlipped) {
+            return new AxeSweepParticle(worldIn, x, y, z, isBlue > 0, isFlipped > 0, isExecutioner > 0 ? -45 * (0.0174533f) : 0, this.spriteSet);
         }
     }
 
