@@ -68,6 +68,9 @@ public class AttackHelper {
         if (!player.world.isRemote && target instanceof LivingEntity) {
             ItemStack copy = weapon.copy();
             weapon.hitEntity((LivingEntity) target, player);
+            if (weapon.getItem() instanceof IHitListener) {
+                ((IHitListener) weapon.getItem()).onHit(weapon, (LivingEntity) target, true);
+            }
             if (weapon.isEmpty()) {
                 net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copy, hand);
                 player.setHeldItem(hand, ItemStack.EMPTY);

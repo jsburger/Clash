@@ -7,10 +7,7 @@ import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
-import com.jsburg.clash.weapons.util.AttackHelper;
-import com.jsburg.clash.weapons.util.IThirdPersonArmController;
-import com.jsburg.clash.weapons.util.IThirdPersonRenderHook;
-import com.jsburg.clash.weapons.util.WeaponItem;
+import com.jsburg.clash.weapons.util.*;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -34,13 +31,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
-public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook {
+public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook, IHitListener {
 
     public GreatbladeItem(float attackDamage, float attackSpeed, Properties properties) {
         super(attackDamage, attackSpeed, properties);
@@ -86,10 +81,11 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        int crushing = crushingLevel(stack);
-        target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
-        return super.hitEntity(stack, target, attacker);
+    public void onHit(ItemStack stack, LivingEntity target, boolean isCharged) {
+        if (isCharged) {
+            int crushing = crushingLevel(stack);
+            target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
+        }
     }
 
     @Override
