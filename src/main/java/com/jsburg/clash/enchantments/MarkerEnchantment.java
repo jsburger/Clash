@@ -1,13 +1,12 @@
 package com.jsburg.clash.enchantments;
 
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 
 /**
  * Simple enchantment that has one level, only exists to be checked for in other parts of code.
  */
-public class MarkerEnchantment extends Enchantment {
+public class MarkerEnchantment extends ClashEnchantment {
     public final Boolean isTreasure;
     public final Boolean isTradeable;
     public final int minLevel;

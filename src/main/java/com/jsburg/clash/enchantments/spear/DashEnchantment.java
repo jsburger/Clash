@@ -1,5 +1,6 @@
 package com.jsburg.clash.enchantments.spear;
 
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import net.minecraft.enchantment.Enchantment;
@@ -8,13 +9,12 @@ import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import java.util.Random;
 
-public class DashEnchantment extends Enchantment {
+public class DashEnchantment extends ClashEnchantment {
 
     public DashEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);

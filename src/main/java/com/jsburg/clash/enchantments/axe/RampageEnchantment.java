@@ -1,14 +1,13 @@
 package com.jsburg.clash.enchantments.axe;
 
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import com.jsburg.clash.registry.AllEffects;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.potion.EffectInstance;
 
-public class RampageEnchantment extends Enchantment {
+public class RampageEnchantment extends ClashEnchantment {
 
     public RampageEnchantment(Rarity rarityIn, EnchantmentType typeIn,  EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);

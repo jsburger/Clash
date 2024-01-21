@@ -1,5 +1,6 @@
 package com.jsburg.clash.enchantments.axe;
 
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.util.AttackHelper;
@@ -14,7 +15,7 @@ import net.minecraft.world.server.ServerWorld;
 
 import java.util.Random;
 
-public class ButcheryEnchantment extends Enchantment {
+public class ButcheryEnchantment extends ClashEnchantment {
 
     public ButcheryEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);

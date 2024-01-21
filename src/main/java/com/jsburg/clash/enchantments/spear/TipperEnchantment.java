@@ -1,10 +1,10 @@
 package com.jsburg.clash.enchantments.spear;
 
-import net.minecraft.enchantment.Enchantment;
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class TipperEnchantment extends Enchantment {
+public class TipperEnchantment extends ClashEnchantment {
 
     public TipperEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);

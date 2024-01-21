@@ -1,5 +1,6 @@
 package com.jsburg.clash.enchantments.axe;
 
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import com.jsburg.clash.registry.AllEffects;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
@@ -8,7 +9,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.MathHelper;
 
-public class RetaliationEnchantment extends Enchantment {
+public class RetaliationEnchantment extends ClashEnchantment {
     public RetaliationEnchantment(Enchantment.Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);
     }

@@ -1,11 +1,11 @@
 package com.jsburg.clash.enchantments.spear;
 
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.tags.ITag;
 
-public class JabEnchantment extends Enchantment {
+public class JabEnchantment extends ClashEnchantment {
 
     public JabEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
         super(rarityIn, typeIn, slots);

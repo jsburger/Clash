@@ -1,10 +1,10 @@
 package com.jsburg.clash.enchantments.spear;
 
-import net.minecraft.enchantment.Enchantment;
+import com.jsburg.clash.enchantments.ClashEnchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class FlurryEnchantment extends Enchantment {
+public class FlurryEnchantment extends ClashEnchantment {
 
     public static final int MAX_LEVEL = 3;
     public static final float SPEED_PER_LEVEL = 0.2f;
