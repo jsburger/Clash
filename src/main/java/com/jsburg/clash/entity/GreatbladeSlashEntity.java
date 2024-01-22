@@ -1,7 +1,6 @@
 package com.jsburg.clash.entity;
 
 import com.google.common.collect.Lists;
-import com.jsburg.clash.Clash;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.GreatbladeItem;
@@ -12,13 +11,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
@@ -60,9 +57,14 @@ public class GreatbladeSlashEntity extends Entity {
             isExecutioner = true;
         }
     }
-    public void applyThrum(int level) {
+    public void applyThrum() {
         hasThrumParticle = 1;
-        damage += level * 2;
+    }
+    public void applyWhirlwind(int level) {
+        timeLeft += level;
+    }
+    public void setDamage(float damage) {
+        this.damage = damage;
     }
 
     public void setOwner(Entity owner) {

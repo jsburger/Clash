@@ -3,7 +3,6 @@ package com.jsburg.clash.rendering;
 import com.jsburg.clash.Clash;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
@@ -13,14 +12,11 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 
 public class GreatbladeRenderer extends ItemStackTileEntityRenderer {
     private final GreatbladeModel model = new GreatbladeModel();
     public static final GreatbladeRenderer instance = new GreatbladeRenderer();
 
-    private static int renderTicks = 1;
 
     public static GreatbladeRenderer getInstance() {
         return instance;
@@ -31,8 +27,6 @@ public class GreatbladeRenderer extends ItemStackTileEntityRenderer {
         matrixStack.push();
         matrixStack.scale(1.0F, -1.0F, -1.0F);
         IVertexBuilder ivertexbuilder1 = ItemRenderer.getEntityGlintVertexBuilder(buffer, this.model.getRenderType(GreatbladeModel.TEXTURE_LOCATION), false, stack.hasEffect());
-        renderTicks++;
-//        matrixStack.rotate(Vector3f.ZP.rotation(((float)renderTicks)/20));
         this.model.render(matrixStack, ivertexbuilder1, combinedLight, combinedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
         matrixStack.pop();
 

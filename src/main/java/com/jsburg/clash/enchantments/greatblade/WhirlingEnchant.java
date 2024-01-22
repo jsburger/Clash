@@ -4,11 +4,10 @@ import com.jsburg.clash.enchantments.ClashEnchantment;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class CrushingEnchantment extends ClashEnchantment {
-    public CrushingEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
-        super(rarityIn, typeIn, slots);
+public class WhirlingEnchant extends ClashEnchantment {
+    public WhirlingEnchant(Rarity rarity, EnchantmentType enchantmentType, EquipmentSlotType... equipmentSlotTypes) {
+        super(rarity, enchantmentType, equipmentSlotTypes);
     }
-
     @Override
     public int getMaxLevel() {
         return 2;
@@ -16,11 +15,11 @@ public class CrushingEnchantment extends ClashEnchantment {
 
     @Override
     public int getMinEnchantability(int level) {
-        return (level - 1) * 10;
+        return (level) * 10;
     }
 
     @Override
     public int getMaxEnchantability(int level) {
-        return getMinEnchantability(level) + 15;
+        return getMinEnchantability(level) + 20;
     }
 }

@@ -2,7 +2,6 @@ package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
 import com.jsburg.clash.registry.AllEffects;
-import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.MiscHelper;
@@ -23,6 +22,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -35,26 +35,41 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.jsburg.clash.registry.AllEnchantments.*;
+
 public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook, IHitListener {
 
+    private final float baseDamage;
     public GreatbladeItem(float attackDamage, float attackSpeed, Properties properties) {
         super(attackDamage, attackSpeed, properties);
+        baseDamage = attackDamage;
+    }
+
+    public float getSlashDamage(ItemStack stack) {
+        float base = hasExecutioner(stack) ? 10 : 5;
+        if (hasThrum(stack)) {
+            base += 2 * thrumLevel(stack);
+        }
+        return base;
     }
 
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
-        tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", hasExecutioner(stack) ? 10 : 5));
+        tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", getSlashDamage(stack)));
     }
 
     private static boolean hasSailing(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SAILING.get(), stack) > 0;
+        return EnchantmentHelper.getEnchantmentLevel(SAILING.get(), stack) > 0;
     }
     private static int crushingLevel(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.CRUSHING.get(), stack);
+        return EnchantmentHelper.getEnchantmentLevel(CRUSHING.get(), stack);
     }
     public static boolean hasExecutioner(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(AllEnchantments.EXECUTIONER.get(), stack) > 0;
+        return EnchantmentHelper.getEnchantmentLevel(EXECUTIONER.get(), stack) > 0;
+    }
+    private static int thrumLevel(ItemStack stack) {
+        return EnchantmentHelper.getEnchantmentLevel(THRUM.get(), stack);
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -83,9 +98,23 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     @Override
     public void onHit(ItemStack stack, LivingEntity target, boolean isCharged) {
         if (isCharged) {
+            if (thrumLevel(stack) > 0) setThrum(stack, true);
             int crushing = crushingLevel(stack);
             target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
         }
+    }
+
+    private static final String THRUM_KEY = "has_thrum";
+    private static void setThrum(ItemStack stack, boolean value) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putBoolean(THRUM_KEY, value);
+    }
+    public static boolean hasThrum(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        if (tag != null && tag.contains(THRUM_KEY)) {
+            return tag.getBoolean(THRUM_KEY);
+        }
+        return false;
     }
 
     @Override
@@ -137,8 +166,14 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
             if (chargeTime >= getMaxCharge()) {
                 GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .5, 0), player, hasExecutioner(stack));
+                slash.setDamage(baseDamage + getSlashDamage(stack));
+                if (hasThrum(stack)) {
+                    slash.applyThrum();
+                    setThrum(stack, false);
+                }
                 slash.spriteFlip = (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0;
                 slash.setMotion(player.getLook(1).scale(2));
+                slash.applyWhirlwind(EnchantmentHelper.getEnchantmentLevel(WHIRLING.get(), stack));
                 worldIn.addEntity(slash);
 
                 AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1, .5f);
@@ -158,6 +193,9 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             else {
                 if (hasSailing(stack)) {
                     player.setMotion(player.getMotion().scale(.5));
+                    player.resetCooldown();
+                    player.getCooldownTracker().setCooldown(stack.getItem(), 30);
+                    player.addExhaustion(.5f);
                 }
             }
         }

@@ -13,9 +13,9 @@
   "enchantment.clash.lunge": "Lunge",
   "enchantment.clash.lunge.desc": "Launch forward after missing a spear stab.",
   "enchantment.clash.sweet_spot": "Sweet Spot",
-  "enchantment.clash.sweet_spot.desc": "Landing a stab outside of your normal attack range will deal double damage.",
+  "enchantment.clash.sweet_spot.desc": "Landing a stab outside of normal attack range will deal double damage.",
   "enchantment.clash.agility": "Agility",
-  "enchantment.clash.agility.desc": "Perform a small dash in the direction you're moving upon using the item.",
+  "enchantment.clash.agility.desc": "Perform a small directional dash upon using the item.",
   "enchantment.clash.jab": "Jab",
   "enchantment.clash.jab.desc": "Stab attacks require no charge time, but inflict slowness after use.",
 
@@ -31,7 +31,7 @@
   "enchantment.clash.retaliation.desc": "Upon taking damage, gain a stacking attack damage boost.",
   "effect.clash.retaliation": "Retaliation",
 
-  "item.clash.greatblade": "Lost Greatblade",
+  "item.clash.greatblade": "Greatblade",
   "item.clash.greatblade.bonus_damage": "Bonus Damage",
   "effect.clash.staggered": "Staggered",
 
@@ -41,6 +41,10 @@
   "enchantment.clash.executioner.desc": "Additional swing damage, but reduces swing size.",
   "enchantment.clash.crushing": "Crushing",
   "enchantment.clash.crushing.desc": "Increase stagger duration and decrease stagger speed.",
+  "enchantment.clash.whirling": "Whirling",
+  "enchantment.clash.whirling.desc": "Increases slash range.",
+  "enchantment.clash.thrum": "Thrum",
+  "enchantment.clash.thrum.desc": "After landing a basic attack, the next slash will deal bonus damage.",
 
   "item.clash.rod_of_gales": "Rod of Gales"
 }

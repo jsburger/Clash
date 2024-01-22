@@ -5,7 +5,7 @@
     "layer0": "clash:item/greatblade"
   },
   "base": {
-    "parent": "clash:item/greatblade_hand_default"
+    "parent": "clash:item/greatblade_hand_thrum"
   },
   "perspectives": {
     "gui": {
@@ -17,13 +17,5 @@
     "ground": {
       "parent": "clash:item/greatblade_gui"
     }
-  },
-  "overrides": [
-    {
-      "predicate": {
-        "clash:has_thrum": 1
-      },
-      "model": "clash:item/greatblade_perspective_thrum"
-    }
-  ]
+  }
 }

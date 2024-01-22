@@ -33,9 +33,9 @@ public class AxeSweepParticle extends SpriteTexturedParticle {
     private AxeSweepParticle(ClientWorld world, double x, double y, double z, boolean isBlue, boolean flipped, float rotation, IAnimatedSprite spriteWithAge){
         this(world, x, y, z, 1, false, flipped, spriteWithAge);
         if (isBlue) {
-            this.particleBlue = .7f;
-            this.particleGreen *= .25;
-            this.particleRed *= .25;
+            this.particleBlue = 1f;
+            this.particleGreen *= .95;
+            this.particleRed *= .75;
         }
         if (flipped) {
             rotation = -rotation;
