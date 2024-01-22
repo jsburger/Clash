@@ -17,7 +17,7 @@ public class ClashSpriteParticle extends SpriteTexturedParticle {
     }
     public static Factory ButcherSpark(IAnimatedSprite sprite) {
         return new Factory(sprite, (p) -> {
-            p.maxAge = 8;
+            p.maxAge = 6;
             p.particleScale = 0.3f + p.rand.nextFloat() * 0.1f;
         });
     }

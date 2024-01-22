@@ -1,12 +1,10 @@
 package com.jsburg.clash.weapons;
 
-import com.jsburg.clash.event.ClientEvents;
 import com.jsburg.clash.registry.AllEffects;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.ScreenShaker;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.WeaponItem;
-import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.DamageEnchantment;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
@@ -21,15 +19,10 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class SweptAxeItem extends WeaponItem {
 
@@ -86,14 +79,19 @@ public class SweptAxeItem extends WeaponItem {
                     }
                     if (!player.world.isRemote) {
                         livingentity.applyKnockback(0.4f, -look.getX(), -look.getZ());
-                        livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + AttackHelper.getBonusEnchantmentDamage(stack, livingentity));
+                        float bonus = AttackHelper.getBonusEnchantmentDamage(stack, livingentity);
+                        if (livingentity.attackEntityFrom(DamageSource.causePlayerDamage(player), damage + bonus)) {
+                            if (bonus > 0) {
+                                player.onEnchantmentCritical(livingentity);
+                            }
+                        }
                     }
                     hits++;
                 }
             }
 
             if (player.world.isRemote && hits >= 3) {
-                ScreenShaker.setScreenShake(6, 2);
+                ScreenShaker.setScreenShake(4, 2);
             }
 
 
