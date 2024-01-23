@@ -37,7 +37,7 @@ import java.util.List;
 
 import static com.jsburg.clash.registry.AllEnchantments.*;
 
-public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook, IHitListener {
+public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook, IHitListener, IActiveResetListener {
 
     private final float baseDamage;
     public GreatbladeItem(float attackDamage, float attackSpeed, Properties properties) {
@@ -190,14 +190,6 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 player.getCooldownTracker().setCooldown(stack.getItem(), 30);
                 player.addExhaustion(.5f);
             }
-            else {
-                if (hasSailing(stack)) {
-                    player.setMotion(player.getMotion().scale(.5));
-                    player.resetCooldown();
-                    player.getCooldownTracker().setCooldown(stack.getItem(), 30);
-                    player.addExhaustion(.5f);
-                }
-            }
         }
     }
 
@@ -207,6 +199,19 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             PlayerEntity player = (PlayerEntity) user;
             //AttackHelper.doHitStuff(player, target, stack, );
 
+        }
+    }
+
+    @Override
+    public void onHandReset(ItemStack stack, LivingEntity user) {
+        if (user instanceof PlayerEntity && user.getItemInUseMaxCount() < getMaxCharge()) {
+            PlayerEntity player = (PlayerEntity) user;
+            if (hasSailing(stack)) {
+                player.setMotion(player.getMotion().scale(.5));
+                player.resetCooldown();
+                player.getCooldownTracker().setCooldown(stack.getItem(), 30);
+                player.addExhaustion(.5f);
+            }
         }
     }
 

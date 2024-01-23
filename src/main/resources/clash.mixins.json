@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "clash.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
     "PlayerEntityMixin"
   ],
   "client": [
