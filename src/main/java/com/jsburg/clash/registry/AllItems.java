@@ -19,7 +19,7 @@ public class AllItems {
     public static final RegistryObject<Item> BILLHOOK = ITEMS.register("billhook", () -> new BillhookItem(5, 2.0F, (new Item.Properties()).maxDamage(852)));
     public static final RegistryObject<Item> SWEPT_AXE = ITEMS.register("swept_axe", () -> new SweptAxeItem(6, 0.9F, (new Item.Properties()).maxDamage(650)));
     public static final RegistryObject<Item> SWEPT_AXE_HEAD = ITEMS.register("swept_axe_head", () -> new Item(new Item.Properties().maxStackSize(1).group(ItemGroup.MISC)));
-    public static final RegistryObject<Item> GREATBLADE = ITEMS.register("greatblade", () -> new GreatbladeItem(5, 0.6F,
+    public static final RegistryObject<Item> GREATBLADE = ITEMS.register("greatblade", () -> new GreatbladeItem(5, 0.8F,
             (new Item.Properties()).maxDamage(896)));
     public static final RegistryObject<Item> ROD_OF_GALES = ITEMS.register("rod_of_gales", () -> new JumpRodItem(2, 2.0F, (new Item.Properties()).maxDamage(612)));
     //Rescue rod

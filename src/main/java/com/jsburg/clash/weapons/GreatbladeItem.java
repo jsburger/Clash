@@ -165,7 +165,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             ItemStack sword = player.getActiveItemStack();
 
             if (chargeTime >= getMaxCharge()) {
-                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .5, 0), player, hasExecutioner(stack));
+                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .0, 0), player, hasExecutioner(stack));
                 slash.setDamage(baseDamage + getSlashDamage(stack));
                 if (hasThrum(stack)) {
                     slash.applyThrum();
@@ -187,7 +187,10 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 player.addVelocity(look.x/2, 0, look.z/2);
 
                 player.resetCooldown();
-                player.getCooldownTracker().setCooldown(stack.getItem(), 30);
+                player.getCooldownTracker().setCooldown(stack.getItem(), 20);
+                Hand otherHand = player.getActiveHand() == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
+                ItemStack otherStack = player.getHeldItem(otherHand);
+                if (!otherStack.isEmpty()) player.getCooldownTracker().setCooldown(otherStack.getItem(), 10);
                 player.addExhaustion(.5f);
             }
         }

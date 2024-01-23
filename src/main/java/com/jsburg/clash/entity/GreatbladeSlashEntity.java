@@ -111,7 +111,7 @@ public class GreatbladeSlashEntity extends Entity {
 
         }
 
-        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getPositionVec().add(0, 1, 0).add(motion.scale(.5)),
+        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getBoundingBox().getCenter().add(motion.scale(.5)),
                 //isExecutioner, isBlue, isFlipped
                 isExecutioner ? 1 : 0, hasThrumParticle, spriteFlip);
 
