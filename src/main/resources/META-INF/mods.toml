@@ -4,9 +4,9 @@ license="All rights reserved"
 issueTrackerURL="https://github.com/jsburger/Clash/issues"
 [[mods]]
     modId="clash"
-    version="${file.jarVersion}"
+    version="0.3"
     displayName="Clash"
-    authors="Jsburg, Mista Jub, special thanks to Piggy"
+    authors="Jsburg, RENREN, special thanks to Piggy"
     description='''
     AWESOME WEAPON MOD!!!
     '''
