@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "ii ",
+    "iii",
+    " ii"
+  ],
+  "result": {
+    "item": "clash:swept_axe_head"
+  }
+}

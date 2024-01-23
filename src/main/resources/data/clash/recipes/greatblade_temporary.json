@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "b": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "pattern": [
+    "bb",
+    "bb",
+    " s"
+  ],
+  "result": {
+    "item": "clash:greatblade"
+  }
+}
