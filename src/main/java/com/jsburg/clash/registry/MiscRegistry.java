@@ -26,13 +26,12 @@ public class MiscRegistry {
 
     public static final RegistryObject<EntityType<Entity>> GREATBLADE_SLASH = registerEntityType("greatblade_slash",
             EntityType.Builder.create(GreatbladeSlashEntity::new, EntityClassification.MISC)
-                    //unmapped func is update rate. i think it declares how often the server sends info to the client via packets
-                    .size(3, 3).trackingRange(4).func_233608_b_(20).immuneToFire().disableSummoning()
+                    .size(3, 3).trackingRange(4).updateInterval(20).immuneToFire().disableSummoning()
     );
     public static final RegistryObject<EntityType<Entity>> GREATBLADE_SLASH_EXECUTIONER = registerEntityType("greatblade_slash_executioner",
             EntityType.Builder.create(GreatbladeSlashEntity::new, EntityClassification.MISC)
                     //im doing this just to make it smaller. IDK what to do otherwise.
-                    .size(1, 3).trackingRange(4).func_233608_b_(20).immuneToFire().disableSummoning()
+                    .size(1, 3).trackingRange(4).updateInterval(20).immuneToFire().disableSummoning()
     );
 
     private static <T extends Entity> RegistryObject<EntityType<T>> registerEntityType(String id, EntityType.Builder<T> builder) {

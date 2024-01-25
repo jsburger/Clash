@@ -17,7 +17,7 @@ public class TextHelper {
     public static ITextComponent getBonusText(String langString, float bonus) {
         StringTextComponent text = new StringTextComponent((bonus > 0) ? " +" : " -");
         text.appendString(formatNumber(bonus) + " ");
-        text.append(new TranslationTextComponent(langString));
+        text.appendSibling(new TranslationTextComponent(langString));
         text.mergeStyle(bonus > 0 ? TextFormatting.DARK_GREEN : TextFormatting.RED);
         return text;
     }
