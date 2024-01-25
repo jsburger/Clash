@@ -17,7 +17,7 @@ apply plugin: 'maven-publish'
 
 version = project.modVersion
 group = 'com.jsburg.clash'
-archivesBaseName = project.modId
+archivesBaseName = project.modId + "-" + project.minecraftVersion
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 

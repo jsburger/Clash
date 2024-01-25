@@ -5,6 +5,9 @@ import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.util.AttackHelper;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -17,12 +20,15 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -214,4 +220,21 @@ public class GreatbladeSlashEntity extends Entity {
         Entity entity = this.getOwner();
         return new SSpawnObjectPacket(this, entity == null ? 0 : entity.getEntityId());
     }
+
+
+
+    @OnlyIn(Dist.CLIENT)
+    public static class SlashRenderer extends EntityRenderer<Entity> {
+        public SlashRenderer(EntityRendererManager manager) {
+            super(manager);
+        }
+
+        /**
+         * Returns the location of an entity's texture.
+         */
+        public ResourceLocation getEntityTexture(Entity entity) {
+            return AtlasTexture.LOCATION_BLOCKS_TEXTURE;
+        }
+    }
+
 }
