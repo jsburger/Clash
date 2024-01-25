@@ -2,6 +2,8 @@ package com.jsburg.clash;
 
 import com.jsburg.clash.event.ClientEvents;
 import com.jsburg.clash.registry.*;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -46,6 +48,8 @@ public class Clash
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, ClientEvents::doClientTick);
 
         event.enqueueWork(AllItems::registerItemProperties);
+        EntityRenderers.register(MiscRegistry.GREATBLADE_SLASH.get(), NoopRenderer::new);
+        EntityRenderers.register(MiscRegistry.GREATBLADE_SLASH_EXECUTIONER.get(), NoopRenderer::new);
     }
 
 }

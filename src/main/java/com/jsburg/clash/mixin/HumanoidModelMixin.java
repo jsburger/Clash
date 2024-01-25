@@ -24,9 +24,8 @@ public class HumanoidModelMixin {
 
     @Inject(method = "poseLeftArm", at = @At("HEAD"), remap = false, cancellable = true)
     private <T extends LivingEntity> void onFirstHandPose(T entity, CallbackInfo ci) {
-        if (entity instanceof Player) {
+        if (entity instanceof Player player) {
             HumanoidModel<T> model = (HumanoidModel<T>) (Object) this;
-            Player player = (Player) entity;
 
             for (InteractionHand hand : hands) {
                 boolean active = player.isUsingItem() && hand == player.getUsedItemHand();
