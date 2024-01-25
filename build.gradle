@@ -15,12 +15,12 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
+//apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 
 version = project.modVersion
 group = 'com.jsburg.clash'
-archivesBaseName = project.modId
+archivesBaseName = project.modId + "-" + project.minecraftVersion
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
