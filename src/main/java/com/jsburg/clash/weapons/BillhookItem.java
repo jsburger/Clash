@@ -25,7 +25,7 @@ public class BillhookItem extends SpearItem {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         StringTextComponent text = new StringTextComponent(" ");
-        text.append(new TranslationTextComponent("item.clash.billhook.inverted_knockback"));
+        text.appendSibling(new TranslationTextComponent("item.clash.billhook.inverted_knockback"));
         tooltip.add(text.mergeStyle(TextFormatting.DARK_GREEN));
     }
 
