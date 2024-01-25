@@ -1,103 +1,103 @@
 package com.jsburg.clash.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AxeSweepParticle extends SpriteTexturedParticle {
+public class AxeSweepParticle extends TextureSheetParticle {
 
-    private final IAnimatedSprite spriteWithAge;
+    private final SpriteSet spriteWithAge;
     private final boolean flip;
 
-    private AxeSweepParticle(ClientWorld world, double x, double y, double z, double scale, boolean isRed, boolean flipped, IAnimatedSprite spriteWithAge) {
+    private AxeSweepParticle(ClientLevel world, double x, double y, double z, double scale, boolean isRed, boolean flipped, SpriteSet spriteWithAge) {
         super(world, x, y, z, 0.0D, 0.0D, 0.0D);
         this.spriteWithAge = spriteWithAge;
-        this.maxAge = 5;
-        float f = this.rand.nextFloat() * 0.2F + 0.8F;
-        this.particleRed = f;
-        this.particleGreen = f;
-        this.particleBlue = f;
+        this.lifetime = 5;
+        float f = this.random.nextFloat() * 0.2F + 0.8F;
+        this.rCol = f;
+        this.gCol = f;
+        this.bCol = f;
         if (isRed) {
-            this.particleRed = .7f;
-            this.particleGreen *= .15;
-            this.particleBlue *= .15;
+            this.rCol = .7f;
+            this.gCol *= .15;
+            this.bCol *= .15;
         }
 
-        this.particleScale = 1.0F - (float)scale * 0.2F;
+        this.quadSize = 1.0F - (float)scale * 0.2F;
         this.flip = flipped;
-        this.selectSpriteWithAge(spriteWithAge);
+        this.setSpriteFromAge(spriteWithAge);
     }
-    private AxeSweepParticle(ClientWorld world, double x, double y, double z, boolean isBlue, boolean flipped, float rotation, IAnimatedSprite spriteWithAge){
+    private AxeSweepParticle(ClientLevel world, double x, double y, double z, boolean isBlue, boolean flipped, float rotation, SpriteSet spriteWithAge){
         this(world, x, y, z, 1, false, flipped, spriteWithAge);
         if (isBlue) {
-            this.particleBlue = 1f;
-            this.particleGreen *= .95;
-            this.particleRed *= .75;
+            this.bCol = 1f;
+            this.gCol *= .95;
+            this.rCol *= .75;
         }
         if (flipped) {
             rotation = -rotation;
         }
-        this.particleAngle = rotation;
-        this.prevParticleAngle = rotation;
+        this.roll = rotation;
+        this.oRoll = rotation;
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_LIT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_LIT;
     }
 
     @Override
-    public int getBrightnessForRender(float partialTick) {
+    public int getLightColor(float partialTick) {
         return 15728880;
     }
 
     @Override
     public void tick() {
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
-        if (this.age++ >= this.maxAge) {
-            this.setExpired();
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
+        if (this.age++ >= this.lifetime) {
+            this.remove();
         } else {
-            this.selectSpriteWithAge(this.spriteWithAge);
+            this.setSpriteFromAge(this.spriteWithAge);
         }
     }
 
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public Factory(IAnimatedSprite spriteSet) {
+        public Factory(SpriteSet spriteSet) {
             this.spriteSet = spriteSet;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double scale, double isRed, double isFlipped) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double scale, double isRed, double isFlipped) {
             return new AxeSweepParticle(worldIn, x, y, z, scale, isRed > 0, isFlipped > 0, this.spriteSet);
         }
     }
     @OnlyIn(Dist.CLIENT)
-    public static class BladeFactory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class BladeFactory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public BladeFactory(IAnimatedSprite spriteSet) {
+        public BladeFactory(SpriteSet spriteSet) {
             this.spriteSet = spriteSet;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double isExecutioner, double isBlue, double isFlipped) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double isExecutioner, double isBlue, double isFlipped) {
             return new AxeSweepParticle(worldIn, x, y, z, isBlue > 0, isFlipped > 0, isExecutioner > 0 ? -45 * (0.0174533f) : 0, this.spriteSet);
         }
     }
 
-    protected float getMinU() {
-        return this.flip ? super.getMaxU() : super.getMinU();
+    protected float getU0() {
+        return this.flip ? super.getU1() : super.getU0();
     }
 
-    protected float getMaxU() {
-        return this.flip ? super.getMinU() : super.getMaxU();
+    protected float getU1() {
+        return this.flip ? super.getU0() : super.getU1();
     }
 
 }

@@ -1,8 +1,8 @@
 package com.jsburg.clash.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -10,65 +10,65 @@ import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 //Multipurpose class that does basic effects.
-public class ClashSpriteParticle extends SpriteTexturedParticle {
+public class ClashSpriteParticle extends TextureSheetParticle {
 
-    public static Factory BonusDrop(IAnimatedSprite sprite) {
+    public static Factory BonusDrop(SpriteSet sprite) {
         return new Factory(sprite, (particle) -> {});
     }
-    public static Factory ButcherSpark(IAnimatedSprite sprite) {
+    public static Factory ButcherSpark(SpriteSet sprite) {
         return new Factory(sprite, (p) -> {
-            p.maxAge = 6;
-            p.particleScale = 0.3f + p.rand.nextFloat() * 0.1f;
+            p.lifetime = 6;
+            p.quadSize = 0.3f + p.random.nextFloat() * 0.1f;
         });
     }
-    public static Factory SailingTrail(IAnimatedSprite sprite) {
+    public static Factory SailingTrail(SpriteSet sprite) {
         return new Factory(sprite, (p) -> {
-            p.maxAge = 14;
-            p.particleScale = 1f;
+            p.lifetime = 14;
+            p.quadSize = 1f;
         });
     }
 
 
-    private final IAnimatedSprite spriteWithAge;
+    private final SpriteSet spriteWithAge;
 
-    protected ClashSpriteParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ, IAnimatedSprite sprite) {
+    protected ClashSpriteParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ, SpriteSet sprite) {
         super(world, x, y, z, motionX, motionY, motionZ);
-        this.selectSpriteWithAge(sprite);
-        this.maxAge = 20;
-        this.motionX = motionX;
-        this.motionY = motionY;
-        this.motionZ = motionZ;
+        this.setSpriteFromAge(sprite);
+        this.lifetime = 20;
+        this.xd = motionX;
+        this.yd = motionY;
+        this.zd = motionZ;
         this.spriteWithAge = sprite;
-        this.particleScale = 0.3f;
+        this.quadSize = 0.3f;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.age++ >= this.maxAge) {
-            this.setExpired();
+        if (this.age++ >= this.lifetime) {
+            this.remove();
         } else {
-            this.selectSpriteWithAge(this.spriteWithAge);
+            this.setSpriteFromAge(this.spriteWithAge);
         }
 
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
         private final Consumer<ClashSpriteParticle> onParticleCreate;
 
-        public Factory(IAnimatedSprite sprite, Consumer<ClashSpriteParticle> onParticleInit) {
+        public Factory(SpriteSet sprite, Consumer<ClashSpriteParticle> onParticleInit) {
             this.sprite = sprite;
             this.onParticleCreate = onParticleInit;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             ClashSpriteParticle p = new ClashSpriteParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.sprite);
             onParticleCreate.accept(p);
             return p;

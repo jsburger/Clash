@@ -1,58 +1,57 @@
 package com.jsburg.clash.particle;
 
-import com.jsburg.clash.Clash;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import static java.lang.Math.PI;
 
-public class SpearCritParticle extends SpriteTexturedParticle {
+public class SpearCritParticle extends TextureSheetParticle {
 
     private final int spinDir;
 
-    protected SpearCritParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ, IAnimatedSprite sprite) {
+    protected SpearCritParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ, SpriteSet sprite) {
         super(world, x, y, z, motionX, motionY, motionZ);
-        this.selectSpriteWithAge(sprite);
-        this.posX += this.motionX * 8;
-        this.posY += this.motionY * 8;
-        this.posZ += this.motionZ * 8;
-        this.motionX *= 0;
-        this.motionY *= 0;
-        this.motionZ *= 0;
-        this.particleAngle = (float) (this.rand.nextFloat() * 2 * PI);
-        this.prevParticleAngle = particleAngle;
-        this.spinDir = this.rand.nextInt(2) * -2 + 1;
-        this.maxAge = 8;
-        this.particleScale = 0.3f + this.rand.nextFloat() * 0.2f;
-        float f = this.rand.nextFloat() * 0.1f + 0.85f;
+        this.setSpriteFromAge(sprite);
+        this.x += this.xd * 8;
+        this.y += this.yd * 8;
+        this.z += this.zd * 8;
+        this.xd *= 0;
+        this.yd *= 0;
+        this.zd *= 0;
+        this.roll = (float) (this.random.nextFloat() * 2 * PI);
+        this.oRoll = roll;
+        this.spinDir = this.random.nextInt(2) * -2 + 1;
+        this.lifetime = 8;
+        this.quadSize = 0.3f + this.random.nextFloat() * 0.2f;
+        float f = this.random.nextFloat() * 0.1f + 0.85f;
         this.setColor(1, f, f);
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     @Override
     public void tick() {
         super.tick();
-        this.particleScale *= 0.8f;
-        this.prevParticleAngle = particleAngle;
-        this.particleAngle += .1f * spinDir * (1/particleScale);
+        this.quadSize *= 0.8f;
+        this.oRoll = roll;
+        this.roll += .1f * spinDir * (1/quadSize);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             return new SpearCritParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.sprite);
         }
     }

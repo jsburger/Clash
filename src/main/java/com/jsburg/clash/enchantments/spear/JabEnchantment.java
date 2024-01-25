@@ -1,37 +1,37 @@
 package com.jsburg.clash.enchantments.spear;
 
 import com.jsburg.clash.enchantments.ClashEnchantment;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 public class JabEnchantment extends ClashEnchantment {
 
-    public JabEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
+    public JabEnchantment(Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot... slots) {
         super(rarityIn, typeIn, slots);
     }
 
-    public int getMinEnchantability(int enchantmentLevel) {
+    public int getMinCost(int enchantmentLevel) {
         return 40;
     }
 
-    public int getMaxEnchantability(int enchantmentLevel) {
+    public int getMaxCost(int enchantmentLevel) {
         return 50;
     }
 
     @Override
-    protected boolean canApplyTogether(Enchantment ench) {
+    protected boolean checkCompatibility(Enchantment ench) {
         if (ench instanceof ThrustEnchantment) return false;
-        return super.canApplyTogether(ench);
+        return super.checkCompatibility(ench);
     }
 
     @Override
-    public boolean canVillagerTrade() {
+    public boolean isTradeable() {
         return false;
     }
 
     @Override
-    public boolean isTreasureEnchantment() {
+    public boolean isTreasureOnly() {
         return true;
     }
 }

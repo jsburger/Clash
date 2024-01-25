@@ -2,24 +2,24 @@ package com.jsburg.clash.particle;
 
 import com.jsburg.clash.util.ScreenShaker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.MetaParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ScreenShakerParticle extends MetaParticle {
+public class ScreenShakerParticle extends NoRenderParticle {
     private final double shakeIntensity;
     private final double shakeTime;
     private final double falloffDistance;
 
-    protected ScreenShakerParticle(ClientWorld world, double x, double y, double z, double shakeIntensity, double shakeTime, double fallOffDistance) {
+    protected ScreenShakerParticle(ClientLevel world, double x, double y, double z, double shakeIntensity, double shakeTime, double fallOffDistance) {
         super(world, x, y, z);
         this.shakeIntensity = shakeIntensity;
         this.shakeTime = shakeTime;
@@ -29,23 +29,23 @@ public class ScreenShakerParticle extends MetaParticle {
 
     @Override
     public void tick() {
-        this.setExpired();
+        this.remove();
 
         Minecraft mc = Minecraft.getInstance();
-        PlayerEntity player = mc.player;
+        Player player = mc.player;
         if (player == null) return;
-        Vector3d diff = player.getPositionVec().subtract(this.prevPosX, this.prevPosY, this.prevPosZ);
-        double intensityScale = Math.pow(1 - MathHelper.clamp(diff.length()/falloffDistance, 0, 1), 2);
+        Vec3 diff = player.position().subtract(this.xo, this.yo, this.zo);
+        double intensityScale = Math.pow(1 - Mth.clamp(diff.length()/falloffDistance, 0, 1), 2);
         if (intensityScale > 0)
             ScreenShaker.setScreenShake((int) shakeTime, shakeIntensity * intensityScale);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
 
-        public Factory(IAnimatedSprite sprite){}
+        public Factory(SpriteSet sprite){}
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double shakeIntensity, double shakeTime, double fallOffDistance) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double shakeIntensity, double shakeTime, double fallOffDistance) {
             return new ScreenShakerParticle(worldIn, x, y, z, shakeIntensity, shakeTime, fallOffDistance);
         }
     }

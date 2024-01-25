@@ -1,16 +1,16 @@
 package com.jsburg.clash.weapons;
 
 import com.jsburg.clash.weapons.util.AttackHelper;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -22,11 +22,11 @@ public class BillhookItem extends SpearItem {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        StringTextComponent text = new StringTextComponent(" ");
-        text.appendSibling(new TranslationTextComponent("item.clash.billhook.inverted_knockback"));
-        tooltip.add(text.mergeStyle(TextFormatting.DARK_GREEN));
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        TextComponent text = new TextComponent(" ");
+        text.append(new TranslatableComponent("item.clash.billhook.inverted_knockback"));
+        tooltip.add(text.withStyle(ChatFormatting.DARK_GREEN));
     }
 
     @Override
@@ -42,13 +42,13 @@ public class BillhookItem extends SpearItem {
     }
 
     @Override
-    protected void onStabHit(ItemStack stack, PlayerEntity player, LivingEntity target, float chargePercent) {
+    protected void onStabHit(ItemStack stack, Player player, LivingEntity target, float chargePercent) {
         super.onStabHit(stack, player, target, chargePercent);
-        Vector3d motion = target.getMotion();
-        Vector3d diff = AttackHelper.getEntityPosition(player).subtract(AttackHelper.getEntityPosition(target));
-        Vector3d newMotion = new Vector3d(diff.getX(), 0, diff.getZ());
-        newMotion = newMotion.normalize().scale(new Vector3d(motion.getX(), 0, motion.getZ()).length());
-        target.setMotion(newMotion.getX(), motion.getY(), newMotion.getZ());
+        Vec3 motion = target.getDeltaMovement();
+        Vec3 diff = AttackHelper.getEntityPosition(player).subtract(AttackHelper.getEntityPosition(target));
+        Vec3 newMotion = new Vec3(diff.x(), 0, diff.z());
+        newMotion = newMotion.normalize().scale(new Vec3(motion.x(), 0, motion.z()).length());
+        target.setDeltaMovement(newMotion.x(), motion.y(), newMotion.z());
     }
 
     @Override

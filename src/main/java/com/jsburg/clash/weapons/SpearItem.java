@@ -12,42 +12,45 @@ import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.IPoseItem;
 import com.jsburg.clash.weapons.util.ISpearAnimation;
 import com.jsburg.clash.weapons.util.WeaponItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.*;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.ForgeMod;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.*;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 
 public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation {
 
-    private static final Vector3d UP = new Vector3d(0, 1, 0);
+    private static final Vec3 UP = new Vec3(0, 1, 0);
     private static final float stabLengthBonus = 2.5f;
     private static final float sweetSpotSize = 2.5f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
@@ -61,8 +64,8 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
         //Could probably afford to include an extra level just for Quark tomes, hence MAX_LEVEL + 1
         for (int i = 1; i <= FlurryEnchantment.MAX_LEVEL + 1; i++) {
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-            builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", attackDamage, AttributeModifier.Operation.ADDITION));
-            builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", attackSpeed + (FlurryEnchantment.SPEED_PER_LEVEL * i), AttributeModifier.Operation.ADDITION));
+            builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", attackDamage, AttributeModifier.Operation.ADDITION));
+            builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", attackSpeed + (FlurryEnchantment.SPEED_PER_LEVEL * i), AttributeModifier.Operation.ADDITION));
             multimaps.add(builder.build());
         }
         flurryAttributes = multimaps;
@@ -71,21 +74,21 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
 
 
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        tooltip.add((new TranslatableComponent("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
         tooltip.add(TextHelper.getBonusText("item.clash.spear.charge_range_bonus", stabLengthBonus));
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
-        int flurry = Math.min(EnchantmentHelper.getEnchantmentLevel(AllEnchantments.FLURRY.get(), stack), FlurryEnchantment.MAX_LEVEL + 1);
-        if (slot == EquipmentSlotType.MAINHAND && flurry > 0) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+        int flurry = Math.min(EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.FLURRY.get(), stack), FlurryEnchantment.MAX_LEVEL + 1);
+        if (slot == EquipmentSlot.MAINHAND && flurry > 0) {
             return flurryAttributes.get(flurry - 1);
         }
         return super.getAttributeModifiers(slot, stack);
@@ -93,7 +96,7 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
 
     @Override
     public List<Enchantment> vanillaEnchantments() {
-        return Arrays.asList(Enchantments.LOOTING, Enchantments.IMPALING);
+        return Arrays.asList(Enchantments.MOB_LOOTING, Enchantments.IMPALING);
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -101,93 +104,93 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
     }
 
     public int getMaxCharge(ItemStack stack) {
-        if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 3;
+        if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 3;
         return 20;
     }
 
     public int getMinCharge(ItemStack stack) {
-        if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 0;
-        return 10 - EnchantmentHelper.getEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
+        if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 0;
+        return 10 - EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
     }
 
-    protected void onStabHit(ItemStack stack, PlayerEntity player, LivingEntity target, float chargePercent) {
-        Vector3d look = player.getLookVec();
-        target.applyKnockback(chargePercent / 3, -look.getX(), -look.getZ());
+    protected void onStabHit(ItemStack stack, Player player, LivingEntity target, float chargePercent) {
+        Vec3 look = player.getLookAngle();
+        target.knockback(chargePercent / 3, -look.x(), -look.z());
     }
 
     protected boolean canStabCrit(ItemStack stack) {
         return true;
     }
 
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (entityLiving instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity)entityLiving;
+    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+        if (entityLiving instanceof Player) {
+            Player player = (Player)entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
-            ItemStack spear = player.getActiveItemStack();
+            ItemStack spear = player.getUseItem();
 
             float chargePercent = Math.min((float)chargeTime/getMaxCharge(spear), 1);
 
-            boolean hasJab = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0;
+            boolean hasJab = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0;
 
             if (chargeTime >= getMinCharge(stack)) {
-                player.addStat(Stats.ITEM_USED.get(this));
-                player.swingArm(player.getActiveHand());
+                player.awardStat(Stats.ITEM_USED.get(this));
+                player.swing(player.getUsedItemHand());
 
                 if (hasJab) {
-                    CooldownTracker tracker = player.getCooldownTracker();
+                    ItemCooldowns tracker = player.getCooldowns();
                     tracker.removeCooldown(this);
-                    tracker.setCooldown(this, 40);
-                    player.addPotionEffect(new EffectInstance(Effects.SLOWNESS, 40, 1));
+                    tracker.addCooldown(this, 40);
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 1));
                 }
 
                 double stabLength = AttackHelper.getAttackRange(player) + stabLengthBonus;
-                Vector3d look = player.getLookVec();
-                Vector3d endVec = look.scale(stabLength);
-                Vector3d eyePos = player.getEyePosition(1.0F);
-                Vector3d endPos = eyePos.add(endVec);
-                AxisAlignedBB boundingBox = new AxisAlignedBB(eyePos.x, eyePos.y, eyePos.z, endPos.x, endPos.y, endPos.z).grow(1);
-                Predicate<Entity> predicate = (e) -> !e.isSpectator() && e.canBeCollidedWith();
-                EntityRayTraceResult rayTraceResult = AttackHelper.rayTraceWithMotion(worldIn, player, eyePos, endPos, boundingBox, predicate);
+                Vec3 look = player.getLookAngle();
+                Vec3 endVec = look.scale(stabLength);
+                Vec3 eyePos = player.getEyePosition(1.0F);
+                Vec3 endPos = eyePos.add(endVec);
+                AABB boundingBox = new AABB(eyePos.x, eyePos.y, eyePos.z, endPos.x, endPos.y, endPos.z).inflate(1);
+                Predicate<Entity> predicate = (e) -> !e.isSpectator() && e.isPickable();
+                EntityHitResult rayTraceResult = AttackHelper.rayTraceWithMotion(worldIn, player, eyePos, endPos, boundingBox, predicate);
 
                 //Get vector to the side of the player
-                Vector3d side = look.crossProduct(UP).scale(0.75);
+                Vec3 side = look.cross(UP).scale(0.75);
                 //bro i love xor
                 //Flips side based on where the spear actually is on screen
-                if (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) {
+                if (player.getMainArm() == HumanoidArm.LEFT ^ player.getUsedItemHand() == InteractionHand.OFF_HAND) {
                     side = side.scale(-1);
                 }
                 side = side.add(eyePos).subtract(UP.scale(.2));
 
                 if (rayTraceResult != null) {
                     Entity target = rayTraceResult.getEntity();
-                    Vector3d hitLocation = rayTraceResult.getHitVec();
+                    Vec3 hitLocation = rayTraceResult.getLocation();
 
-                    BlockRayTraceResult blockRayTraceResult = player.world.rayTraceBlocks(new RayTraceContext(eyePos, hitLocation, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
-                    if (blockRayTraceResult.getType() == RayTraceResult.Type.MISS) {
+                    BlockHitResult blockRayTraceResult = player.level.clip(new ClipContext(eyePos, hitLocation, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+                    if (blockRayTraceResult.getType() == HitResult.Type.MISS) {
 
                         //Server side logic time
-                        if (!worldIn.isRemote) {
+                        if (!worldIn.isClientSide) {
                             //Target dragon properly
-                            if (target instanceof EnderDragonPartEntity) {
-                                target = ((EnderDragonPartEntity)target).dragon;
+                            if (target instanceof EnderDragonPart) {
+                                target = ((EnderDragonPart)target).parentMob;
                             }
                             //Calls Forge's attacking hook, as this is definitely a direct attack.
                             boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                             if (canAttack) {
-                                float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlotType.MAINHAND);
+                                float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlot.MAINHAND);
                                 if (canStabCrit(stack) && chargeTime > getMaxCharge(stack) - 4) damage *= AttackHelper.getCrit(player, target, true);
-                                player.resetCooldown();
+                                player.resetAttackStrengthTicker();
 
                                 //Sweet Spot check, works by comparing the distance from the furthest point of the attack to the point of contact
-                                if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.SWEET_SPOT.get(), spear) > 0) {
+                                if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.SWEET_SPOT.get(), spear) > 0) {
                                     double distance = endPos.distanceTo(hitLocation);
                                     if (distance <= sweetSpotSize) {
                                         damage *= 2;
                                         AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_MEGA_CRIT.get(), 2f, 1.0f);
                                         for (int i = 0; i <= 5; i++) {
                                             Random rand = worldIn.getRandom();
-                                            Vector3d motion = new Vector3d(rand.nextDouble() - .5, rand.nextDouble() - .5, rand.nextDouble() - .5);
-                                            AttackHelper.makeParticleServer((ServerWorld) worldIn, AllParticles.SPEAR_CRIT.get(), hitLocation, motion, 1.5f);
+                                            Vec3 motion = new Vec3(rand.nextDouble() - .5, rand.nextDouble() - .5, rand.nextDouble() - .5);
+                                            AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_CRIT.get(), hitLocation, motion, 1.5f);
                                         }
                                     }
                                 }
@@ -195,59 +198,59 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
 
                                 AttackHelper.attackEntity(player, target, damage);
                                 AttackHelper.doHitStuff(player, target, spear);
-                                AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
+                                AttackHelper.playSound(player, SoundEvents.PLAYER_ATTACK_STRONG);
 
                                 this.onStabHit(stack, player, (LivingEntity) target, chargePercent);
 
                             }
-                            player.addExhaustion(0.2f);
+                            player.causeFoodExhaustion(0.2f);
                         }
                     }
                 }
 
                 AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
-                AttackHelper.makeParticle(player.getEntityWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.subtractReverse(endPos), 1.4);
+                AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
 
             }
         }
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
         DashEnchantment.tryAgilityDash(worldIn, playerIn, stack);
 
-        playerIn.setActiveHand(handIn);
-        return ActionResult.resultConsume(stack);
+        playerIn.startUsingItem(handIn);
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override
-    public boolean hasPose(PlayerEntity player, ItemStack stack, boolean isActive) {
+    public boolean hasPose(Player player, ItemStack stack, boolean isActive) {
         return isActive;
     }
 
     @Override
-    public <T extends LivingEntity> void doPose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
-        ModelRenderer spearArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
-        ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
+    public <T extends LivingEntity> void doPose(Player player, HumanoidModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
+        ModelPart spearArm = leftHanded ? model.leftArm : model.rightArm;
+        ModelPart otherArm = leftHanded ? model.rightArm : model.leftArm;
         int sideFlip = leftHanded ? -1 : 1;
 
-        spearArm.rotateAngleX *= .4f;
-        spearArm.rotateAngleX -= .4f;
-        spearArm.rotateAngleY -= .3f * sideFlip;
-        spearArm.rotateAngleZ += .3f * sideFlip;
-        spearArm.rotationPointX += 1f * sideFlip;
-        spearArm.rotationPointY += 4f;
-        spearArm.rotationPointZ += 2f;
+        spearArm.xRot *= .4f;
+        spearArm.xRot -= .4f;
+        spearArm.yRot -= .3f * sideFlip;
+        spearArm.zRot += .3f * sideFlip;
+        spearArm.x += 1f * sideFlip;
+        spearArm.y += 4f;
+        spearArm.z += 2f;
 
-        otherArm.rotateAngleX *= .4f;
-        otherArm.rotateAngleX -= .4f;
-        otherArm.rotateAngleZ += .9f * sideFlip;
-        otherArm.rotationPointX -= 2f * sideFlip;
-        otherArm.rotationPointY -= 2f;
-        otherArm.rotationPointZ -= 3f;
+        otherArm.xRot *= .4f;
+        otherArm.xRot -= .4f;
+        otherArm.zRot += .9f * sideFlip;
+        otherArm.x -= 2f * sideFlip;
+        otherArm.y -= 2f;
+        otherArm.z -= 3f;
 
-        model.bipedBody.rotateAngleY += .3f * sideFlip;
+        model.body.yRot += .3f * sideFlip;
     }
 }

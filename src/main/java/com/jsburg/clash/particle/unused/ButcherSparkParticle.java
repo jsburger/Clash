@@ -1,52 +1,52 @@
 package com.jsburg.clash.particle.unused;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ButcherSparkParticle extends SpriteTexturedParticle {
+public class ButcherSparkParticle extends TextureSheetParticle {
 
-    private final IAnimatedSprite spriteWithAge;
+    private final SpriteSet spriteWithAge;
 
-    protected ButcherSparkParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ, IAnimatedSprite sprite) {
+    protected ButcherSparkParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ, SpriteSet sprite) {
         super(world, x, y, z, motionX, motionY, motionZ);
-        this.selectSpriteWithAge(sprite);
-        this.maxAge = 8;
-        this.motionX = motionX;
-        this.motionY = motionY;
-        this.motionZ = motionZ;
+        this.setSpriteFromAge(sprite);
+        this.lifetime = 8;
+        this.xd = motionX;
+        this.yd = motionY;
+        this.zd = motionZ;
         this.spriteWithAge = sprite;
-        this.particleScale = 0.3f + this.rand.nextFloat() * 0.1f;
+        this.quadSize = 0.3f + this.random.nextFloat() * 0.1f;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.age++ >= this.maxAge) {
-            this.setExpired();
+        if (this.age++ >= this.lifetime) {
+            this.remove();
         } else {
-            this.selectSpriteWithAge(this.spriteWithAge);
+            this.setSpriteFromAge(this.spriteWithAge);
         }
 
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             return new ButcherSparkParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.sprite);
         }
     }

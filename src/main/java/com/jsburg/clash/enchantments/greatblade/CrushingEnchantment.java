@@ -1,11 +1,11 @@
 package com.jsburg.clash.enchantments.greatblade;
 
 import com.jsburg.clash.enchantments.ClashEnchantment;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 public class CrushingEnchantment extends ClashEnchantment {
-    public CrushingEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
+    public CrushingEnchantment(Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot... slots) {
         super(rarityIn, typeIn, slots);
     }
 
@@ -15,12 +15,12 @@ public class CrushingEnchantment extends ClashEnchantment {
     }
 
     @Override
-    public int getMinEnchantability(int level) {
+    public int getMinCost(int level) {
         return (level - 1) * 10;
     }
 
     @Override
-    public int getMaxEnchantability(int level) {
-        return getMinEnchantability(level) + 15;
+    public int getMaxCost(int level) {
+        return getMinCost(level) + 15;
     }
 }

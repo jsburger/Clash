@@ -1,16 +1,15 @@
 package com.jsburg.clash.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.sql.Array;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemAnimator {
@@ -51,12 +50,12 @@ public class ItemAnimator {
 //    public static void startAnimation(PlayerEntity player, ItemStack item, Hand hand, ItemAnimation animation) {
 //        animationMap.put(item, new AnimationHolder(player, animation, item, hand));
 //    }
-    public static void startAnimation(PlayerEntity player, ItemStack item, Hand hand, ItemAnimation animation) {
+    public static void startAnimation(Player player, ItemStack item, InteractionHand hand, ItemAnimation animation) {
         animationList.add(new AnimationHolder(player, animation, item, hand));
     }
 
     @CheckForNull
-    public static <T extends ItemAnimation> ItemAnimation getAnimation(Class<T> animationType, PlayerEntity player, Hand hand) {
+    public static <T extends ItemAnimation> ItemAnimation getAnimation(Class<T> animationType, Player player, InteractionHand hand) {
         for (AnimationHolder holder : animationList) {
             ItemAnimation animation = holder.animation;
             if (animationType.isInstance(animation) && holder.boundEntity == player && holder.heldHand == hand) {
@@ -70,12 +69,12 @@ public class ItemAnimator {
     //All this code is basically begging for a refactor once I actually figure out how I want to use it.
     //It's currently built with a very vague concept of scalability. Once I find something limiting me I'll fix it.
     private static class AnimationHolder {
-        public final PlayerEntity boundEntity;
+        public final Player boundEntity;
         public final ItemAnimation animation;
         public final ItemStack boundItem;
-        public final Hand heldHand;
+        public final InteractionHand heldHand;
 
-        public AnimationHolder(PlayerEntity target, ItemAnimation animation, ItemStack item, Hand itemHand) {
+        public AnimationHolder(Player target, ItemAnimation animation, ItemStack item, InteractionHand itemHand) {
             boundEntity = target;
             this.animation = animation;
             boundItem = item;
@@ -84,7 +83,7 @@ public class ItemAnimator {
 
         public boolean isValid() {
             boolean isAlive = boundEntity.isAlive();
-            boolean stackCheck = ItemStack.areItemsEqual(boundEntity.getHeldItem(heldHand), boundItem);
+            boolean stackCheck = ItemStack.isSame(boundEntity.getItemInHand(heldHand), boundItem);
             return (isAlive && stackCheck);
         }
     }

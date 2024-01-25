@@ -6,19 +6,19 @@ import com.jsburg.clash.weapons.util.AttackHelper;
 import com.jsburg.clash.weapons.util.IPoseItem;
 import com.jsburg.clash.weapons.util.ISpearAnimation;
 import com.jsburg.clash.weapons.util.WeaponItem;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,8 +34,8 @@ public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimatio
         return 720000;
     }
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     @Override
@@ -43,58 +43,58 @@ public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimatio
         return Arrays.asList(Enchantments.KNOCKBACK, Enchantments.FIRE_ASPECT);
     }
 
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (entityLiving instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entityLiving;
+    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+        if (entityLiving instanceof Player) {
+            Player player = (Player) entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
-            ItemStack rod = player.getActiveItemStack();
+            ItemStack rod = player.getUseItem();
 
             float chargePercent = Math.min((float) chargeTime / maxCharge, 1);
-            boolean doThrust = !(player.isSneaking()) && chargeTime > (minCharge) && player.isOnGround() && !player.isSwimming();
+            boolean doThrust = !(player.isShiftKeyDown()) && chargeTime > (minCharge) && player.isOnGround() && !player.isSwimming();
 
             if (doThrust) {
-                player.addStat(Stats.ITEM_USED.get(this));
-                player.swingArm(player.getActiveHand());
+                player.awardStat(Stats.ITEM_USED.get(this));
+                player.swing(player.getUsedItemHand());
                 AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_WHOOSH.get(), 0.3f, 1.0f);
 
                 double boostedPercentage = Math.min(1, chargePercent * 1.4);
-                Vector3d dir = player.getLookVec().scale(/*Math.sqrt(thrustLevel) * */2 * boostedPercentage);
-                player.addVelocity(dir.x, dir.y / 2 + 0.2, dir.z);
-                AttackHelper.damageItem(1, rod, player, player.getActiveHand());
+                Vec3 dir = player.getLookAngle().scale(/*Math.sqrt(thrustLevel) * */2 * boostedPercentage);
+                player.push(dir.x, dir.y / 2 + 0.2, dir.z);
+                AttackHelper.damageItem(1, rod, player, player.getUsedItemHand());
 
-                player.addExhaustion(0.1f);
+                player.causeFoodExhaustion(0.1f);
             }
         }
     }
 
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
         DashEnchantment.tryAgilityDash(worldIn, playerIn, stack);
 
-        playerIn.setActiveHand(handIn);
-        return ActionResult.resultConsume(stack);
+        playerIn.startUsingItem(handIn);
+        return InteractionResultHolder.consume(stack);
     }
 
 
     @Override
-    public boolean hasPose(PlayerEntity player, ItemStack stack, boolean isActive) {
+    public boolean hasPose(Player player, ItemStack stack, boolean isActive) {
         return isActive;
     }
 
     @Override
-    public <T extends LivingEntity> void doPose(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
-        ModelRenderer spearArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
+    public <T extends LivingEntity> void doPose(Player player, HumanoidModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
+        ModelPart spearArm = leftHanded ? model.leftArm : model.rightArm;
 //        ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
         int sideFlip = leftHanded ? -1 : 1;
 
-        spearArm.rotateAngleX *= .4f;
-        spearArm.rotateAngleX += .4f;
-        spearArm.rotateAngleY += .3f * sideFlip;
-        spearArm.rotateAngleZ += .3f * sideFlip;
-        spearArm.rotationPointX += 1f * sideFlip;
-        spearArm.rotationPointY += 4f;
-        spearArm.rotationPointZ += 2f;
+        spearArm.xRot *= .4f;
+        spearArm.xRot += .4f;
+        spearArm.yRot += .3f * sideFlip;
+        spearArm.zRot += .3f * sideFlip;
+        spearArm.x += 1f * sideFlip;
+        spearArm.y += 4f;
+        spearArm.z += 2f;
 
 //        otherArm.rotateAngleX *= .4f;
 //        otherArm.rotateAngleX -= .4f;
@@ -103,7 +103,7 @@ public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimatio
 //        otherArm.rotationPointY -= 2f;
 //        otherArm.rotationPointZ -= 3f;
 
-        model.bipedBody.rotateAngleY += .3f * sideFlip;
+        model.body.yRot += .3f * sideFlip;
     }
 
     @Override

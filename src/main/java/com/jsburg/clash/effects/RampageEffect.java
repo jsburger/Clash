@@ -1,27 +1,27 @@
 package com.jsburg.clash.effects;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
-public class RampageEffect extends Effect {
+public class RampageEffect extends MobEffect {
 
     public RampageEffect() {
-        super(EffectType.BENEFICIAL, 0);
+        super(MobEffectCategory.BENEFICIAL, 0);
     }
 
     @Override
-    public void performEffect(LivingEntity target, int amplifier) {
+    public void applyEffectTick(LivingEntity target, int amplifier) {
         // Uses attack ticks because attack speed only reduces the tick requirement of an attack,
         // meaning if it runs out, progress gained on a swing is reverted
-        if (target instanceof PlayerEntity) {
-            target.ticksSinceLastSwing += amplifier + 1;
+        if (target instanceof Player) {
+            target.attackStrengthTicker += amplifier + 1;
         }
     }
 
     @Override
-    public boolean isReady(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         //Reduce the frequency of the effect going off, reducing the effectiveness while keeping it an int.
         return duration % 2 == 0;
     }

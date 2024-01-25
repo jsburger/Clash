@@ -1,8 +1,7 @@
 package com.jsburg.clash.util;
 
-import com.jsburg.clash.Clash;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 
 import java.util.Random;
@@ -55,7 +54,7 @@ public class ScreenShaker {
         setScreenShake(time, .8);
     }
 
-    public static void applyScreenShake(ActiveRenderInfo renderInfo, double partialTicks, EntityViewRenderEvent.CameraSetup event) {
+    public static void applyScreenShake(Camera renderInfo, double partialTicks, EntityViewRenderEvent.CameraSetup event) {
         if (ShakeTime > 0) {
             //TODO: Try 1 - partialTicks
             double lerp = partialTicks;

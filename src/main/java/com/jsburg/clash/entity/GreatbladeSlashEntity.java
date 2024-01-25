@@ -5,24 +5,24 @@ import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.util.AttackHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.play.server.SSpawnObjectPacket;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -43,13 +43,13 @@ public class GreatbladeSlashEntity extends Entity {
     private boolean isExecutioner = false;
     private int hasThrumParticle = 0;
 
-    public GreatbladeSlashEntity(EntityType<?> type, World world) {
+    public GreatbladeSlashEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    public GreatbladeSlashEntity(World world, ItemStack sword, Vector3d pos, Entity owner, boolean executioner) {
+    public GreatbladeSlashEntity(Level world, ItemStack sword, Vec3 pos, Entity owner, boolean executioner) {
         this(executioner ? MiscRegistry.GREATBLADE_SLASH_EXECUTIONER.get() : MiscRegistry.GREATBLADE_SLASH.get(), world);
-        this.setPosition(pos.getX(), pos.getY(), pos.getZ());
+        this.setPos(pos.x(), pos.y(), pos.z());
         swordStack = sword;
         setOwner(owner);
         if (executioner) {
@@ -69,17 +69,17 @@ public class GreatbladeSlashEntity extends Entity {
 
     public void setOwner(Entity owner) {
         if (owner != null) {
-            ownerUUID = owner.getUniqueID();
-            ownerEntityId = owner.getEntityId();
+            ownerUUID = owner.getUUID();
+            ownerEntityId = owner.getId();
         }
     }
 
     @Nullable
     public Entity getOwner() {
-        if (this.ownerUUID != null && this.world instanceof ServerWorld) {
-            return ((ServerWorld)this.world).getEntityByUuid(this.ownerUUID);
+        if (this.ownerUUID != null && this.level instanceof ServerLevel) {
+            return ((ServerLevel)this.level).getEntity(this.ownerUUID);
         } else {
-            return this.ownerEntityId != 0 ? this.world.getEntityByID(this.ownerEntityId) : null;
+            return this.ownerEntityId != 0 ? this.level.getEntity(this.ownerEntityId) : null;
         }
     }
 
@@ -87,31 +87,31 @@ public class GreatbladeSlashEntity extends Entity {
     public void tick() {
         super.tick();
 
-        Vector3d motion = getMotion();
+        Vec3 motion = getDeltaMovement();
         double speed = motion.length();
-        Vector3d centerPos = getBoundingBox().getCenter();
-        double yOff = centerPos.getY() - getPosY();
+        Vec3 centerPos = getBoundingBox().getCenter();
+        double yOff = centerPos.y() - getY();
         if (speed > 0) {
             //Friction
             double deceleration = .2;
             speed = Math.max(0, speed - deceleration);
-            setMotion(motion.normalize().scale(speed));
-            motion = getMotion();
+            setDeltaMovement(motion.normalize().scale(speed));
+            motion = getDeltaMovement();
 
             //Movement
-            Vector3d nextPos = getPositionVec().add(motion);
-            BlockRayTraceResult raytrace = world.rayTraceBlocks(
-                    new RayTraceContext(centerPos, nextPos.add(0, yOff, 0), RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null));
-            if (raytrace.getType() == RayTraceResult.Type.MISS) {
-                this.moveForced(nextPos);
+            Vec3 nextPos = position().add(motion);
+            BlockHitResult raytrace = level.clip(
+                    new ClipContext(centerPos, nextPos.add(0, yOff, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+            if (raytrace.getType() == HitResult.Type.MISS) {
+                this.moveTo(nextPos);
             }
             else {
-                this.moveForced(raytrace.getHitVec().subtract(0, yOff, 0));
+                this.moveTo(raytrace.getLocation().subtract(0, yOff, 0));
             }
 
         }
 
-        AttackHelper.makeParticleServer(world, AllParticles.GREATBLADE_SLASH, getBoundingBox().getCenter().add(motion.scale(.5)),
+        AttackHelper.makeParticleServer(level, AllParticles.GREATBLADE_SLASH, getBoundingBox().getCenter().add(motion.scale(.5)),
                 //isExecutioner, isBlue, isFlipped
                 isExecutioner ? 1 : 0, hasThrumParticle, spriteFlip);
 
@@ -122,42 +122,42 @@ public class GreatbladeSlashEntity extends Entity {
             enemyChecker = (a) -> true;
         }
         else {
-            enemyChecker = (livingentity) -> !owner.isOnSameTeam(livingentity);
+            enemyChecker = (livingentity) -> !owner.isAlliedTo(livingentity);
         }
         //Uhhhhh. Damage source.
-        DamageSource damageSource = owner instanceof PlayerEntity ?
-                DamageSource.causePlayerDamage((PlayerEntity) owner) :
-                owner == null ? DamageSource.causeThrownDamage(this, null):
-                    DamageSource.causeMobDamage((LivingEntity) owner);
+        DamageSource damageSource = owner instanceof Player ?
+                DamageSource.playerAttack((Player) owner) :
+                owner == null ? DamageSource.thrown(this, null):
+                    DamageSource.mobAttack((LivingEntity) owner);
 
-        for(LivingEntity livingentity : world.getEntitiesWithinAABB(LivingEntity.class, this.getBoundingBox())) {
-            if (livingentity != owner && enemyChecker.apply(livingentity) && !hitEntities.contains(livingentity) && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).hasMarker())) {
+        for(LivingEntity livingentity : level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox())) {
+            if (livingentity != owner && enemyChecker.apply(livingentity) && !hitEntities.contains(livingentity) && (!(livingentity instanceof ArmorStand) || !((ArmorStand) livingentity).isMarker())) {
                 //Skip over pets tamed by the player
-                if (livingentity instanceof TameableEntity) {
-                    if (owner != null && ((TameableEntity) livingentity).isOwner((LivingEntity) owner)) {
+                if (livingentity instanceof TamableAnimal) {
+                    if (owner != null && ((TamableAnimal) livingentity).isOwnedBy((LivingEntity) owner)) {
                         continue;
                     }
                 }
                 hitEntities.add(livingentity);
-                if (!world.isRemote) {
-                    Vector3d diff = livingentity.getPositionVec().subtract(this.getPositionVec()).normalize();
-                    livingentity.applyKnockback(0.4f, -diff.getX(), -diff.getZ());
+                if (!level.isClientSide) {
+                    Vec3 diff = livingentity.position().subtract(this.position()).normalize();
+                    livingentity.knockback(0.4f, -diff.x(), -diff.z());
 
                     //Damage entity
                     float lastHealth = (livingentity).getHealth();
-                    if (livingentity.attackEntityFrom(damageSource, damage + AttackHelper.getBonusEnchantmentDamage(swordStack, livingentity))) {
+                    if (livingentity.hurt(damageSource, damage + AttackHelper.getBonusEnchantmentDamage(swordStack, livingentity))) {
                         float healthDifference = lastHealth - (livingentity).getHealth();
 
                         //player.addStat(Stats.DAMAGE_DEALT, Math.round(healthDifference * 10));
                         // Create hurt effects
-                        if (world instanceof ServerWorld && healthDifference > 2.0F) {
+                        if (level instanceof ServerLevel && healthDifference > 2.0F) {
                             int k = (int) (healthDifference * 0.5D);
-                            ((ServerWorld) world)
-                                    .spawnParticle(
+                            ((ServerLevel) level)
+                                    .sendParticles(
                                             ParticleTypes.DAMAGE_INDICATOR,
-                                            livingentity.getPosX(),
-                                            livingentity.getPosYHeight(0.5),
-                                            livingentity.getPosZ(),
+                                            livingentity.getX(),
+                                            livingentity.getY(0.5),
+                                            livingentity.getZ(),
                                             k, 0.1, 0.0, 0.1, 0.2);
                         }
                         if (swordStack.getItem() instanceof GreatbladeItem) {
@@ -173,7 +173,7 @@ public class GreatbladeSlashEntity extends Entity {
         //Limited duration
         timeLeft -= 1;
         if (timeLeft == 0) {
-            remove();
+            remove(RemovalReason.DISCARDED);
             hitEntities.clear();
         }
 
@@ -181,14 +181,14 @@ public class GreatbladeSlashEntity extends Entity {
 
     //Entity data stuff
     @Override
-    protected void registerData() {
+    protected void defineSynchedData() {
 
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag compound) {
         if (this.ownerUUID != null) {
-            compound.putUniqueId("Owner", this.ownerUUID);
+            compound.putUUID("Owner", this.ownerUUID);
         }
 //        if (this.leftOwner) {
 //            compound.putBoolean("LeftOwner", true);
@@ -198,9 +198,9 @@ public class GreatbladeSlashEntity extends Entity {
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
-        if (compound.hasUniqueId("Owner")) {
-            this.ownerUUID = compound.getUniqueId("Owner");
+    protected void readAdditionalSaveData(CompoundTag compound) {
+        if (compound.hasUUID("Owner")) {
+            this.ownerUUID = compound.getUUID("Owner");
         }
 //        this.leftOwner = compound.getBoolean("LeftOwner");
         this.damage = compound.getFloat("Damage");
@@ -210,8 +210,8 @@ public class GreatbladeSlashEntity extends Entity {
 
     //Copied from AbstractArrowEntity. Dunno why it isn't just on ProjectileEntity
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         Entity entity = this.getOwner();
-        return new SSpawnObjectPacket(this, entity == null ? 0 : entity.getEntityId());
+        return new ClientboundAddEntityPacket(this, entity == null ? 0 : entity.getId());
     }
 }

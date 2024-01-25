@@ -2,47 +2,49 @@ package com.jsburg.clash.particle;
 
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.weapons.util.AttackHelper;
-import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.NoRenderParticle;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ButcherSparkEmitter extends MetaParticle {
+public class ButcherSparkEmitter extends NoRenderParticle {
 
     private int timeSinceStart;
     private final int maximumTime = 3;
 
-    protected ButcherSparkEmitter(ClientWorld world, double x, double y, double z) {
+    protected ButcherSparkEmitter(ClientLevel world, double x, double y, double z) {
         super(world, x, y, z, 0, 0, 0);
     }
 
     @Override
     public void tick() {
-        for(int i = 0; i < 1+this.rand.nextInt(1); ++i) {
+        for(int i = 0; i < 1+this.random.nextInt(1); ++i) {
             double n = 1.0D;
-            double d0 = this.posX + (this.rand.nextDouble() - this.rand.nextDouble()) * n;
-            double d1 = this.posY + (this.rand.nextDouble() - this.rand.nextDouble()) * n;
-            double d2 = this.posZ + (this.rand.nextDouble() - this.rand.nextDouble()) * n;
-            Vector3d pos = new Vector3d(d0, d1, d2);
-            AttackHelper.makeParticle(this.world, AllParticles.BUTCHER_SPARK.get(), pos);
+            double d0 = this.x + (this.random.nextDouble() - this.random.nextDouble()) * n;
+            double d1 = this.y + (this.random.nextDouble() - this.random.nextDouble()) * n;
+            double d2 = this.z + (this.random.nextDouble() - this.random.nextDouble()) * n;
+            Vec3 pos = new Vec3(d0, d1, d2);
+            AttackHelper.makeParticle(this.level, AllParticles.BUTCHER_SPARK.get(), pos);
         }
 
         ++this.timeSinceStart;
         if (this.timeSinceStart == this.maximumTime) {
-            this.setExpired();
+            this.remove();
         }
 
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
 
-        public Factory(IAnimatedSprite sprite){}
+        public Factory(SpriteSet sprite){}
 
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             return new ButcherSparkEmitter(worldIn, x, y, z);
         }
     }

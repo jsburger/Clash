@@ -7,30 +7,34 @@ import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.*;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.IHasArm;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.Input;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,23 +57,23 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         return base;
     }
 
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        tooltip.add((new TranslationTextComponent("item.clash.spear.when_charged")).mergeStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        tooltip.add((new TranslatableComponent("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
         tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", getSlashDamage(stack)));
     }
 
     private static boolean hasSailing(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(SAILING.get(), stack) > 0;
+        return EnchantmentHelper.getItemEnchantmentLevel(SAILING.get(), stack) > 0;
     }
     private static int crushingLevel(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(CRUSHING.get(), stack);
+        return EnchantmentHelper.getItemEnchantmentLevel(CRUSHING.get(), stack);
     }
     public static boolean hasExecutioner(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(EXECUTIONER.get(), stack) > 0;
+        return EnchantmentHelper.getItemEnchantmentLevel(EXECUTIONER.get(), stack) > 0;
     }
     private static int thrumLevel(ItemStack stack) {
-        return EnchantmentHelper.getEnchantmentLevel(THRUM.get(), stack);
+        return EnchantmentHelper.getItemEnchantmentLevel(THRUM.get(), stack);
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -91,7 +95,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
     }
 
@@ -100,17 +104,17 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         if (isCharged) {
             if (thrumLevel(stack) > 0) setThrum(stack, true);
             int crushing = crushingLevel(stack);
-            target.addPotionEffect(new EffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
+            target.addEffect(new MobEffectInstance(AllEffects.STAGGERED.get(), (int) (25 * (1 + ((float)crushing/2))), crushing, false, true));
         }
     }
 
     private static final String THRUM_KEY = "has_thrum";
     private static void setThrum(ItemStack stack, boolean value) {
-        CompoundNBT tag = stack.getOrCreateTag();
+        CompoundTag tag = stack.getOrCreateTag();
         tag.putBoolean(THRUM_KEY, value);
     }
     public static boolean hasThrum(ItemStack stack) {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains(THRUM_KEY)) {
             return tag.getBoolean(THRUM_KEY);
         }
@@ -123,23 +127,23 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         if (hasSailing(stack)) {
             float n = getUseDuration(stack) - count;
             float speed = 1;
-            if (player instanceof ClientPlayerEntity) {
-                ClientPlayerEntity client = (ClientPlayerEntity) player;
-                MovementInput input = client.movementInput;
+            if (player instanceof LocalPlayer) {
+                LocalPlayer client = (LocalPlayer) player;
+                Input input = client.input;
 
-                if (input.forwardKeyDown) speed += .5;
-                if (input.backKeyDown) speed -= .5;
+                if (input.up) speed += .5;
+                if (input.down) speed -= .5;
 
             }
-            Vector3d accel = MiscHelper.extractHorizontal(player.getLook(1)).scale(speed/((n + 2) /3));
+            Vec3 accel = MiscHelper.extractHorizontal(player.getViewVector(1)).scale(speed/((n + 2) /3));
             if (n < 10) {
-                player.setMotion(accel.x, player.getMotion().y, accel.z);
+                player.setDeltaMovement(accel.x, player.getDeltaMovement().y, accel.z);
 //            player.addVelocity(accel.x, 0, accel.z);
                 if (n % 2 == 0)
-                    AttackHelper.makeParticleServer(player.world, AllParticles.SAILING_TRAIL, player.getPositionVec().add(0, 1, 0));
+                    AttackHelper.makeParticleServer(player.level, AllParticles.SAILING_TRAIL, player.position().add(0, 1, 0));
             }
             if (n > 15) {
-                player.stopActiveHand();
+                player.releaseUsingItem();
             }
         }
         else {
@@ -147,59 +151,59 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             float threshold = 5;
             float diff = (getMaxCharge() - n);
             if (diff > 0 && diff <= threshold) {
-                Vector3d accel = player.getLook(1);
-                player.setMotion(player.getMotion().add(accel.scale((1/threshold)/2)));
+                Vec3 accel = player.getViewVector(1);
+                player.setDeltaMovement(player.getDeltaMovement().add(accel.scale((1/threshold)/2)));
             }
             if (n > (getMaxCharge())) {
-                player.stopActiveHand();
+                player.releaseUsingItem();
             }
         }
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (entityLiving instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entityLiving;
+    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+        if (entityLiving instanceof Player) {
+            Player player = (Player) entityLiving;
             int chargeTime = getUseDuration(stack) - timeLeft;
 
-            ItemStack sword = player.getActiveItemStack();
+            ItemStack sword = player.getUseItem();
 
             if (chargeTime >= getMaxCharge()) {
-                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.getPositionVec().add(0, .0, 0), player, hasExecutioner(stack));
+                GreatbladeSlashEntity slash = new GreatbladeSlashEntity(worldIn, sword, player.position().add(0, .0, 0), player, hasExecutioner(stack));
                 slash.setDamage(baseDamage + getSlashDamage(stack));
                 if (hasThrum(stack)) {
                     slash.applyThrum();
                     setThrum(stack, false);
                 }
-                slash.spriteFlip = (player.getPrimaryHand() == HandSide.LEFT ^ player.getActiveHand() == Hand.OFF_HAND) ? 1 : 0;
-                slash.setMotion(player.getLook(1).scale(2));
-                slash.applyWhirlwind(EnchantmentHelper.getEnchantmentLevel(WHIRLING.get(), stack));
-                worldIn.addEntity(slash);
+                slash.spriteFlip = (player.getMainArm() == HumanoidArm.LEFT ^ player.getUsedItemHand() == InteractionHand.OFF_HAND) ? 1 : 0;
+                slash.setDeltaMovement(player.getViewVector(1).scale(2));
+                slash.applyWhirlwind(EnchantmentHelper.getItemEnchantmentLevel(WHIRLING.get(), stack));
+                worldIn.addFreshEntity(slash);
 
-                AttackHelper.playSound(player, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1, .5f);
+                AttackHelper.playSound(player, SoundEvents.PLAYER_ATTACK_SWEEP, 1, .5f);
 
-                if (worldIn.isRemote) {
-                    ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeAnimation());
-                    ItemAnimator.startAnimation(player, sword, player.getActiveHand(), new GreatbladeThirdPersonAnimation());
+                if (worldIn.isClientSide) {
+                    ItemAnimator.startAnimation(player, sword, player.getUsedItemHand(), new GreatbladeAnimation());
+                    ItemAnimator.startAnimation(player, sword, player.getUsedItemHand(), new GreatbladeThirdPersonAnimation());
                 }
 
-                Vector3d look = player.getLook(1).scale(1);
-                player.addVelocity(look.x/2, 0, look.z/2);
+                Vec3 look = player.getViewVector(1).scale(1);
+                player.push(look.x/2, 0, look.z/2);
 
-                player.resetCooldown();
-                player.getCooldownTracker().setCooldown(stack.getItem(), 20);
-                Hand otherHand = player.getActiveHand() == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
-                ItemStack otherStack = player.getHeldItem(otherHand);
-                if (!otherStack.isEmpty()) player.getCooldownTracker().setCooldown(otherStack.getItem(), 10);
-                player.addExhaustion(.5f);
+                player.resetAttackStrengthTicker();
+                player.getCooldowns().addCooldown(stack.getItem(), 20);
+                InteractionHand otherHand = player.getUsedItemHand() == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+                ItemStack otherStack = player.getItemInHand(otherHand);
+                if (!otherStack.isEmpty()) player.getCooldowns().addCooldown(otherStack.getItem(), 10);
+                player.causeFoodExhaustion(.5f);
             }
         }
     }
 
     public void onSlashHit(ItemStack stack, LivingEntity target, Entity user) {
-        AttackHelper.playSound(user, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG);
-        if (user instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) user;
+        AttackHelper.playSound(user, SoundEvents.PLAYER_ATTACK_STRONG);
+        if (user instanceof Player) {
+            Player player = (Player) user;
             //AttackHelper.doHitStuff(player, target, stack, );
 
         }
@@ -207,27 +211,27 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
     @Override
     public void onHandReset(ItemStack stack, LivingEntity user) {
-        if (user instanceof PlayerEntity && user.getItemInUseMaxCount() < getMaxCharge()) {
-            PlayerEntity player = (PlayerEntity) user;
+        if (user instanceof Player && user.getTicksUsingItem() < getMaxCharge()) {
+            Player player = (Player) user;
             if (hasSailing(stack)) {
-                player.setMotion(player.getMotion().scale(.5));
-                player.resetCooldown();
-                player.getCooldownTracker().setCooldown(stack.getItem(), 30);
-                player.addExhaustion(.5f);
+                player.setDeltaMovement(player.getDeltaMovement().scale(.5));
+                player.resetAttackStrengthTicker();
+                player.getCooldowns().addCooldown(stack.getItem(), 30);
+                player.causeFoodExhaustion(.5f);
             }
         }
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
-        playerIn.setActiveHand(handIn);
-        return ActionResult.resultConsume(stack);
+        playerIn.startUsingItem(handIn);
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override
-    public AnimType hasThirdPersonAnim(PlayerEntity player, ItemStack stack, boolean isActive, Hand hand) {
+    public AnimType hasThirdPersonAnim(Player player, ItemStack stack, boolean isActive, InteractionHand hand) {
         if (isActive) return AnimType.OVERWRITES;
         ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, hand);
         if (animation != null) return AnimType.OVERWRITES;
@@ -235,41 +239,41 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
-    public <T extends LivingEntity> void doThirdPersonAnim(PlayerEntity player, BipedModel<T> model, ItemStack itemStack, float partialTicks, boolean leftHanded, boolean isActive, Hand hand) {
-        ModelRenderer swordArm = leftHanded ? model.bipedLeftArm : model.bipedRightArm;
-        ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
+    public <T extends LivingEntity> void doThirdPersonAnim(Player player, HumanoidModel<T> model, ItemStack itemStack, float partialTicks, boolean leftHanded, boolean isActive, InteractionHand hand) {
+        ModelPart swordArm = leftHanded ? model.leftArm : model.rightArm;
+        ModelPart otherArm = leftHanded ? model.rightArm : model.leftArm;
         int sideFlip = leftHanded ? -1 : 1;
         ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, hand);
         float swingProgress = 0;
         if (animation != null) swingProgress = animation.getProgress(partialTicks);
 
-        int useCount = player.getItemInUseCount();
+        int useCount = player.getUseItemRemainingTicks();
         int useDuration = getUseDuration(itemStack);
         int useTime = useDuration - useCount;
         float chargePercent = Math.min((useTime + partialTicks) / getMaxCharge(), 1);
 
         float chargeLerp = Math.min(chargePercent, 1 - swingProgress);
         //Charging pose, acts as the base for the swing too
-        swordArm.rotateAngleX *= .4f * chargeLerp;
-        swordArm.rotateAngleX -= .4f * chargeLerp;
-        swordArm.rotateAngleY -= .3f * sideFlip * chargeLerp;
-        swordArm.rotateAngleZ += .3f * sideFlip * chargeLerp;
-        swordArm.rotationPointX += 1f * sideFlip * chargeLerp;
-        swordArm.rotationPointY += 4f * chargeLerp;
-        swordArm.rotationPointZ += 2f * chargeLerp;
+        swordArm.xRot *= .4f * chargeLerp;
+        swordArm.xRot -= .4f * chargeLerp;
+        swordArm.yRot -= .3f * sideFlip * chargeLerp;
+        swordArm.zRot += .3f * sideFlip * chargeLerp;
+        swordArm.x += 1f * sideFlip * chargeLerp;
+        swordArm.y += 4f * chargeLerp;
+        swordArm.z += 2f * chargeLerp;
 
-        otherArm.rotateAngleX *= .4f * chargeLerp;
-        otherArm.rotateAngleX -= .4f * chargeLerp;
-        otherArm.rotateAngleZ += .9f * sideFlip * chargeLerp;
-        otherArm.rotationPointX -= 2f * sideFlip * chargeLerp;
-        otherArm.rotationPointY -= 2f * chargeLerp;
-        otherArm.rotationPointZ -= 3f * chargeLerp;
+        otherArm.xRot *= .4f * chargeLerp;
+        otherArm.xRot -= .4f * chargeLerp;
+        otherArm.zRot += .9f * sideFlip * chargeLerp;
+        otherArm.x -= 2f * sideFlip * chargeLerp;
+        otherArm.y -= 2f * chargeLerp;
+        otherArm.z -= 3f * chargeLerp;
 
-        model.bipedBody.rotateAngleY += .3f * sideFlip * chargeLerp;
+        model.body.yRot += .3f * sideFlip * chargeLerp;
 
         if (hasSailing(itemStack) && useTime < 10) {
-            model.bipedLeftLeg.rotateAngleX = 0;
-            model.bipedRightLeg.rotateAngleX = .3f;
+            model.leftLeg.xRot = 0;
+            model.rightLeg.xRot = .3f;
         }
 
         //Swing animation
@@ -278,38 +282,38 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
             float swingPercent = (float)Math.sin(Math.pow(animation.getProgress(partialTicks), .6) * pi);
             //float realSwingPercent = animation.getProgress(partialTicks);
 
-            swordArm.rotateAngleX -= .5 * pi * swingPercent;
-            swordArm.rotateAngleZ += .4 * pi * swingPercent * sideFlip;
-            swordArm.rotateAngleY += .1 * pi * swingPercent * sideFlip;
-            swordArm.rotationPointX += 2.5f * sideFlip * swingPercent;
-            swordArm.rotationPointY -= 6f * swingPercent;
-            swordArm.rotationPointZ -= 3f * swingPercent;
+            swordArm.xRot -= .5 * pi * swingPercent;
+            swordArm.zRot += .4 * pi * swingPercent * sideFlip;
+            swordArm.yRot += .1 * pi * swingPercent * sideFlip;
+            swordArm.x += 2.5f * sideFlip * swingPercent;
+            swordArm.y -= 6f * swingPercent;
+            swordArm.z -= 3f * swingPercent;
 
-            otherArm.rotateAngleX -= .4 * pi * swingPercent;
-            otherArm.rotateAngleZ += .4 * pi * swingPercent * sideFlip;
-            otherArm.rotateAngleY += .1 * pi * swingPercent;
-            otherArm.rotationPointX += 1f * sideFlip * swingPercent;
-            otherArm.rotationPointY += 3f * swingPercent;
-            otherArm.rotationPointZ += 4.5f * swingPercent;
+            otherArm.xRot -= .4 * pi * swingPercent;
+            otherArm.zRot += .4 * pi * swingPercent * sideFlip;
+            otherArm.yRot += .1 * pi * swingPercent;
+            otherArm.x += 1f * sideFlip * swingPercent;
+            otherArm.y += 3f * swingPercent;
+            otherArm.z += 4.5f * swingPercent;
 
-            model.bipedBody.rotateAngleY -= .2f * pi * swingPercent * sideFlip;
+            model.body.yRot -= .2f * pi * swingPercent * sideFlip;
         }
 
     }
 
     @Override
-    public <T extends LivingEntity, M extends EntityModel<T> & IHasArm> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack, ItemCameraTransforms.TransformType transformType, HandSide side, MatrixStack poseStack, IRenderTypeBuffer renderBuffer, int light) {
+    public <T extends LivingEntity, M extends EntityModel<T> & ArmedModel> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack, ItemTransforms.TransformType transformType, HumanoidArm side, PoseStack poseStack, MultiBufferSource renderBuffer, int light) {
 
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
-            Hand swordHand = MiscHelper.getHandFromSide(player, side);
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            InteractionHand swordHand = MiscHelper.getHandFromSide(player, side);
             ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, swordHand);
             if (animation != null) {
-                float progress = animation.getProgress(Minecraft.getInstance().getRenderPartialTicks());
+                float progress = animation.getProgress(Minecraft.getInstance().getFrameTime());
                 float pi = (float) Math.PI;
                 float sineProgress = (float)Math.sin(progress * pi);
 
-                poseStack.rotate(Vector3f.XP.rotationDegrees(sineProgress * 180));
+                poseStack.mulPose(Vector3f.XP.rotationDegrees(sineProgress * 180));
                 poseStack.translate(0, sineProgress * .25, sineProgress * -.25);
             }
         }

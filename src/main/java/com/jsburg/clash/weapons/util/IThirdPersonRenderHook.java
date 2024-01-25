@@ -1,17 +1,17 @@
 package com.jsburg.clash.weapons.util;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.IHasArm;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 public interface IThirdPersonRenderHook {
     //Return true to cancel the original rendering of the item.
-    <T extends LivingEntity, M extends EntityModel<T> & IHasArm> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack,
-                                                                                             ItemCameraTransforms.TransformType transformType, HandSide side,
-                                                                                             MatrixStack poseStack, IRenderTypeBuffer renderBuffer, int light);
+    <T extends LivingEntity, M extends EntityModel<T> & ArmedModel> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack,
+                                                                                             ItemTransforms.TransformType transformType, HumanoidArm side,
+                                                                                             PoseStack poseStack, MultiBufferSource renderBuffer, int light);
 }

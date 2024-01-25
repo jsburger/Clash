@@ -9,27 +9,24 @@ import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.weapons.util.AttackHelper;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
 
-import static sun.security.x509.ReasonFlags.UNUSED;
 
-@SuppressWarnings(UNUSED)
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LivingEvents {
 
@@ -37,25 +34,25 @@ public class LivingEvents {
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
         if (event.isRecentlyHit() && wasMeleeCaused(event.getSource())) {
-            LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
+            LivingEntity source = (LivingEntity) event.getSource().getEntity();
             LivingEntity target = event.getEntityLiving();
 
             //Check for Butchery drops
-            ItemStack weapon = source.getHeldItemMainhand();
-            int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
+            ItemStack weapon = source.getMainHandItem();
+            int butcherLevel = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 //Spawn bonus Pork Chops
-                Random random = target.getEntityWorld().getRandom();
+                Random random = target.getCommandSenderWorld().getRandom();
                 int porkCount = ButcheryEnchantment.getPorkAmount(butcherLevel, random);
                 if (porkCount > 0) {
-                    ItemEntity porkDrop = new ItemEntity(target.getEntityWorld(),
-                            target.getPosX() + random.nextDouble() - .5,
-                            target.getPosY() + random.nextDouble() + .5,
-                            target.getPosZ() + random.nextDouble() - .5,
+                    ItemEntity porkDrop = new ItemEntity(target.getCommandSenderWorld(),
+                            target.getX() + random.nextDouble() - .5,
+                            target.getY() + random.nextDouble() + .5,
+                            target.getZ() + random.nextDouble() - .5,
                             new ItemStack(Items.PORKCHOP, porkCount));
-                    if (!target.getEntityWorld().isRemote) {
-                        Vector3d pos = AttackHelper.getEntityPosition(porkDrop);
-                        AttackHelper.makeParticleServer((ServerWorld) target.getEntityWorld(), AllParticles.BONUS_DROP.get(), pos, Vector3d.ZERO, 0);
+                    if (!target.getCommandSenderWorld().isClientSide) {
+                        Vec3 pos = AttackHelper.getEntityPosition(porkDrop);
+                        AttackHelper.makeParticleServer((ServerLevel) target.getCommandSenderWorld(), AllParticles.BONUS_DROP.get(), pos, Vec3.ZERO, 0);
                     }
                     event.getDrops().add(porkDrop);
                 }
@@ -67,41 +64,41 @@ public class LivingEvents {
     public static void onEntityHurt(LivingHurtEvent event) {
         //CHECK FOR MELEE ATTACKS
         if (wasMeleeCaused(event.getSource())) {
-            LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
+            LivingEntity source = (LivingEntity) event.getSource().getEntity();
             LivingEntity target = event.getEntityLiving();
 
-            ItemStack weapon = source.getHeldItemMainhand();
+            ItemStack weapon = source.getMainHandItem();
             //Butchery Effect
-            int butcherLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
+            int butcherLevel = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 event.setAmount(event.getAmount() * ButcheryEnchantment.getDamageMultiplier(butcherLevel));
                 ButcheryEnchantment.onHit(butcherLevel, target);
             }
         }
         //PLAYER GETTING HURT
-        if (event.getEntityLiving() instanceof PlayerEntity) {
-            PlayerEntity hurtPlayer = (PlayerEntity) event.getEntityLiving();
-            ItemStack heldItem = hurtPlayer.getHeldItemMainhand();
+        if (event.getEntityLiving() instanceof Player) {
+            Player hurtPlayer = (Player) event.getEntityLiving();
+            ItemStack heldItem = hurtPlayer.getMainHandItem();
 
             //Retaliation effect
-            if (EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem) > 0) {
-                RetaliationEnchantment.onUserHurt(hurtPlayer, EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem));
+            if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem) > 0) {
+                RetaliationEnchantment.onUserHurt(hurtPlayer, EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.RETALIATION.get(), heldItem));
             }
         }
         //Remove stagger upon being hurt
-        if (event.getEntityLiving().getActivePotionEffect(AllEffects.STAGGERED.get()) != null) {
-            event.getEntityLiving().removePotionEffect(AllEffects.STAGGERED.get());
+        if (event.getEntityLiving().getEffect(AllEffects.STAGGERED.get()) != null) {
+            event.getEntityLiving().removeEffect(AllEffects.STAGGERED.get());
         }
     }
 
     @SubscribeEvent
     public static void onEntityKill(LivingDeathEvent event) {
         if (wasMeleeCaused(event.getSource())) {
-            LivingEntity source = (LivingEntity) event.getSource().getTrueSource();
+            LivingEntity source = (LivingEntity) event.getSource().getEntity();
             LivingEntity target = event.getEntityLiving();
 
-            ItemStack weapon = source.getHeldItemMainhand();
-            int rampageLevel = EnchantmentHelper.getEnchantmentLevel(AllEnchantments.RAMPAGE.get(), weapon);
+            ItemStack weapon = source.getMainHandItem();
+            int rampageLevel = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.RAMPAGE.get(), weapon);
             if (rampageLevel > 0) {
                 RampageEnchantment.onKill(source, rampageLevel);
             }
@@ -109,10 +106,10 @@ public class LivingEvents {
     }
 
     private static boolean wasMeleeCaused(DamageSource source) {
-        return (source.getTrueSource() instanceof LivingEntity && isMeleeDamage(source));
+        return (source.getEntity() instanceof LivingEntity && isMeleeDamage(source));
     }
 
     private static boolean isMeleeDamage(DamageSource source) {
-        return source.getImmediateSource() == source.getTrueSource();
+        return source.getDirectEntity() == source.getEntity();
     }
 }

@@ -1,7 +1,7 @@
 package com.jsburg.clash.enchantments;
 
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 /**
  * Simple enchantment that has one level, only exists to be checked for in other parts of code.
@@ -12,14 +12,14 @@ public class MarkerEnchantment extends ClashEnchantment {
     public final int minLevel;
     public final int maxLevel;
 
-    public MarkerEnchantment(boolean isTreasure, boolean isTradeable, Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
+    public MarkerEnchantment(boolean isTreasure, boolean isTradeable, Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot... slots) {
         super(rarityIn, typeIn, slots);
         this.isTreasure = isTreasure;
         this.isTradeable = isTradeable;
         minLevel = 50;
         maxLevel = 60;
     }
-    public MarkerEnchantment(int minEnchantLevel, int maxEnchantLevel, Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType... slots) {
+    public MarkerEnchantment(int minEnchantLevel, int maxEnchantLevel, Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot... slots) {
         super(rarityIn, typeIn, slots);
         this.minLevel = minEnchantLevel;
         this.maxLevel = maxEnchantLevel;
@@ -28,22 +28,22 @@ public class MarkerEnchantment extends ClashEnchantment {
     }
 
     @Override
-    public int getMinEnchantability(int enchantmentLevel) {
+    public int getMinCost(int enchantmentLevel) {
         return minLevel;
     }
 
     @Override
-    public int getMaxEnchantability(int enchantmentLevel) {
+    public int getMaxCost(int enchantmentLevel) {
         return maxLevel;
     }
 
     @Override
-    public boolean canVillagerTrade() {
+    public boolean isTradeable() {
         return isTradeable;
     }
 
     @Override
-    public boolean isTreasureEnchantment() {
+    public boolean isTreasureOnly() {
         return isTreasure;
     }
 
