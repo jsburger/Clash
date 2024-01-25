@@ -20,7 +20,7 @@ public class HeldItemLayerMixin <T extends LivingEntity, M extends EntityModel<T
 
     @Inject(method = "func_229135_a_",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/FirstPersonRenderer;renderItemSide(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/model/ItemCameraTransforms$TransformType;ZLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V"),
-            remap = false, cancellable = true)
+            cancellable = true)
     public void clashOnRenderArmItem(LivingEntity entity, ItemStack itemStack,
                               ItemCameraTransforms.TransformType transformType, HandSide side,
                               MatrixStack poseStack, IRenderTypeBuffer renderBuffer, int light, CallbackInfo ci) {
