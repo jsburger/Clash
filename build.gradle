@@ -25,7 +25,7 @@ archivesBaseName = project.modId + "-" + project.minecraftVersion
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 mixin {
-    add sourceSets.main, archivesBaseName+".refmap.json"
+    add sourceSets.main, project.modId+".refmap.json"
 }
 
 minecraft {
@@ -39,7 +39,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            arg "--mixin=" + archivesBaseName + ".mixins.json"
+            arg "--mixin=" + project.modId + ".mixins.json"
 
             mods {
                 clash {
@@ -52,7 +52,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            arg "--mixin=" + archivesBaseName + ".mixins.json"
+            arg "--mixin=" + project.modId + ".mixins.json"
 
             mods {
                 clash {
