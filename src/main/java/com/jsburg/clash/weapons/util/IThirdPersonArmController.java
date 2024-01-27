@@ -15,7 +15,14 @@ public interface IThirdPersonArmController {
     enum AnimType {
         OVERWRITES,
         TRUE,
-        FALSE
+        FALSE;
+
+        public static AnimType ifTrue(boolean test) {
+            return test ? TRUE : FALSE;
+        }
+        public static AnimType ifOverwrite(boolean test) {
+            return test ? OVERWRITES : FALSE;
+        }
     }
 
 }

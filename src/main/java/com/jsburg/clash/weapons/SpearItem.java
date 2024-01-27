@@ -8,10 +8,7 @@ import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.util.TextHelper;
-import com.jsburg.clash.weapons.util.AttackHelper;
-import com.jsburg.clash.weapons.util.IPoseItem;
-import com.jsburg.clash.weapons.util.ISpearAnimation;
-import com.jsburg.clash.weapons.util.WeaponItem;
+import com.jsburg.clash.weapons.util.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,7 +45,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation {
+public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPersonArmController {
 
     private static final Vec3 UP = new Vec3(0, 1, 0);
     private static final float stabLengthBonus = 2.5f;
@@ -73,10 +70,6 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
     }
 
 
-    @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
-    }
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
@@ -226,12 +219,12 @@ public class SpearItem extends WeaponItem implements IPoseItem, ISpearAnimation 
     }
 
     @Override
-    public boolean hasPose(Player player, ItemStack stack, boolean isActive) {
-        return isActive;
+    public AnimType hasThirdPersonAnim(Player player, ItemStack stack, boolean isActive, InteractionHand hand) {
+        return AnimType.ifTrue(isActive);
     }
 
     @Override
-    public <T extends LivingEntity> void doPose(Player player, HumanoidModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
+    public <T extends LivingEntity> void doThirdPersonAnim(Player player, HumanoidModel<T> model, ItemStack itemStack, float partialTicks, boolean leftHanded, boolean isActive, InteractionHand hand) {
         ModelPart spearArm = leftHanded ? model.leftArm : model.rightArm;
         ModelPart otherArm = leftHanded ? model.rightArm : model.leftArm;
         int sideFlip = leftHanded ? -1 : 1;

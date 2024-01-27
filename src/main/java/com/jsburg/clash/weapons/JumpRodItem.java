@@ -3,8 +3,8 @@ package com.jsburg.clash.weapons;
 import com.jsburg.clash.enchantments.spear.DashEnchantment;
 import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.weapons.util.AttackHelper;
-import com.jsburg.clash.weapons.util.IPoseItem;
 import com.jsburg.clash.weapons.util.ISpearAnimation;
+import com.jsburg.clash.weapons.util.IThirdPersonArmController;
 import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -23,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Arrays;
 import java.util.List;
 
-public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimation {
+public class JumpRodItem extends WeaponItem implements IThirdPersonArmController, ISpearAnimation {
     private static final int maxCharge = 18;
     private static final int minCharge = 5;
     public JumpRodItem(float attackDamage, float attackSpeed, Properties properties) {
@@ -32,10 +31,6 @@ public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimatio
 
     public int getUseDuration(ItemStack stack) {
         return 720000;
-    }
-    @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
     }
 
     @Override
@@ -78,12 +73,12 @@ public class JumpRodItem extends WeaponItem implements IPoseItem, ISpearAnimatio
 
 
     @Override
-    public boolean hasPose(Player player, ItemStack stack, boolean isActive) {
-        return isActive;
+    public AnimType hasThirdPersonAnim(Player player, ItemStack stack, boolean isActive, InteractionHand hand) {
+        return AnimType.ifTrue(isActive);
     }
 
     @Override
-    public <T extends LivingEntity> void doPose(Player player, HumanoidModel<T> model, ItemStack itemStack, boolean leftHanded, boolean isActive) {
+    public <T extends LivingEntity> void doThirdPersonAnim(Player player, HumanoidModel<T> model, ItemStack itemStack, float partialTicks, boolean leftHanded, boolean isActive, InteractionHand hand) {
         ModelPart spearArm = leftHanded ? model.leftArm : model.rightArm;
 //        ModelRenderer otherArm = leftHanded ? model.bipedRightArm : model.bipedLeftArm;
         int sideFlip = leftHanded ? -1 : 1;
