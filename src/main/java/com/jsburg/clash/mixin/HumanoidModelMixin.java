@@ -1,7 +1,6 @@
 package com.jsburg.clash.mixin;
 
 import com.google.common.collect.ImmutableSet;
-import com.jsburg.clash.weapons.util.IPoseItem;
 import com.jsburg.clash.weapons.util.IThirdPersonArmController;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.InteractionHand;
@@ -21,47 +20,6 @@ import java.util.Set;
 public class HumanoidModelMixin {
 
     private static final Set<InteractionHand> hands = ImmutableSet.of(InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND);
-
-    @Inject(method = "poseLeftArm", at = @At("HEAD"), cancellable = true)
-    private <T extends LivingEntity> void onFirstHandPose(T entity, CallbackInfo ci) {
-        if (entity instanceof Player player) {
-            HumanoidModel<T> model = (HumanoidModel<T>) (Object) this;
-
-            for (InteractionHand hand : hands) {
-                boolean active = player.isUsingItem() && hand == player.getUsedItemHand();
-                ItemStack handItem = player.getItemInHand(hand);
-                Item itemItem = handItem.getItem();
-                if (itemItem instanceof IPoseItem) {
-                    if (((IPoseItem) itemItem).hasPose(player, handItem, active)) {
-                        boolean leftHanded = (hand == InteractionHand.OFF_HAND ^ player.getMainArm() == HumanoidArm.LEFT);
-                        ((IPoseItem) itemItem).doPose(player, model, handItem, leftHanded, active);
-                        //Prevents other item from doing any posing at all. might be cool to replace with a per hand basis
-                        ci.cancel();
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    @Inject(method = "poseRightArm", at = @At("HEAD"), cancellable = true)
-    private <T extends LivingEntity> void onSecondHandPose(T entity, CallbackInfo ci) {
-        if (entity instanceof Player player) {
-
-            for (InteractionHand hand : hands) {
-                boolean active = player.isUsingItem() && hand == player.getUsedItemHand();
-                ItemStack handItem = player.getItemInHand(hand);
-                Item itemItem = handItem.getItem();
-                if (itemItem instanceof IPoseItem) {
-                    if (((IPoseItem) itemItem).hasPose(player, handItem, active)) {
-                        //Prevents other item from doing any posing at all. might be cool to replace with a per hand basis
-                        ci.cancel();
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     @Inject(method = "setupAttackAnimation", at = @At("HEAD"), remap = false, cancellable = true)
     private <T extends LivingEntity> void onArmSwing(T entity, float ageInTicks, CallbackInfo ci) {
