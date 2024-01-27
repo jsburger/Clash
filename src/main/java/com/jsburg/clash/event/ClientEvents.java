@@ -52,7 +52,7 @@ public class ClientEvents {
     }
 
     public static void doCameraStuff(EntityViewRenderEvent.CameraSetup event) {
-        ScreenShaker.applyScreenShake(event.getInfo(), event.getRenderPartialTicks(), event);
+        ScreenShaker.applyScreenShake(event.getPartialTicks(), event);
         //Just resetting this between frames because if execution order *does* get weird I don't want stuff carrying over
         needsPop = false;
     }
@@ -63,7 +63,7 @@ public class ClientEvents {
         if (player == null) return;
         //Am I relying on execution order staying consistent? Yes.
         if (needsPop) {
-            event.getMatrixStack().popPose();
+            event.getPoseStack().popPose();
             needsPop = false;
         }
         boolean leftHanded = player.getMainArm() == HumanoidArm.LEFT ^ event.getHand() == InteractionHand.OFF_HAND;
@@ -90,7 +90,7 @@ public class ClientEvents {
             //Main hand always renders first, so it needs to remove its transformations.
             //If the offhand translates stuff it doesn't matter since its rendered last.
             if (goingToMove && event.getHand() == InteractionHand.MAIN_HAND) {
-                event.getMatrixStack().pushPose();
+                event.getPoseStack().pushPose();
                 needsPop = true;
             }
             int sideFlip = leftHanded ? -1 : 1;
@@ -107,17 +107,17 @@ public class ClientEvents {
                 float xAngle = -6 * chargePercent;
                 float yAngle = 0 * chargePercent;
                 float zAngle = 20 * chargePercent * sideFlip;
-                event.getMatrixStack().mulPose(new Quaternion(xAngle, yAngle, zAngle, true));
+                event.getPoseStack().mulPose(new Quaternion(xAngle, yAngle, zAngle, true));
 
                 double chargeOver = ((useTime + event.getPartialTicks()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
-                    event.getMatrixStack().translate(0, 0, .1 * chargeOver);
+                    event.getPoseStack().translate(0, 0, .1 * chargeOver);
                 }
             }
 
             if (isCoolingDown) {
-                PoseStack stack = event.getMatrixStack();
+                PoseStack stack = event.getPoseStack();
                 float cd = (float) pow(cooldown, 3);
 
                 stack.mulPose(new Quaternion(-10 * cd, 4 * cd, 0, true));
@@ -130,7 +130,7 @@ public class ClientEvents {
         if (sweptAxeDraw || greatbladeDraw) {
             float swingProgress = event.getSwingProgress();
             HumanoidArm side = player.getMainArm();
-            PoseStack stack = event.getMatrixStack();
+            PoseStack stack = event.getPoseStack();
             int sideFlip = leftHanded ? -1 : 1;
 
             ItemInHandRenderer renderer = Minecraft.getInstance().getItemInHandRenderer();
@@ -200,7 +200,7 @@ public class ClientEvents {
 
             }
 
-            renderer.renderItem(player, event.getItemStack(), transform, leftHanded, stack, event.getBuffers(), event.getLight());
+            renderer.renderItem(player, event.getItemStack(), transform, leftHanded, stack, event.getMultiBufferSource(), event.getPackedLight());
             stack.popPose();
 
             event.setCanceled(true);

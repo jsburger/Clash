@@ -22,7 +22,7 @@ version = project.modVersion
 group = 'com.jsburg.clash'
 archivesBaseName = project.modId + "-" + project.minecraftVersion
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 mixin {
     add sourceSets.main, project.modId+".refmap.json"

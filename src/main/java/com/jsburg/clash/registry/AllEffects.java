@@ -5,9 +5,9 @@ import com.jsburg.clash.effects.RampageEffect;
 import com.jsburg.clash.effects.RetaliationEffect;
 import com.jsburg.clash.effects.StaggerEffect;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class AllEffects {
 

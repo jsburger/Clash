@@ -1,6 +1,5 @@
 package com.jsburg.clash.util;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 
@@ -54,7 +53,7 @@ public class ScreenShaker {
         setScreenShake(time, .8);
     }
 
-    public static void applyScreenShake(Camera renderInfo, double partialTicks, EntityViewRenderEvent.CameraSetup event) {
+    public static void applyScreenShake(double partialTicks, EntityViewRenderEvent.CameraSetup event) {
         if (ShakeTime > 0) {
             //TODO: Try 1 - partialTicks
             double lerp = partialTicks;
