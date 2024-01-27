@@ -5,6 +5,7 @@ import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.MiscRegistry;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.DamageEnchantment;
@@ -12,8 +13,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Random;
 
 public class ButcheryEnchantment extends ClashEnchantment {
 
@@ -41,7 +40,7 @@ public class ButcheryEnchantment extends ClashEnchantment {
         return 1 + (.15f * level);
     }
 
-    public static int getPorkAmount(int level, Random random) {
+    public static int getPorkAmount(int level, RandomSource random) {
         //50/50 chance to add porkchop for every level
         int count = 0;
         for (int n = 1; n <= level; n++) {
@@ -64,7 +63,7 @@ public class ButcheryEnchantment extends ClashEnchantment {
 
     public static void onHit(int level, LivingEntity target) {
         if (!target.level.isClientSide) {
-            Random rand = target.level.getRandom();
+            RandomSource rand = target.level.getRandom();
             AABB bb = target.getBoundingBox();
             double l = bb.getSize();
             Vec3 pos = new Vec3((rand.nextDouble() - .5) * l, rand.nextDouble() * l + .5, (rand.nextDouble() - .5) * l);

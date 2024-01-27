@@ -2,8 +2,7 @@ package com.jsburg.clash.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class TextHelper {
 
@@ -15,9 +14,9 @@ public class TextHelper {
     }
 
     public static Component getBonusText(String langString, float bonus) {
-        TextComponent text = new TextComponent((bonus > 0) ? " +" : " -");
+        MutableComponent text = Component.literal((bonus > 0) ? " +" : " -");
         text.append(formatNumber(bonus) + " ");
-        text.append(new TranslatableComponent(langString));
+        text.append(Component.translatable(langString));
         text.withStyle(bonus > 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.RED);
         return text;
     }

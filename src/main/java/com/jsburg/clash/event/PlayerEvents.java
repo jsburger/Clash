@@ -18,7 +18,7 @@ public class PlayerEvents {
     @SubscribeEvent
     public static void onPlayerAttack(AttackEntityEvent event) {
         //Set retaliation to be removed after it has been used.
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         Entity target = event.getTarget();
         MobEffectInstance retaliation = player.getEffect(AllEffects.RETALIATION.get());
         if (retaliation != null) {

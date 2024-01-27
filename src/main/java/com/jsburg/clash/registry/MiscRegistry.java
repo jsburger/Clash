@@ -23,7 +23,7 @@ public class MiscRegistry {
     }
 
     //ENTITY TYPES
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, Clash.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Clash.MOD_ID);
 
     public static final RegistryObject<EntityType<Entity>> GREATBLADE_SLASH = registerEntityType("greatblade_slash",
             EntityType.Builder.of(GreatbladeSlashEntity::new, MobCategory.MISC)

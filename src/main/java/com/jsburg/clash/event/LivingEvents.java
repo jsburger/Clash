@@ -10,6 +10,7 @@ import com.jsburg.clash.registry.AllItems;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -24,8 +25,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Random;
-
 
 @Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LivingEvents {
@@ -35,14 +34,14 @@ public class LivingEvents {
     public static void onLivingDrops(LivingDropsEvent event) {
         if (event.isRecentlyHit() && wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getEntity();
-            LivingEntity target = event.getEntityLiving();
+            LivingEntity target = event.getEntity();
 
             //Check for Butchery drops
             ItemStack weapon = source.getMainHandItem();
             int butcherLevel = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.BUTCHERY.get(), weapon);
             if (butcherLevel > 0 && ButcheryEnchantment.affectsEntity(target) && (weapon.getItem() != AllItems.SWEPT_AXE_HEAD.get())) {
                 //Spawn bonus Pork Chops
-                Random random = target.getCommandSenderWorld().getRandom();
+                RandomSource random = target.getCommandSenderWorld().getRandom();
                 int porkCount = ButcheryEnchantment.getPorkAmount(butcherLevel, random);
                 if (porkCount > 0) {
                     ItemEntity porkDrop = new ItemEntity(target.getCommandSenderWorld(),
@@ -65,7 +64,7 @@ public class LivingEvents {
         //CHECK FOR MELEE ATTACKS
         if (wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getEntity();
-            LivingEntity target = event.getEntityLiving();
+            LivingEntity target = event.getEntity();
 
             ItemStack weapon = source.getMainHandItem();
             //Butchery Effect
@@ -76,8 +75,7 @@ public class LivingEvents {
             }
         }
         //PLAYER GETTING HURT
-        if (event.getEntityLiving() instanceof Player) {
-            Player hurtPlayer = (Player) event.getEntityLiving();
+        if (event.getEntity() instanceof Player hurtPlayer) {
             ItemStack heldItem = hurtPlayer.getMainHandItem();
 
             //Retaliation effect
@@ -86,8 +84,8 @@ public class LivingEvents {
             }
         }
         //Remove stagger upon being hurt
-        if (event.getEntityLiving().getEffect(AllEffects.STAGGERED.get()) != null) {
-            event.getEntityLiving().removeEffect(AllEffects.STAGGERED.get());
+        if (event.getEntity().getEffect(AllEffects.STAGGERED.get()) != null) {
+            event.getEntity().removeEffect(AllEffects.STAGGERED.get());
         }
     }
 
@@ -95,7 +93,7 @@ public class LivingEvents {
     public static void onEntityKill(LivingDeathEvent event) {
         if (wasMeleeCaused(event.getSource())) {
             LivingEntity source = (LivingEntity) event.getSource().getEntity();
-            LivingEntity target = event.getEntityLiving();
+            LivingEntity target = event.getEntity();
 
             ItemStack weapon = source.getMainHandItem();
             int rampageLevel = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.RAMPAGE.get(), weapon);

@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -59,7 +58,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
 
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add((new TranslatableComponent("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
+        tooltip.add((Component.translatable("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
         tooltip.add(TextHelper.getBonusText("item.clash.greatblade.bonus_damage", getSlashDamage(stack)));
     }
 

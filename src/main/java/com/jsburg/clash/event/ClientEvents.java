@@ -20,9 +20,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -38,7 +38,7 @@ public class ClientEvents {
     private static boolean needsPop = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
+    public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
         AllParticles.registerParticleFactories();
     }
 
@@ -51,8 +51,8 @@ public class ClientEvents {
         }
     }
 
-    public static void doCameraStuff(EntityViewRenderEvent.CameraSetup event) {
-        ScreenShaker.applyScreenShake(event.getPartialTicks(), event);
+    public static void doCameraStuff(ViewportEvent.ComputeCameraAngles event) {
+        ScreenShaker.applyScreenShake(event.getPartialTick(), event);
         //Just resetting this between frames because if execution order *does* get weird I don't want stuff carrying over
         needsPop = false;
     }
@@ -71,7 +71,7 @@ public class ClientEvents {
         ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeItem.GreatbladeAnimation.class, player, player.getUsedItemHand());
         float animationProgress = 0;
         if (animation != null) {
-            animationProgress = animation.getProgress(event.getPartialTicks());
+            animationProgress = animation.getProgress(event.getPartialTick());
         }
 
         boolean sweptAxeDraw = (event.getHand() == InteractionHand.MAIN_HAND && event.getItemStack().getItem() instanceof SweptAxeItem && event.getEquipProgress() > .1);
@@ -83,7 +83,7 @@ public class ClientEvents {
         if (event.getItemStack().getItem() instanceof ISpearAnimation) {
 
             boolean isActive = event.getHand() == player.getUsedItemHand() && player.isUsingItem();
-            float cooldown = player.getCooldowns().getCooldownPercent(event.getItemStack().getItem(), event.getPartialTicks());
+            float cooldown = player.getCooldowns().getCooldownPercent(event.getItemStack().getItem(), event.getPartialTick());
             boolean isCoolingDown = cooldown > 0 && !isActive && !player.swinging;
             boolean goingToMove = isActive || isCoolingDown;
 
@@ -101,7 +101,7 @@ public class ClientEvents {
                 int useCount = player.getUseItemRemainingTicks();
                 int useDuration = spear.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = Math.min((useTime + event.getPartialTicks()) / chargeGetter.getMaxCharge(event.getItemStack()), 1);
+                float chargePercent = Math.min((useTime + event.getPartialTick()) / chargeGetter.getMaxCharge(event.getItemStack()), 1);
 
 
                 float xAngle = -6 * chargePercent;
@@ -109,7 +109,7 @@ public class ClientEvents {
                 float zAngle = 20 * chargePercent * sideFlip;
                 event.getPoseStack().mulPose(new Quaternion(xAngle, yAngle, zAngle, true));
 
-                double chargeOver = ((useTime + event.getPartialTicks()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
+                double chargeOver = ((useTime + event.getPartialTick()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
                     event.getPoseStack().translate(0, 0, .1 * chargeOver);
@@ -133,7 +133,7 @@ public class ClientEvents {
             PoseStack stack = event.getPoseStack();
             int sideFlip = leftHanded ? -1 : 1;
 
-            ItemInHandRenderer renderer = Minecraft.getInstance().getItemInHandRenderer();
+            ItemInHandRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer();
             ItemTransforms.TransformType transform = leftHanded ? ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND : ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
 
             float pi = (float)Math.PI;
@@ -156,10 +156,10 @@ public class ClientEvents {
                 int useCount = player.getUseItemRemainingTicks();
                 int useDuration = sword.getUseDuration(event.getItemStack());
                 int useTime = useDuration - useCount;
-                float chargePercent = Math.min((useTime + event.getPartialTicks()) / (sword.getMaxCharge() + 1), 1);
+                float chargePercent = Math.min((useTime + event.getPartialTick()) / (sword.getMaxCharge() + 1), 1);
 
                 if (chargePercent > .8) {
-                    double n = Math.sin((player.tickCount + event.getPartialTicks()) * 1.3) * .005 * chargePercent;
+                    double n = Math.sin((player.tickCount + event.getPartialTick()) * 1.3) * .005 * chargePercent;
                     stack.translate(0, n, 0);
                 }
 

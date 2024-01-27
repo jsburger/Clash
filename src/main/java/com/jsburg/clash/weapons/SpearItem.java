@@ -8,15 +8,18 @@ import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.util.TextHelper;
-import com.jsburg.clash.weapons.util.*;
+import com.jsburg.clash.weapons.util.AttackHelper;
+import com.jsburg.clash.weapons.util.ISpearAnimation;
+import com.jsburg.clash.weapons.util.IThirdPersonArmController;
+import com.jsburg.clash.weapons.util.WeaponItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -30,7 +33,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -42,7 +48,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
 
 public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPersonArmController {
@@ -74,7 +79,7 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add((new TranslatableComponent("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
+        tooltip.add((Component.translatable("item.clash.spear.when_charged")).withStyle(ChatFormatting.GRAY));
         tooltip.add(TextHelper.getBonusText("item.clash.spear.charge_range_bonus", stabLengthBonus));
     }
 
@@ -181,7 +186,7 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
                                         damage *= 2;
                                         AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_MEGA_CRIT.get(), 2f, 1.0f);
                                         for (int i = 0; i <= 5; i++) {
-                                            Random rand = worldIn.getRandom();
+                                            RandomSource rand = worldIn.getRandom();
                                             Vec3 motion = new Vec3(rand.nextDouble() - .5, rand.nextDouble() - .5, rand.nextDouble() - .5);
                                             AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_CRIT.get(), hitLocation, motion, 1.5f);
                                         }

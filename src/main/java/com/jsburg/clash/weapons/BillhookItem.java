@@ -3,8 +3,7 @@ package com.jsburg.clash.weapons;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,8 +23,8 @@ public class BillhookItem extends SpearItem {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        TextComponent text = new TextComponent(" ");
-        text.append(new TranslatableComponent("item.clash.billhook.inverted_knockback"));
+        MutableComponent text = Component.literal(" ");
+        text.append(Component.translatable("item.clash.billhook.inverted_knockback"));
         tooltip.add(text.withStyle(ChatFormatting.DARK_GREEN));
     }
 

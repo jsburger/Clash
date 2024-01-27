@@ -22,7 +22,7 @@ public class ItemBreakEvent {
         if (item.getItem() instanceof SweptAxeItem) {
             ItemStack headItem = new ItemStack(AllItems.SWEPT_AXE_HEAD.get(), 1);
             EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(item), headItem);
-            Player player = event.getPlayer();
+            Player player = event.getEntity();
             player.getCommandSenderWorld().addFreshEntity(new ItemEntity(player.getCommandSenderWorld(), player.getX(), player.getY(), player.getZ(), headItem));
         }
     }

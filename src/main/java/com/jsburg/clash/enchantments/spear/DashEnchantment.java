@@ -3,6 +3,7 @@ package com.jsburg.clash.enchantments.spear;
 import com.jsburg.clash.enchantments.ClashEnchantment;
 import com.jsburg.clash.registry.AllEnchantments;
 import com.jsburg.clash.registry.AllParticles;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -11,8 +12,6 @@ import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Random;
 
 public class DashEnchantment extends ClashEnchantment {
 
@@ -56,7 +55,7 @@ public class DashEnchantment extends ClashEnchantment {
 
                 playerIn.push(dir.x, ySpeed, dir.z);
                 Vec3 dashDir = new Vec3(dir.x, ySpeed/2, dir.z);
-                Random rand = worldIn.getRandom();
+                RandomSource rand = worldIn.getRandom();
                 int o = 7 + rand.nextInt(4);
                 for (int i = 0; i <= o; i++){
                     Vec3 d = dashDir.yRot((rand.nextFloat() * .5f) - .25f).scale(rand.nextFloat() * .5 + .25);

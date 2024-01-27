@@ -21,7 +21,7 @@ public class HumanoidModelMixin {
 
     private static final Set<InteractionHand> hands = ImmutableSet.of(InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND);
 
-    @Inject(method = "setupAttackAnimation", at = @At("HEAD"), remap = false, cancellable = true)
+    @Inject(method = "setupAttackAnimation", at = @At("HEAD"), cancellable = true)
     private <T extends LivingEntity> void onArmSwing(T entity, float ageInTicks, CallbackInfo ci) {
         if (entity instanceof Player player) {
 
