@@ -22,7 +22,7 @@ public class HumanoidModelMixin {
 
     private static final Set<InteractionHand> hands = ImmutableSet.of(InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND);
 
-    @Inject(method = "poseLeftArm", at = @At("HEAD"), remap = false, cancellable = true)
+    @Inject(method = "poseLeftArm", at = @At("HEAD"), cancellable = true)
     private <T extends LivingEntity> void onFirstHandPose(T entity, CallbackInfo ci) {
         if (entity instanceof Player player) {
             HumanoidModel<T> model = (HumanoidModel<T>) (Object) this;
@@ -44,7 +44,7 @@ public class HumanoidModelMixin {
         }
     }
 
-    @Inject(method = "poseRightArm", at = @At("HEAD"), remap = false, cancellable = true)
+    @Inject(method = "poseRightArm", at = @At("HEAD"), cancellable = true)
     private <T extends LivingEntity> void onSecondHandPose(T entity, CallbackInfo ci) {
         if (entity instanceof Player player) {
 
