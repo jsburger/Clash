@@ -5,12 +5,15 @@
       "item": "minecraft:stick"
     },
     "i": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:iron_nugget"
+    },
+    "e": {
+      "item": "minecraft:emerald"
     }
   },
   "pattern": [
-    "  i",
-    " s ",
+    "  e",
+    " i ",
     "s  "
   ],
   "result": {
