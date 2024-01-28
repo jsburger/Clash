@@ -1,6 +1,6 @@
 {
   "parent": "clash:item/greatblade_in_hand_block",
   "textures": {
-    "base": "clash:entity/greatblade_thrum"
+    "base": "clash:item/greatblade_thrum"
   }
 }

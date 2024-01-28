@@ -9,16 +9,14 @@ import com.jsburg.clash.weapons.GreatbladeItem;
 import com.jsburg.clash.weapons.SweptAxeItem;
 import com.jsburg.clash.weapons.util.ISpearAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -28,6 +26,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import static com.jsburg.clash.util.MiscHelper.*;
 import static com.jsburg.clash.weapons.GreatbladeItem.hasExecutioner;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -107,11 +106,14 @@ public class ClientEvents {
                 float xAngle = -6 * chargePercent;
                 float yAngle = 0 * chargePercent;
                 float zAngle = 20 * chargePercent * sideFlip;
-                event.getPoseStack().mulPose(new Quaternion(xAngle, yAngle, zAngle, true));
+                PoseStack stack = event.getPoseStack();
+                rotate(stack, xAngle, yAngle, zAngle);
 
                 double chargeOver = ((useTime + event.getPartialTick()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
+                    double n = Math.sin((player.tickCount + event.getPartialTick()) * 1.3) * .005 * chargePercent;
+                    stack.translate(0, n, 0);
                     event.getPoseStack().translate(0, 0, .1 * chargeOver);
                 }
             }
@@ -120,7 +122,7 @@ public class ClientEvents {
                 PoseStack stack = event.getPoseStack();
                 float cd = (float) pow(cooldown, 3);
 
-                stack.mulPose(new Quaternion(-10 * cd, 4 * cd, 0, true));
+                rotate(stack, -10 * cd, 4 * cd, 0);
                 stack.translate(0, -.1 * cd, -.1 * cd);
 //                stack.rotate(new Quaternion(0, 0, 15 * cd * sideFlip, true));
 
@@ -134,7 +136,7 @@ public class ClientEvents {
             int sideFlip = leftHanded ? -1 : 1;
 
             ItemInHandRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer();
-            ItemTransforms.TransformType transform = leftHanded ? ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND : ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
+            ItemDisplayContext context = leftHanded ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
 
             float pi = (float)Math.PI;
 
@@ -147,8 +149,8 @@ public class ClientEvents {
                 stack.translate(sideFlip * xOffset, yOffset, zOffset);
 
                 transformSideFirstPerson(stack, side, (swingProgress == 0 || swingProgress > .7 || event.getEquipProgress() == 0) ? event.getEquipProgress() : 0);
-                stack.mulPose(Vector3f.ZP.rotationDegrees(sideFlip * -80 * Mth.sin((float) (sqrt(swingProgress) * pi))));
-                stack.mulPose(Vector3f.XP.rotationDegrees(-180 * Mth.sin(swingProgress * pi)));
+                rotateZ(stack, sideFlip * -80 * Mth.sin((float) (sqrt(swingProgress) * pi)));
+                rotateX(stack, -180 * Mth.sin(swingProgress * pi));
             }
 
             if (greatbladeDraw) {
@@ -185,22 +187,21 @@ public class ClientEvents {
                 stack.translate(-2 * swingEase * sideFlip * (executioner ? .5f : 1f), .15 * sineEase - .1 * swingEase, 0 * sineEase);
 
                 // Charge rotation
-                stack.mulPose(Vector3f.YP.rotationDegrees(-10 * chargeLerp * sideFlip));
-                stack.mulPose(Vector3f.ZP.rotationDegrees(140 * chargeLerp * sideFlip * (executioner ? 1.15f : 1f)));
+                rotateY(stack, -10 * chargeLerp * sideFlip);
+                rotateZ(stack, 140 * chargeLerp * sideFlip * (executioner ? 1.15f : 1f));
 
                 transformSideFirstPerson(stack, leftHanded ? HumanoidArm.LEFT : HumanoidArm.RIGHT, 0);
 //                stack.rotate(Vector3f.YP.rotationDegrees(sideFlip * 50 * swingEase));
 
                 // Swing animation
-                Vector3f axis = new Vector3f(0, 0, 1);
-                stack.mulPose(axis.rotationDegrees(90 * swingEase * sideFlip * (executioner ? 1.4f : 1f)));
-                stack.mulPose(Vector3f.XP.rotationDegrees(210 * swingEase));
+                rotateZ(stack, 90 * swingEase * sideFlip * (executioner ? 1.4f : 1f));
+                rotateX(stack, 210 * swingEase);
                 stack.translate(.2 * sineEase * sideFlip, -1.2 * swingEase, 0);
 
 
             }
 
-            renderer.renderItem(player, event.getItemStack(), transform, leftHanded, stack, event.getMultiBufferSource(), event.getPackedLight());
+            renderer.renderItem(player, event.getItemStack(), context, leftHanded, stack, event.getMultiBufferSource(), event.getPackedLight());
             stack.popPose();
 
             event.setCanceled(true);
@@ -208,15 +209,16 @@ public class ClientEvents {
 
     }
 
-    private static void transformFirstPerson(PoseStack matrixStackIn, HumanoidArm handIn, float swingProgress) {
-        int i = handIn == HumanoidArm.RIGHT ? 1 : -1;
-        float f = Mth.sin(swingProgress * swingProgress * (float)Math.PI);
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees((float)i * (45.0F + f * -20.0F)));
-        float f1 = Mth.sin((float) (sqrt(swingProgress) * (float)Math.PI));
-        matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees((float)i * f1 * -20.0F));
-        matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(f1 * -80.0F));
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees((float)i * -45.0F));
-    }
+
+//    private static void transformFirstPerson(PoseStack matrixStackIn, HumanoidArm handIn, float swingProgress) {
+//        int i = handIn == HumanoidArm.RIGHT ? 1 : -1;
+//        float f = Mth.sin(swingProgress * swingProgress * (float)Math.PI);
+//        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees((float)i * (45.0F + f * -20.0F)));
+//        float f1 = Mth.sin((float) (sqrt(swingProgress) * (float)Math.PI));
+//        matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees((float)i * f1 * -20.0F));
+//        matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(f1 * -80.0F));
+//        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees((float)i * -45.0F));
+//    }
 
     private static void transformSideFirstPerson(PoseStack matrixStackIn, HumanoidArm handIn, float equippedProg) {
         int i = handIn == HumanoidArm.RIGHT ? 1 : -1;

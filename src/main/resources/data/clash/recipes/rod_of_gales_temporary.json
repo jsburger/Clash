@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "  i",
+    " s ",
+    "s  "
+  ],
+  "result": {
+    "item": "clash:rod_of_gales"
+  }
+}

@@ -41,8 +41,8 @@ public class DashEnchantment extends ClashEnchantment {
     public static void tryAgilityDash(Level worldIn, Player playerIn, ItemStack stack) {
         if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.AGILITY.get(), stack) > 0) {
             if (!(playerIn.isShiftKeyDown() || playerIn.isFallFlying() || playerIn.isSwimming())) {
-                double ySpeed = playerIn.isOnGround() ? .25 : -.4;
-                final float dashSpeed = playerIn.isOnGround() ? .7f : .6f;
+                double ySpeed = playerIn.onGround() ? .25 : -.4;
+                final float dashSpeed = playerIn.onGround() ? .7f : .6f;
 
                 Vec3 motion = playerIn.getDeltaMovement();
                 Vec3 dir = new Vec3(motion.x(), 0, motion.z());

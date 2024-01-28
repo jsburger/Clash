@@ -9,7 +9,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Vanishable;
@@ -24,7 +23,7 @@ public class WeaponItem extends Item implements Vanishable {
     private final Multimap<Attribute, AttributeModifier> attributes;
 
     public WeaponItem(float attackDamage, float attackSpeed, Item.Properties properties) {
-        super(properties.tab(CreativeModeTab.TAB_COMBAT));
+        super(properties);
         // Corrects numbers so that the constructor can simply use the value displayed on the tooltip
         attackDamage -= 1;
         attackSpeed = -(4 - attackSpeed);

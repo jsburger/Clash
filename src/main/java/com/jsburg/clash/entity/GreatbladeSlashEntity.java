@@ -8,6 +8,7 @@ import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -76,10 +77,10 @@ public class GreatbladeSlashEntity extends Entity {
 
     @Nullable
     public Entity getOwner() {
-        if (this.ownerUUID != null && this.level instanceof ServerLevel) {
-            return ((ServerLevel)this.level).getEntity(this.ownerUUID);
+        if (this.ownerUUID != null && this.level() instanceof ServerLevel) {
+            return ((ServerLevel)this.level()).getEntity(this.ownerUUID);
         } else {
-            return this.ownerEntityId != 0 ? this.level.getEntity(this.ownerEntityId) : null;
+            return this.ownerEntityId != 0 ? this.level().getEntity(this.ownerEntityId) : null;
         }
     }
 
@@ -100,7 +101,7 @@ public class GreatbladeSlashEntity extends Entity {
 
             //Movement
             Vec3 nextPos = position().add(motion);
-            BlockHitResult raytrace = level.clip(
+            BlockHitResult raytrace = level().clip(
                     new ClipContext(centerPos, nextPos.add(0, yOff, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
             if (raytrace.getType() == HitResult.Type.MISS) {
                 this.moveTo(nextPos);
@@ -111,7 +112,7 @@ public class GreatbladeSlashEntity extends Entity {
 
         }
 
-        AttackHelper.makeParticleServer(level, AllParticles.GREATBLADE_SLASH, getBoundingBox().getCenter().add(motion.scale(.5)),
+        AttackHelper.makeParticleServer(level(), AllParticles.GREATBLADE_SLASH, getBoundingBox().getCenter().add(motion.scale(.5)),
                 //isExecutioner, isBlue, isFlipped
                 isExecutioner ? 1 : 0, hasThrumParticle, spriteFlip);
 
@@ -124,11 +125,13 @@ public class GreatbladeSlashEntity extends Entity {
         else {
             enemyChecker = (livingentity) -> !owner.isAlliedTo(livingentity);
         }
+        //Yeah
+        Level level = level();
         //Uhhhhh. Damage source.
         DamageSource damageSource = owner instanceof Player ?
-                DamageSource.playerAttack((Player) owner) :
-                owner == null ? DamageSource.thrown(this, null):
-                    DamageSource.mobAttack((LivingEntity) owner);
+                level.damageSources().playerAttack((Player) owner) :
+                owner == null ? level.damageSources().thrown(this, null):
+                        level.damageSources().mobAttack((LivingEntity) owner);
 
         for(LivingEntity livingentity : level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox())) {
             if (livingentity != owner && enemyChecker.apply(livingentity) && !hitEntities.contains(livingentity) && (!(livingentity instanceof ArmorStand) || !((ArmorStand) livingentity).isMarker())) {
@@ -208,9 +211,8 @@ public class GreatbladeSlashEntity extends Entity {
 
     }
 
-    //Copied from AbstractArrowEntity. Dunno why it isn't just on ProjectileEntity
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         Entity entity = this.getOwner();
         return new ClientboundAddEntityPacket(this, entity == null ? 0 : entity.getId());
     }

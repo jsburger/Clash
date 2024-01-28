@@ -62,12 +62,12 @@ public class ButcheryEnchantment extends ClashEnchantment {
     }
 
     public static void onHit(int level, LivingEntity target) {
-        if (!target.level.isClientSide) {
-            RandomSource rand = target.level.getRandom();
+        if (!target.level().isClientSide) {
+            RandomSource rand = target.level().getRandom();
             AABB bb = target.getBoundingBox();
             double l = bb.getSize();
             Vec3 pos = new Vec3((rand.nextDouble() - .5) * l, rand.nextDouble() * l + .5, (rand.nextDouble() - .5) * l);
-            AttackHelper.makeParticleServer((ServerLevel) target.level, AllParticles.BUTCHER_SPARK_EMITTER.get(), target.position().add(pos), Vec3.ZERO, 0);
+            AttackHelper.makeParticleServer((ServerLevel) target.level(), AllParticles.BUTCHER_SPARK_EMITTER.get(), target.position().add(pos), Vec3.ZERO, 0);
         }
     }
 

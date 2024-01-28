@@ -1,7 +1,6 @@
 {
     "pack": {
-        "description": "Clash resources",
-        "pack_format": 6,
-        "_comment": "Resources for Clash."
+        "description": "${mod_name} resources",
+        "pack_format": 15
     }
 }

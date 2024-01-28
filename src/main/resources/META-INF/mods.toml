@@ -1,24 +1,23 @@
 modLoader="javafml"
-loaderVersion="[35,)"
-license="All rights reserved"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
 issueTrackerURL="https://github.com/jsburger/Clash/issues"
 [[mods]]
-    modId="clash"
-    version="0.3"
-    displayName="Clash"
-    authors="Jsburg, RENREN, special thanks to Piggy"
-    description='''
-    AWESOME WEAPON MOD!!!
-    '''
-[[dependencies.clash]]
+    modId="${mod_id}"
+    namespace="${mod_id}"
+    version="${mod_version}"
+    displayName="Clash!"
+    authors="${mod_authors}"
+    description='''${mod_description}'''
+    displayURL=""
+[[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
-    versionRange="[35,)"
+    versionRange="${forge_version_range}"
     ordering="NONE"
-    side="BOTH"
-[[dependencies.clash]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19, 1.20)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"

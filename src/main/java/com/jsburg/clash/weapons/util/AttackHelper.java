@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,7 +50,7 @@ public class AttackHelper {
         playSound(player, sound, 1.0F, 1.0F);
     }
     public static void playSound(Entity player, SoundEvent sound, float volume, float pitch) {
-        player.level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, player.getSoundSource(), volume, pitch);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), sound, player.getSoundSource(), volume, pitch);
     }
 
     /**
@@ -65,7 +64,7 @@ public class AttackHelper {
         if (target instanceof EnderDragonPart) {
             target = ((EnderDragonPart)target).parentMob;
         }
-        if (!player.level.isClientSide && target instanceof LivingEntity) {
+        if (!player.level().isClientSide && target instanceof LivingEntity) {
             ItemStack copy = weapon.copy();
             weapon.hurtEnemy((LivingEntity) target, player);
             if (weapon.getItem() instanceof IHitListener) {
@@ -98,7 +97,7 @@ public class AttackHelper {
         }
         //Default value is 5, actual range is 3. Thus, -2.
         //In theory should be 3, but I like the idea of supporting reach distance bonuses.
-        return player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) - 2;
+        return player.getAttributeValue(ForgeMod.ENTITY_REACH.get()) - 2;
     }
 
     /**
@@ -110,15 +109,15 @@ public class AttackHelper {
         if (target instanceof LivingEntity) {
             lastHealth = ((LivingEntity) target).getHealth();
         }
-        target.hurt(DamageSource.playerAttack(player), damage);
+        target.hurt(player.level().damageSources().playerAttack(player), damage);
 
         if (target instanceof LivingEntity) {
             float healthDifference = lastHealth - ((LivingEntity) target).getHealth();
             player.awardStat(Stats.DAMAGE_DEALT, Math.round(healthDifference * 10));
 
-            if (player.level instanceof ServerLevel && healthDifference > 2.0F) {
+            if (player.level() instanceof ServerLevel && healthDifference > 2.0F) {
                 int k = (int)(healthDifference * 0.5D);
-                ((ServerLevel)player.level)
+                ((ServerLevel)player.level())
                         .sendParticles(
                                 ParticleTypes.DAMAGE_INDICATOR,
                                 target.getX(),

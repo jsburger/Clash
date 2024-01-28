@@ -45,7 +45,7 @@ public class JumpRodItem extends WeaponItem implements IThirdPersonArmController
             ItemStack rod = player.getUseItem();
 
             float chargePercent = Math.min((float) chargeTime / maxCharge, 1);
-            boolean doThrust = !(player.isShiftKeyDown()) && chargeTime > (minCharge) && player.isOnGround() && !player.isSwimming();
+            boolean doThrust = !(player.isShiftKeyDown()) && chargeTime > (minCharge) && player.onGround() && !player.isSwimming();
 
             if (doThrust) {
                 player.awardStat(Stats.ITEM_USED.get(this));

@@ -26,7 +26,7 @@ public class PlayerEvents {
 
             //Spawn screen shake particle
             Vec3 eyepos = player.position().add(0, player.getEyeHeight(), 0);
-            AttackHelper.makeParticle(target.level, AllParticles.SCREEN_SHAKER.get(),
+            AttackHelper.makeParticle(target.level(), AllParticles.SCREEN_SHAKER.get(),
                     target.position().add(eyepos).scale(.5),
                     //Intensity base, Shake duration, Intensity falloff distance
                     (1 + retaliation.getAmplifier()) * .5, 2 + retaliation.getAmplifier() * 2, 12

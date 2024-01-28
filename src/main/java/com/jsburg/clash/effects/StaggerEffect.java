@@ -13,7 +13,7 @@ public class StaggerEffect extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entityLivingBaseIn, int amplifier) {
-        if (entityLivingBaseIn.isOnGround()) {
+        if (entityLivingBaseIn.onGround()) {
             Vec3 motion = entityLivingBaseIn.getDeltaMovement();
             Vec3 look = MiscHelper.extractHorizontal(entityLivingBaseIn.getViewVector(1)).scale(-1);
             float movespeed = entityLivingBaseIn.getSpeed();

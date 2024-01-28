@@ -2,7 +2,7 @@ package com.jsburg.clash.registry;
 
 import com.jsburg.clash.Clash;
 import com.jsburg.clash.entity.GreatbladeSlashEntity;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +19,7 @@ public class MiscRegistry {
     public static final TagKey<EntityType<?>> PORKY = makeEntityTypeTag("porky_entities");
 
     private static TagKey<EntityType<?>> makeEntityTypeTag(String id) {
-        return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation(Clash.MOD_ID,id));
+        return TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(Clash.MOD_ID,id));
     }
 
     //ENTITY TYPES

@@ -163,7 +163,7 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
                     Entity target = rayTraceResult.getEntity();
                     Vec3 hitLocation = rayTraceResult.getLocation();
 
-                    BlockHitResult blockRayTraceResult = player.level.clip(new ClipContext(eyePos, hitLocation, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+                    BlockHitResult blockRayTraceResult = player.level().clip(new ClipContext(eyePos, hitLocation, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
                     if (blockRayTraceResult.getType() == HitResult.Type.MISS) {
 
                         //Server side logic time

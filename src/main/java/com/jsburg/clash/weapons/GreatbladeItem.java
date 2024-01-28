@@ -8,7 +8,6 @@ import com.jsburg.clash.util.MiscHelper;
 import com.jsburg.clash.util.TextHelper;
 import com.jsburg.clash.weapons.util.*;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
@@ -18,7 +17,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -29,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -39,6 +38,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.jsburg.clash.registry.AllEnchantments.*;
+import static com.jsburg.clash.util.MiscHelper.rotateX;
 
 public class GreatbladeItem extends WeaponItem implements IThirdPersonArmController, IThirdPersonRenderHook, IHitListener, IActiveResetListener {
 
@@ -121,8 +121,8 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
-    public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
-        super.onUsingTick(stack, player, count);
+    public void onUseTick(Level level, LivingEntity player, ItemStack stack, int count) {
+        super.onUseTick(level, player, stack, count);
         if (hasSailing(stack)) {
             float n = getUseDuration(stack) - count;
             float speed = 1;
@@ -139,7 +139,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 player.setDeltaMovement(accel.x, player.getDeltaMovement().y, accel.z);
 //            player.addVelocity(accel.x, 0, accel.z);
                 if (n % 2 == 0)
-                    AttackHelper.makeParticleServer(player.level, AllParticles.SAILING_TRAIL, player.position().add(0, 1, 0));
+                    AttackHelper.makeParticleServer(level, AllParticles.SAILING_TRAIL, player.position().add(0, 1, 0));
             }
             if (n > 15) {
                 player.releaseUsingItem();
@@ -301,10 +301,9 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
     }
 
     @Override
-    public <T extends LivingEntity, M extends EntityModel<T> & ArmedModel> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack, ItemTransforms.TransformType transformType, HumanoidArm side, PoseStack poseStack, MultiBufferSource renderBuffer, int light) {
+    public <T extends LivingEntity, M extends EntityModel<T> & ArmedModel> boolean onThirdPersonRender(M model, LivingEntity entity, ItemStack itemStack, ItemDisplayContext context, HumanoidArm side, PoseStack poseStack, MultiBufferSource renderBuffer, int light) {
 
-        if (entity instanceof Player) {
-            Player player = (Player) entity;
+        if (entity instanceof Player player) {
             InteractionHand swordHand = MiscHelper.getHandFromSide(player, side);
             ItemAnimator.ItemAnimation animation = ItemAnimator.getAnimation(GreatbladeThirdPersonAnimation.class, player, swordHand);
             if (animation != null) {
@@ -312,7 +311,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
                 float pi = (float) Math.PI;
                 float sineProgress = (float)Math.sin(progress * pi);
 
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(sineProgress * 180));
+                rotateX(poseStack, sineProgress * 180);
                 poseStack.translate(0, sineProgress * .25, sineProgress * -.25);
             }
         }

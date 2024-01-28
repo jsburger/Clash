@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
-  "loader": "forge:separate-perspective",
+  "loader": "forge:separate_transforms",
   "textures": {
     "layer0": "clash:item/greatblade"
   },

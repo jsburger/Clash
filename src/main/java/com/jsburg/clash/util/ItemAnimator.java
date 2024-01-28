@@ -83,7 +83,7 @@ public class ItemAnimator {
 
         public boolean isValid() {
             boolean isAlive = boundEntity.isAlive();
-            boolean stackCheck = ItemStack.isSame(boundEntity.getItemInHand(heldHand), boundItem);
+            boolean stackCheck = ItemStack.matches(boundEntity.getItemInHand(heldHand), boundItem);
             return (isAlive && stackCheck);
         }
     }
