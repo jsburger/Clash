@@ -126,7 +126,7 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         if (hasSailing(stack)) {
             float n = getUseDuration(stack) - count;
             float speed = 1;
-            if (player instanceof LocalPlayer) {
+            if (level.isClientSide()) {
                 LocalPlayer client = (LocalPlayer) player;
                 Input input = client.input;
 
