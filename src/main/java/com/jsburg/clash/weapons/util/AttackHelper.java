@@ -23,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
@@ -91,13 +90,14 @@ public class AttackHelper {
      * Gets player's attack range from their reach distance, accounting for the weird math done during targeting.
      */
     public static double getAttackRange(Player player) {
-        if (player.isCreative()) {
-            //This *should* be 6, but it doesn't act that way. Who knows why.
-            return 5;
-        }
-        //Default value is 5, actual range is 3. Thus, -2.
-        //In theory should be 3, but I like the idea of supporting reach distance bonuses.
-        return player.getAttributeValue(ForgeMod.ENTITY_REACH.get()) - 2;
+        return player.getEntityReach();
+//        if (player.isCreative()) {
+//            //This *should* be 6, but it doesn't act that way. Who knows why.
+//            return 5;
+//        }
+//        //Default value is 5, actual range is 3. Thus, -2.
+//        //In theory should be 3, but I like the idea of supporting reach distance bonuses.
+//        return player.getAttributeValue(ForgeMod.ENTITY_REACH.get()) - 2;
     }
 
     /**
