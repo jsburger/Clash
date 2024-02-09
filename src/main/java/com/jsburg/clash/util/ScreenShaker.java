@@ -1,5 +1,6 @@
 package com.jsburg.clash.util;
 
+import com.jsburg.clash.registry.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ViewportEvent;
 
@@ -45,6 +46,7 @@ public class ScreenShaker {
     }
 
     public static void setScreenShake(int time, double intensity) {
+        if (Config.SCREENSHAKE_MULTIPLIER.get() <= 0) return;
         ShakeTime = time;
         Intensity = intensity;
     }
@@ -55,12 +57,13 @@ public class ScreenShaker {
 
     public static void applyScreenShake(double partialTicks, ViewportEvent.ComputeCameraAngles event) {
         if (ShakeTime > 0) {
+            double strength = Config.SCREENSHAKE_MULTIPLIER.get();
             //TODO: Try 1 - partialTicks
             double lerp = partialTicks;
             double x = LastX + (ShakeX - LastX) * lerp;
             double y = LastY + (ShakeY - LastY) * lerp;
-            event.setPitch((float) (event.getPitch() + y * 5));
-            event.setRoll((float) (event.getRoll() + x * 5));
+            event.setPitch((float) ((event.getPitch() + y * 5) * strength));
+            event.setRoll((float) ((event.getRoll() + x * 5) * strength));
 //            renderInfo.movePosition(0, y * mc.gameSettings.screenEffectScale, x * mc.gameSettings.screenEffectScale);
         }
 
