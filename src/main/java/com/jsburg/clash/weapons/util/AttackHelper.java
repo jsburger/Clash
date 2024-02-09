@@ -96,9 +96,7 @@ public class AttackHelper {
             //This *should* be 6, but it doesn't act that way. Who knows why.
             return 5;
         }
-        //Default value is 5, actual range is 3. Thus, -2.
-        //In theory should be 3, but I like the idea of supporting reach distance bonuses.
-        return player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) - 2;
+        return player.getAttributeValue(ForgeMod.ATTACK_RANGE.get());
     }
 
     /**

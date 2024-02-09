@@ -112,6 +112,8 @@ public class ClientEvents {
                 double chargeOver = ((useTime + event.getPartialTick()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
+                    double n = Math.sin((player.tickCount + event.getPartialTick()) * 1.3) * .005 * chargePercent;
+                    event.getPoseStack().translate(0, n, 0);
                     event.getPoseStack().translate(0, 0, .1 * chargeOver);
                 }
             }
