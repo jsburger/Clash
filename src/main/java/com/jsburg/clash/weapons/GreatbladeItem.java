@@ -126,13 +126,13 @@ public class GreatbladeItem extends WeaponItem implements IThirdPersonArmControl
         if (hasSailing(stack)) {
             float n = getUseDuration(stack) - count;
             float speed = 1;
-            if (level.isClientSide()) {
-                LocalPlayer client = (LocalPlayer) player;
-                Input input = client.input;
+            if (level.isClientSide()) { //Use this to get around server not having client classes
+                if (player instanceof LocalPlayer client) { //Remember: Local Player != Remote Player
+                    Input input = client.input;
 
-                if (input.up) speed += .5;
-                if (input.down) speed -= .5;
-
+                    if (input.up) speed += .5;
+                    if (input.down) speed -= .5;
+                }
             }
             Vec3 accel = MiscHelper.extractHorizontal(player.getViewVector(1)).scale(speed/((n + 2) /3));
             if (n < 10) {
