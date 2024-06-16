@@ -18,9 +18,9 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-mixin {
-    add sourceSets.main, mod_id+".refmap.json"
-}
+//mixin {
+//    add sourceSets.main, mod_id+".refmap.json"
+//}
 
 //Old
 //minecraft {
@@ -30,7 +30,6 @@ mixin {
 //}
 //New, I think. I'm not sure where mappings went.
 minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
-minecraft.copyIdeResources = true
 // Default run configurations.
 // These can be tweaked, removed, or duplicated as needed.
 runs {
@@ -41,7 +40,7 @@ runs {
         systemProperty 'forge.logging.markers', ''
         systemProperty 'forge.logging.console.level', 'debug'
 
-        programArgument "--mixin="+project.mod_id+".mixins.json"
+        //programArgument "--mixin="+project.mod_id+".mixins.json"
         modSource project.sourceSets.main
 //        mods {
 //            "${mod_id}" {
@@ -65,7 +64,8 @@ runs {
 
     data {
         systemProperty 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-        programArgument '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
