@@ -1,7 +1,5 @@
 package com.jsburg.clash.event;
 
-import com.jsburg.clash.Clash;
-import com.jsburg.clash.registry.AllParticles;
 import com.jsburg.clash.util.Easing;
 import com.jsburg.clash.util.ItemAnimator;
 import com.jsburg.clash.util.ScreenShaker;
@@ -12,42 +10,30 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 
 import static com.jsburg.clash.util.MiscHelper.*;
 import static com.jsburg.clash.weapons.GreatbladeItem.hasExecutioner;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-@Mod.EventBusSubscriber(modid = Clash.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
 
     private static boolean needsPop = false;
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
-        AllParticles.registerParticleFactories();
-    }
-
     //All the events below this are set up with listeners in Client setup
 
-    public static void doClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            ScreenShaker.tick();
-            ItemAnimator.tick();
-        }
+    public static void doClientTick(ClientTickEvent.Pre event) {
+        ScreenShaker.tick();
+        ItemAnimator.tick();
     }
 
     public static void doCameraStuff(ViewportEvent.ComputeCameraAngles event) {
