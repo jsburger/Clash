@@ -37,7 +37,7 @@ public class BillhookItem extends SpearItem {
     @Override
     public int getMaxCharge(ItemStack stack) {
         int spearMax = super.getMaxCharge(stack);
-        return Math.max(spearMax - 5, 3);
+        return Math.max(spearMax - 4, 3);
     }
 
     @Override

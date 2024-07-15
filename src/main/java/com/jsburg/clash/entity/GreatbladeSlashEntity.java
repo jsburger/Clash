@@ -123,7 +123,7 @@ public class GreatbladeSlashEntity extends Entity {
             enemyChecker = (a) -> true;
         }
         else {
-            enemyChecker = (livingentity) -> !owner.isAlliedTo(livingentity);
+            enemyChecker = (livingentity) -> AttackHelper.teamHitCheck(owner, livingentity);
         }
         //Yeah
         Level level = level();

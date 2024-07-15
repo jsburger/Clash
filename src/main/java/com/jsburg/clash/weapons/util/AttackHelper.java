@@ -200,6 +200,14 @@ public class AttackHelper {
         return player.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
     }
 
+    public static boolean teamHitCheck(Entity player, Entity entity) {
+        var team = player.getTeam();
+        if (team != null) {
+            if (team.isAllowFriendlyFire()) return true;
+        }
+        return !player.isAlliedTo(entity);
+
+    }
     /**
      * Does the normal entity raytrace but instead of adding .3 to size, it uses entity motion to make hitting easier.
      * Edited from vanilla code.
@@ -211,8 +219,8 @@ public class AttackHelper {
         Vec3 hitVec = null;
 
         for(Entity target : worldIn.getEntities(projectile, boundingBox, filter)) {
-            Vec3 targetMotion = target.getDeltaMovement().scale(.5f);
-            AABB entityBox = target.getBoundingBox().expandTowards(targetMotion).expandTowards(targetMotion.reverse());
+            Vec3 targetMotion = target.getDeltaMovement();
+            AABB entityBox = target.getBoundingBox().expandTowards(targetMotion).expandTowards(targetMotion.reverse()).inflate(.2);
             Optional<Vec3> optional = entityBox.clip(startVec, endVec);
 
             if (optional.isPresent()) {

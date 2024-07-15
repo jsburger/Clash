@@ -103,13 +103,15 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
 
     public int getMaxCharge(ItemStack stack) {
         if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 3;
-        return 20;
+        return 17;
     }
 
     public int getMinCharge(ItemStack stack) {
         if (EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.JAB.get(), stack) > 0) return 0;
         return 10 - EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.FLURRY.get(), stack);
     }
+
+    public static int critThreshold = 3;
 
     protected void onStabHit(ItemStack stack, Player player, LivingEntity target, float chargePercent) {
         Vec3 look = player.getLookAngle();
@@ -176,7 +178,7 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
                             boolean canAttack = AttackHelper.fullAttackEntityCheck(player, target);
                             if (canAttack) {
                                 float damage = (float) AttackHelper.getAttackDamage(spear, player, EquipmentSlot.MAINHAND);
-                                if (canStabCrit(stack) && chargeTime > getMaxCharge(stack) - 4) damage *= AttackHelper.getCrit(player, target, true);
+                                if (canStabCrit(stack) && chargeTime > getMaxCharge(stack) - critThreshold) damage *= AttackHelper.getCrit(player, target, true);
                                 player.resetAttackStrengthTicker();
 
                                 //Sweet Spot check, works by comparing the distance from the furthest point of the attack to the point of contact
@@ -202,13 +204,16 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
 
                             }
                             player.causeFoodExhaustion(0.2f);
+
                         }
                     }
                 }
 
                 AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
-                AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
-
+                //AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
+                if (!worldIn.isClientSide) {
+                    AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
+                }
             }
         }
     }

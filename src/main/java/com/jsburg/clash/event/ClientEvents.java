@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import static com.jsburg.clash.util.MiscHelper.*;
 import static com.jsburg.clash.weapons.GreatbladeItem.hasExecutioner;
+import static com.jsburg.clash.weapons.SpearItem.critThreshold;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -109,7 +110,7 @@ public class ClientEvents {
                 PoseStack stack = event.getPoseStack();
                 rotate(stack, xAngle, yAngle, zAngle);
 
-                double chargeOver = ((useTime + event.getPartialTick()) - (chargeGetter.getMaxCharge(event.getItemStack()) - 4)) / 4;
+                double chargeOver = ((useTime + event.getPartialTick()) - (chargeGetter.getMaxCharge(event.getItemStack()) - critThreshold)) / critThreshold;
                 chargeOver = pow(Math.max(0, Math.min(1, chargeOver)), 2);
                 if (chargeOver > 0) {
                     double n = Math.sin((player.tickCount + event.getPartialTick()) * 1.3) * .005 * chargePercent;
