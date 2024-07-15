@@ -53,7 +53,7 @@ import java.util.function.Predicate;
 public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPersonArmController {
 
     private static final Vec3 UP = new Vec3(0, 1, 0);
-    private static final float stabLengthBonus = 2.5f;
+    protected float stabLengthBonus = 2.5f;
     private static final float sweetSpotSize = 2.5f;
     private final List<Multimap<Attribute, AttributeModifier>> flurryAttributes;
 
@@ -209,12 +209,17 @@ public class SpearItem extends WeaponItem implements ISpearAnimation, IThirdPers
                     }
                 }
 
-                AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
-                //AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
-                if (!worldIn.isClientSide) {
-                    AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
-                }
+                doStabEffect(player, worldIn, endPos, side);
             }
+        }
+    }
+
+    protected void doStabEffect(Player player, Level worldIn, Vec3 endPos, Vec3 sidePos) {
+        AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
+        //AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
+        if (!worldIn.isClientSide) {
+            var look = player.getLookAngle();
+            AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_STAB.get(), sidePos.add(look), sidePos.vectorTo(endPos), 1.4);
         }
     }
 

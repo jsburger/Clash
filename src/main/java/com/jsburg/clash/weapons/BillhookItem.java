@@ -1,9 +1,12 @@
 package com.jsburg.clash.weapons;
 
+import com.jsburg.clash.registry.AllParticles;
+import com.jsburg.clash.registry.AllSounds;
 import com.jsburg.clash.weapons.util.AttackHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -53,5 +56,15 @@ public class BillhookItem extends SpearItem {
     @Override
     protected boolean canStabCrit(ItemStack stack) {
         return super.canStabCrit(stack);
+    }
+
+    @Override
+    protected void doStabEffect(Player player, Level worldIn, Vec3 endPos, Vec3 sidePos) {
+        AttackHelper.playSound(player, AllSounds.WEAPON_SPEAR_STAB.get());
+        //AttackHelper.makeParticle(player.getCommandSenderWorld(), AllParticles.SPEAR_STAB.get(), side.add(look), side.vectorTo(endPos), 1.4);
+        if (!worldIn.isClientSide) {
+            var look = player.getLookAngle();
+            AttackHelper.makeParticleServer((ServerLevel) worldIn, AllParticles.SPEAR_STAB.get(), endPos, endPos.vectorTo(sidePos), 1.4);
+        }
     }
 }

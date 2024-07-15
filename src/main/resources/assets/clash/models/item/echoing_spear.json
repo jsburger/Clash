@@ -1,0 +1,6 @@
+{
+  "parent": "clash:item/spear",
+  "textures": {
+    "layer0": "clash:item/echoing_spear"
+  }
+}

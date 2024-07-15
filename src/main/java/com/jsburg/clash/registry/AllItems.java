@@ -22,12 +22,14 @@ public class AllItems {
 
     public static final RegistryObject<Item> SPEAR = register("spear", () -> new SpearItem(5, 2.0F, (new Item.Properties()).durability(852)));
     public static final RegistryObject<Item> BILLHOOK = register("billhook", () -> new BillhookItem(5, 2.0F, (new Item.Properties()).durability(852)));
+    public static final RegistryObject<Item> ECHOING_SPEAR = register("echoing_spear", () -> new EchoSpearItem(5, 2, (new Item.Properties()).durability(932)));
     public static final RegistryObject<Item> SWEPT_AXE = register("swept_axe", () -> new SweptAxeItem(6, 0.9F, (new Item.Properties()).durability(650)));
     public static final RegistryObject<Item> SWEPT_AXE_HEAD = register("swept_axe_head", () -> new Item(new Item.Properties().stacksTo(1)), CreativeModeTabs.INGREDIENTS);
     public static final RegistryObject<Item> GREATBLADE = register("greatblade", () -> new GreatbladeItem(5, 0.8F,
             (new Item.Properties()).durability(896)));
     public static final RegistryObject<Item> ROD_OF_GALES = register("rod_of_gales", () -> new JumpRodItem(2, 2.0F, (new Item.Properties()).durability(612)));
     //Rescue rod
+    //Rewind rod
 
     public static void registerItemProperties() {
         ItemProperties.register(GREATBLADE.get(), new ResourceLocation(Clash.MOD_ID, "has_thrum"),
