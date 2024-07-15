@@ -9,7 +9,5 @@
   "result": {
     "item": "clash:billhook"
   },
-  "template": {
-    "item": "minecraft:tripwire_hook"
-  }
+  "template": []
 }
